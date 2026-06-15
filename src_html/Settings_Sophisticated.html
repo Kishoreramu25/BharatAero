@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Account Settings - MISD DronePilot</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#dde5dc",
+                        "tertiary-fixed": "#d7e6e2",
+                        "error": "#ba1a1a",
+                        "on-surface": "#1b1c1b",
+                        "on-secondary-fixed-variant": "#93000a",
+                        "surface-container-highest": "#e5e2e0",
+                        "on-tertiary-fixed-variant": "#3c4a47",
+                        "on-primary-fixed": "#161d18",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#444844",
+                        "surface-container-high": "#eae8e6",
+                        "on-tertiary-fixed": "#111e1c",
+                        "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f3f0ef",
+                        "secondary": "#bb0011",
+                        "on-background": "#1b1c1b",
+                        "inverse-primary": "#c1c8c0",
+                        "on-secondary-container": "#fffbff",
+                        "surface-bright": "#fcf9f7",
+                        "secondary-fixed": "#ffdad6",
+                        "primary-container": "#171e19",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed-dim": "#bbcac6",
+                        "surface-container": "#f0edec",
+                        "on-error-container": "#93000a",
+                        "background": "#fcf9f7",
+                        "surface": "#fcf9f7",
+                        "primary": "#000201",
+                        "surface-dim": "#dcd9d8",
+                        "outline-variant": "#c4c7c2",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#410002",
+                        "primary-fixed-dim": "#c1c8c0",
+                        "secondary-fixed-dim": "#ffb4ab",
+                        "on-tertiary-container": "#798884",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#000202",
+                        "secondary-container": "#e42022",
+                        "outline": "#747874",
+                        "on-primary-container": "#7f867f",
+                        "inverse-surface": "#313030",
+                        "surface-tint": "#59605a",
+                        "tertiary-container": "#121f1d",
+                        "on-primary-fixed-variant": "#414943",
+                        "surface-container-low": "#f6f3f1",
+                        "surface-variant": "#e5e2e0",
+                        "brand-gray-green": "#b7c6c2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-padding-mobile": "20px",
+                        "stack-md": "24px",
+                        "gutter": "24px",
+                        "base": "8px",
+                        "container-padding-desktop": "40px",
+                        "stack-sm": "12px",
+                        "stack-lg": "48px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Nunito Sans"],
+                        "headline-lg-mobile": ["Nunito Sans"],
+                        "label-sm": ["Nunito Sans"],
+                        "headline-md": ["Nunito Sans"],
+                        "body-md": ["Nunito Sans"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "900"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "900"}],
+                        "label-sm": ["10px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                        "headline-md": ["20px", {"lineHeight": "1.3", "fontWeight": "800"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+            background-color: #fcf9f7;
+            color: #1b1c1b;
+        }
+        .signature-shadow {
+            box-shadow: 0 20px 50px -12px rgba(23, 30, 25, 0.08);
+        }
+        .custom-border {
+            border: 1px solid rgba(183, 198, 194, 0.25);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .active-pill {
+            background-color: rgba(187, 0, 17, 0.1);
+        }
+        /* Custom Toggle Switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            background-color: #ca0013;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: rgba(202, 0, 19, 0.2);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen pb-32">
+<!-- Top App Bar -->
+<header class="w-full top-0 sticky z-50 bg-surface dark:bg-surface-dim border-b border-outline-variant/20 flex items-center justify-between px-container-padding-mobile h-16">
+<div class="flex items-center gap-4">
+<button class="active:scale-95 duration-150 p-2 hover:bg-surface-container-low transition-colors rounded-full">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-primary">Account Settings</h1>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant/30">
+<img alt="Alex Rivers" class="w-full h-full object-cover" data-alt="A professional close-up studio portrait of a confident male drone pilot with a friendly expression. He is wearing modern tactical gear in a minimalist white studio. The lighting is soft and high-key, creating a clean, sophisticated medical-tech aesthetic with subtle shadows. The color palette is neutral with high-intensity red accents in the background details." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBv8-2N8bwau4QcurYEg_MwD31lzbtsyxUHHJhbn5bg9LW-1Yp5bhNepzl2HazAs7_HKHqH8xZqC5Qi_bryqcBbIxjaexP95N9ce-X-DYzGfJiGpdMvzBw6nE5HhSnb1th4yVXLuEi1fTP87tNQeLNxi6qJMGsazEBa5G-2s5f7FZ-NWKU-EXOuudZhBlhiAzOiqxxSq2-LB9m8Uu8_XMEfT-3xV0yi6VgJkVc7MH9LQRVfDJUBhYlwwnNdN1UXgjzAvWkHNzo0Ydo"/>
+</div>
+</header>
+<main class="max-w-[1200px] mx-auto px-container-padding-mobile md:px-container-padding-desktop mt-stack-md flex flex-col gap-stack-lg">
+<!-- Profile Summary Header Card -->
+<section class="bg-surface-container-lowest rounded-xl p-8 signature-shadow custom-border flex flex-col md:flex-row items-center gap-6">
+<div class="w-24 h-24 rounded-full overflow-hidden border-4 border-primary-fixed">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="A high-quality profile photograph of a tech professional in a bright, minimalist office environment. The subject is a male with a clean-cut look, wearing a sleek black polo shirt. The background is softly blurred with hints of high-tech equipment and lush indoor plants. The overall mood is professional, calm, and trustworthy, matching a premium health-tech design system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcXF4Vyef0mrevCgbrbPyWRKnuDJSZHGbaNB1k7ulmZRjQz1_OqjfpyjWBGOUqzkYundhNnJ2ts0Qf_a20oXgLoTQjrha9_EVbEI_99J9JKA3NdrAdmeL6j27rNaUe77G_oHRUHJvYJORUMPcM62u-nCh8S3vehIjQdqykcSq-AgFAnbxmJ7HJZQKbFVAMdyk_zU-xlUq8NBAq-Q0S5YFMHI-ASbK4Xc5g3qK6cNjXWu8ARmMHXchQM3JKNgAAoQiwcmwCD4eUAgM"/>
+</div>
+<div class="text-center md:text-left flex-1">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-primary">Alex Rivers</h2>
+<p class="text-brand-gray-green font-bold text-label-sm uppercase tracking-widest mt-1">Certified Pilot • 4.98 Rating</p>
+<div class="mt-2 inline-flex items-center px-3 py-1 bg-tertiary-fixed rounded-full text-on-tertiary-fixed font-bold text-[12px]">
+<span class="material-symbols-outlined text-[16px] mr-1" style="font-variation-settings: 'FILL' 1;">verified</span>
+                    Premium Member
+                </div>
+</div>
+<button class="w-full md:w-auto px-6 py-3 bg-secondary text-on-secondary rounded-xl font-bold active:scale-95 transition-transform">
+                Edit Profile
+            </button>
+</section>
+<!-- Profile & Security -->
+<section class="flex flex-col gap-stack-sm">
+<h3 class="font-headline-md text-headline-md text-primary ml-2 mb-2">Profile &amp; Security</h3>
+<div class="bg-surface-container-lowest rounded-xl signature-shadow custom-border overflow-hidden">
+<div class="flex items-center justify-between p-6 hover:bg-surface-container-low transition-colors cursor-pointer border-b border-brand-gray-green/10">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">person</span>
+</div>
+<div>
+<p class="font-bold text-primary">Personal Information</p>
+<p class="text-sm text-brand-gray-green">Manage your name, email, and ID</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+<div class="flex items-center justify-between p-6 hover:bg-surface-container-low transition-colors cursor-pointer border-b border-brand-gray-green/10">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">lock</span>
+</div>
+<div>
+<p class="font-bold text-primary">Change Password</p>
+<p class="text-sm text-brand-gray-green">Update your security credentials</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+<div class="flex items-center justify-between p-6 hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">security</span>
+</div>
+<div>
+<p class="font-bold text-primary">Two-Factor Authentication</p>
+<p class="text-sm text-brand-gray-green">Extra layer of protection</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Preferences -->
+<section class="flex flex-col gap-stack-sm">
+<h3 class="font-headline-md text-headline-md text-primary ml-2 mb-2">Preferences</h3>
+<div class="bg-surface-container-lowest rounded-xl signature-shadow custom-border overflow-hidden">
+<div class="flex items-center justify-between p-6 border-b border-brand-gray-green/10">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">notifications</span>
+</div>
+<div>
+<p class="font-bold text-primary">Push Notifications</p>
+<p class="text-sm text-brand-gray-green">Mission updates and alerts</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-brand-gray-green/30 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between p-6 border-b border-brand-gray-green/10">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">language</span>
+</div>
+<div>
+<p class="font-bold text-primary">Language</p>
+<p class="text-sm text-brand-gray-green">English (US)</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">expand_more</span>
+</div>
+<div class="flex items-center justify-between p-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">dark_mode</span>
+</div>
+<div>
+<p class="font-bold text-primary">Theme</p>
+<p class="text-sm text-brand-gray-green">Light Mode</p>
+</div>
+</div>
+<div class="flex bg-surface-container p-1 rounded-full">
+<button class="px-4 py-1 bg-white rounded-full text-xs font-bold shadow-sm">Light</button>
+<button class="px-4 py-1 text-xs font-bold text-brand-gray-green">Dark</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Legal & Support -->
+<section class="flex flex-col gap-stack-sm">
+<h3 class="font-headline-md text-headline-md text-primary ml-2 mb-2">Legal &amp; Support</h3>
+<div class="bg-surface-container-lowest rounded-xl signature-shadow custom-border overflow-hidden">
+<a class="flex items-center justify-between p-6 hover:bg-surface-container-low transition-colors border-b border-brand-gray-green/10" href="#">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">policy</span>
+</div>
+<p class="font-bold text-primary">Privacy Policy</p>
+</div>
+<span class="material-symbols-outlined text-outline">open_in_new</span>
+</a>
+<a class="flex items-center justify-between p-6 hover:bg-surface-container-low transition-colors border-b border-brand-gray-green/10" href="#">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">description</span>
+</div>
+<p class="font-bold text-primary">Terms of Service</p>
+</div>
+<span class="material-symbols-outlined text-outline">open_in_new</span>
+</a>
+<a class="flex items-center justify-between p-6 hover:bg-surface-container-low transition-colors" href="#">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">support_agent</span>
+</div>
+<p class="font-bold text-primary">Contact Support</p>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</a>
+</div>
+</section>
+<!-- Account Actions -->
+<section class="flex flex-col gap-stack-sm mt-stack-sm">
+<button class="w-full bg-white border-2 border-secondary text-secondary font-black py-5 rounded-xl transition-all active:scale-[0.98] active:bg-secondary/5 font-headline-md text-headline-md">
+                Logout
+            </button>
+<p class="text-center text-brand-gray-green font-bold text-label-sm uppercase tracking-widest mt-4">
+                App Version 2.4.0 (Build 892)
+            </p>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-lg bg-surface dark:bg-surface-container-lowest shadow-[0_-10px_40px_-15px_rgba(23,30,25,0.08)] flex justify-around items-center h-20 pb-safe px-4">
+<div class="flex flex-col items-center justify-center text-on-surface-variant opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined">search</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Explore</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined">target</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Missions</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Chat</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Earnings</span>
+</div>
+<div class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim bg-secondary-fixed/10 rounded-xl px-3 py-1 cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Profile</span>
+</div>
+</nav>
+<script>
+        // Simple micro-interaction for toggles
+        document.querySelectorAll('input[type="checkbox"]').forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                this.parentElement.parentElement.classList.toggle('bg-surface-container-low', this.checked);
+            });
+        });
+
+        // Hover effect for setting items
+        document.querySelectorAll('.cursor-pointer').forEach(item => {
+            item.addEventListener('mousedown', () => {
+                item.style.transform = 'scale(0.99)';
+            });
+            item.addEventListener('mouseup', () => {
+                item.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body></html>

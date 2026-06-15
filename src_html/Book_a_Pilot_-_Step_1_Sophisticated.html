@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DronePilot - Service Selection</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#f6f3f1",
+                    "on-tertiary-fixed": "#111e1c",
+                    "surface-bright": "#fcf9f7",
+                    "on-primary-fixed-variant": "#414943",
+                    "error-container": "#ffdad6",
+                    "primary-container": "#171e19",
+                    "on-secondary-container": "#fffbff",
+                    "surface-dim": "#dcd9d8",
+                    "primary-fixed-dim": "#c1c8c0",
+                    "tertiary-fixed": "#d7e6e2",
+                    "surface-container": "#f0edec",
+                    "secondary-container": "#e42022",
+                    "primary": "#000201",
+                    "on-surface-variant": "#444844",
+                    "on-error": "#ffffff",
+                    "surface": "#fcf9f7",
+                    "surface-variant": "#e5e2e0",
+                    "surface-tint": "#59605a",
+                    "secondary": "#bb0011",
+                    "tertiary-container": "#121f1d",
+                    "surface-container-highest": "#e5e2e0",
+                    "inverse-primary": "#c1c8c0",
+                    "on-tertiary-container": "#798884",
+                    "on-secondary-fixed-variant": "#93000a",
+                    "outline": "#747874",
+                    "outline-variant": "#c4c7c2",
+                    "on-surface": "#1b1c1b",
+                    "on-secondary-fixed": "#410002",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-high": "#eae8e6",
+                    "secondary-fixed-dim": "#ffb4ab",
+                    "on-background": "#1b1c1b",
+                    "on-secondary": "#ffffff",
+                    "inverse-on-surface": "#f3f0ef",
+                    "background": "#fcf9f7",
+                    "on-primary-container": "#7f867f",
+                    "secondary-fixed": "#ffdad6",
+                    "on-primary-fixed": "#161d18",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed-dim": "#bbcac6",
+                    "tertiary": "#000202",
+                    "primary-fixed": "#dde5dc",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed-variant": "#3c4a47",
+                    "inverse-surface": "#313030"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-padding-desktop": "40px",
+                    "base": "8px",
+                    "stack-md": "24px",
+                    "stack-lg": "48px",
+                    "gutter": "24px",
+                    "container-padding-mobile": "20px",
+                    "stack-sm": "12px"
+            },
+            "fontFamily": {
+                    "label-sm": ["Nunito Sans"],
+                    "headline-md": ["Nunito Sans"],
+                    "headline-lg-mobile": ["Nunito Sans"],
+                    "headline-lg": ["Nunito Sans"],
+                    "body-md": ["Nunito Sans"]
+            },
+            "fontSize": {
+                    "label-sm": ["10px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                    "headline-md": ["20px", {"lineHeight": "1.3", "fontWeight": "800"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "900"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "900"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .service-card-shadow {
+            box-shadow: 0 20px 50px -12px rgba(23, 30, 25, 0.08);
+        }
+        .service-card-border {
+            border: 1px solid rgba(183, 198, 194, 0.25);
+        }
+        .active-service-card {
+            border: 2px solid #ca0013 !important;
+            transform: translateY(-4px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-surface docked full-width top-0 z-50">
+<div class="flex justify-between items-center px-container-padding-mobile md:px-container-padding-desktop h-16 w-full">
+<div class="flex items-center gap-4">
+<button class="hover:opacity-80 transition-opacity material-symbols-outlined text-primary scale-95 active:scale-90 transition-transform">close</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-extrabold text-primary">DronePilot</h1>
+</div>
+<div class="flex items-center gap-base">
+<span class="text-on-surface-variant font-label-sm uppercase tracking-widest hidden md:block">Step 1 of 4</span>
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border border-outline-variant/30">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmPREfc7Sd-dzBLM9nhoDD_XLelNb_TWkvgzir2jQ81Dbn8hycrD4deTsKaCm7Kor5BScNFnW-A3MUkJEKt_qd3OILeVJ3c6e7EQFhKwWBZ9MfHiMGbIYsGDQeAhcgjujNwPjZ2cEDL6iogxgHKsLjJBXR6ArYOh4eMbWFPa3xlTw8xmZxyg0mYIPYFymRoEprn0kbAMktuKwwPLlvfHVel-yhsaRAb5LkxxbIw8-ud47pP8ZWYaL-BPpkU9SwPVWYhXfsGHmUn00"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-[1200px] mx-auto px-container-padding-mobile md:px-container-padding-desktop py-stack-lg">
+<section class="mb-stack-lg">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-2">Book a Mission</h2>
+<p class="text-on-surface-variant font-body-md max-w-2xl">Select the type of professional drone service you require. Each mission is handled by FAA-certified pilots with specialized hardware.</p>
+</section>
+<!-- Bento-style Grid for Services -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-stack-lg" id="service-grid">
+<!-- Agriculture -->
+<button class="service-card group text-left bg-surface-container-lowest rounded-lg p-stack-md service-card-border service-card-shadow transition-all duration-300 hover:scale-[1.02] flex flex-col h-full active:scale-95" onclick="selectService(this)">
+<div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center mb-stack-md group-hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-primary group-hover:text-surface">agriculture</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-2">Agriculture</h3>
+<p class="text-on-surface-variant font-body-md text-sm mb-4">Precision crop monitoring, multispectral imaging, and health analysis.</p>
+<div class="mt-auto flex items-center text-primary font-bold text-sm">
+                    View Details
+                    <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</button>
+<!-- Surveillance -->
+<button class="service-card group text-left bg-surface-container-lowest rounded-lg p-stack-md service-card-border service-card-shadow transition-all duration-300 hover:scale-[1.02] flex flex-col h-full active:scale-95" onclick="selectService(this)">
+<div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center mb-stack-md group-hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-primary group-hover:text-surface">visibility</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-2">Surveillance</h3>
+<p class="text-on-surface-variant font-body-md text-sm mb-4">24/7 site security, tactical perimeter monitoring, and search &amp; rescue.</p>
+<div class="mt-auto flex items-center text-primary font-bold text-sm">
+                    View Details
+                    <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</button>
+<!-- Cinema -->
+<button class="service-card group text-left bg-surface-container-lowest rounded-lg p-stack-md service-card-border service-card-shadow transition-all duration-300 hover:scale-[1.02] flex flex-col h-full active:scale-95" onclick="selectService(this)">
+<div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center mb-stack-md group-hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-primary group-hover:text-surface">movie</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-2">Cinema</h3>
+<p class="text-on-surface-variant font-body-md text-sm mb-4">8K dynamic aerial shots, FPV racing drones, and high-speed chase footage.</p>
+<div class="mt-auto flex items-center text-primary font-bold text-sm">
+                    View Details
+                    <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</button>
+<!-- Inspection -->
+<button class="service-card group text-left bg-surface-container-lowest rounded-lg p-stack-md service-card-border service-card-shadow transition-all duration-300 hover:scale-[1.02] flex flex-col h-full active:scale-95" onclick="selectService(this)">
+<div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center mb-stack-md group-hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-primary group-hover:text-surface">architecture</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-2">Inspection</h3>
+<p class="text-on-surface-variant font-body-md text-sm mb-4">Structural thermal imaging, roof audits, and bridge safety checks.</p>
+<div class="mt-auto flex items-center text-primary font-bold text-sm">
+                    View Details
+                    <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</button>
+</div>
+<!-- Secondary Content Section -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center">
+<div class="lg:col-span-7 rounded-lg overflow-hidden h-80 relative shadow-lg">
+<img class="w-full h-full object-cover" data-alt="A professional high-tech drone flying over a verdant agricultural field during golden hour. The sunlight is warm and soft, casting long shadows of the neat rows of crops. The aesthetic is modern and cinematic, using a clean color palette of earthy greens and high-contrast charcoal blacks. The lighting creates a serene yet professional atmosphere for advanced drone technology." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlijZibuQwpIcfDuOd5y0FZib1kJCeBTPuKyKsP-8_iCwvSFOHnIhUKOMng36ipwXf3Fm_N2WUf2AFB3pd8Ufas8jMCMCeACyGTZRQ4TxsFUlnf_PXQwzroPWJk46N00dQ9k1dLIpb5ayWtx4mN2XsnYioAO6FKA1hryg3339D2VVsKrVbPepC_N8opDjl4sMLaR1ae0h-RNgS07iIshYU4TZs-bOzGsMfYQGvlwf6DQeFhgu3ZN0rOewv4FAiKckKlC8bWkgE5MY"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-stack-md">
+<p class="text-white font-headline-md">Trusted by 500+ Enterprise Clients</p>
+</div>
+</div>
+<div class="lg:col-span-5 bg-surface-container rounded-lg p-stack-md border-2 border-dashed border-outline-variant/50">
+<h4 class="font-headline-md mb-2">Custom Mission?</h4>
+<p class="text-on-surface-variant font-body-md mb-4">Need something specialized like LIDAR mapping or thermal night operations? Talk to our specialists.</p>
+<button class="px-6 py-3 rounded-full border border-primary font-bold hover:bg-primary hover:text-surface transition-colors">Request Quote</button>
+</div>
+</div>
+</main>
+<!-- Fixed Footer CTA -->
+<footer class="sticky bottom-0 bg-surface-container-lowest border-t border-outline-variant/20 px-container-padding-mobile md:px-container-padding-desktop py-stack-md z-40">
+<div class="max-w-[1200px] mx-auto flex justify-between items-center">
+<div class="hidden md:flex flex-col">
+<span class="font-label-sm text-on-surface-variant uppercase">Mission Estimated Cost</span>
+<span class="font-headline-md text-primary" id="estimated-price">—</span>
+</div>
+<div class="flex gap-4 w-full md:w-auto">
+<button class="flex-1 md:flex-none px-stack-lg py-4 rounded-full font-bold bg-secondary text-on-secondary hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed" disabled="" id="next-button">
+                    Next Step
+                </button>
+</div>
+</div>
+</footer>
+<script>
+        let selectedService = null;
+
+        function selectService(element) {
+            // Remove active class from all cards
+            document.querySelectorAll('.service-card').forEach(card => {
+                card.classList.remove('active-service-card');
+            });
+
+            // Add active class to clicked card
+            element.classList.add('active-service-card');
+            selectedService = element.querySelector('h3').textContent;
+
+            // Enable next button
+            const nextBtn = document.getElementById('next-button');
+            nextBtn.disabled = false;
+
+            // Mock price update
+            const priceEl = document.getElementById('estimated-price');
+            const prices = {
+                'Agriculture': '$450/hr',
+                'Surveillance': '$299/hr',
+                'Cinema': '$750/hr',
+                'Inspection': '$350/hr'
+            };
+            priceEl.textContent = prices[selectedService] || '$300/hr';
+            
+            // Interaction feedback
+            console.log('Selected service:', selectedService);
+        }
+
+        // Add micro-interaction to cards
+        document.querySelectorAll('.service-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                if(!card.classList.contains('active-service-card')) {
+                    card.style.borderColor = 'rgba(202, 0, 19, 0.4)';
+                }
+            });
+            card.addEventListener('mouseleave', () => {
+                if(!card.classList.contains('active-service-card')) {
+                    card.style.borderColor = 'rgba(183, 198, 194, 0.25)';
+                }
+            });
+        });
+    </script>
+</body></html>

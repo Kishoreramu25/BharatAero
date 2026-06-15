@@ -1,0 +1,214 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>MISD DronePilot - Splash Screen</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;800;900&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed-dim": "#ffb4ab",
+                    "on-secondary-container": "#fffbff",
+                    "inverse-on-surface": "#f3f0ef",
+                    "surface-dim": "#dcd9d8",
+                    "on-secondary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "on-surface-variant": "#444844",
+                    "on-secondary-fixed": "#410002",
+                    "tertiary-container": "#121f1d",
+                    "on-secondary-fixed-variant": "#93000a",
+                    "outline-variant": "#c4c7c2",
+                    "on-primary-fixed": "#161d18",
+                    "surface-container": "#f0edec",
+                    "on-primary-container": "#7f867f",
+                    "on-tertiary-fixed": "#111e1c",
+                    "secondary": "#bb0011",
+                    "error": "#ba1a1a",
+                    "surface-container-high": "#eae8e6",
+                    "surface-container-highest": "#e5e2e0",
+                    "on-error-container": "#93000a",
+                    "background": "#eeebe3", /* Custom Prompt Requirement Overriding Config Background */
+                    "primary-container": "#171e19",
+                    "inverse-primary": "#c1c8c0",
+                    "primary": "#000201",
+                    "tertiary-fixed-dim": "#bbcac6",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-low": "#f6f3f1",
+                    "on-tertiary-fixed-variant": "#3c4a47",
+                    "surface": "#eeebe3",
+                    "secondary-fixed": "#ffdad6",
+                    "tertiary-fixed": "#d7e6e2",
+                    "on-primary": "#ffffff",
+                    "surface-bright": "#fcf9f7",
+                    "inverse-surface": "#313030",
+                    "outline": "#747874",
+                    "primary-fixed-dim": "#c1c8c0",
+                    "surface-tint": "#59605a",
+                    "error-container": "#ffdad6",
+                    "on-background": "#1b1c1b",
+                    "secondary-container": "#e42022",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-variant": "#e5e2e0",
+                    "on-surface": "#1b1c1b",
+                    "on-tertiary-container": "#798884",
+                    "primary-fixed": "#dde5dc",
+                    "tertiary": "#000202",
+                    "on-primary-fixed-variant": "#414943"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "8px",
+                    "stack-lg": "48px",
+                    "container-padding-desktop": "40px",
+                    "container-padding-mobile": "20px",
+                    "gutter": "24px",
+                    "stack-sm": "12px",
+                    "stack-md": "24px"
+            },
+            "fontFamily": {
+                    "body-md": ["Nunito Sans"],
+                    "label-sm": ["Nunito Sans"],
+                    "headline-lg": ["Nunito Sans"],
+                    "headline-lg-mobile": ["Nunito Sans"],
+                    "headline-md": ["Nunito Sans"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-sm": ["10px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "900"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "900"}],
+                    "headline-md": ["20px", {"lineHeight": "1.3", "fontWeight": "800"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Subtle Scanning HUD Effect Overlay */
+        .hud-scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(183, 198, 194, 0.2);
+            box-shadow: 0 0 10px rgba(183, 198, 194, 0.4);
+            animation: scan 4s linear infinite;
+        }
+
+        @keyframes scan {
+            from { top: 0%; }
+            to { top: 100%; }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(183, 198, 194, 0.25);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col items-center justify-center overflow-hidden" style="transition: opacity 0.5s ease-out; opacity: 0;">
+<!-- Subtle Background Elements -->
+<div class="fixed inset-0 pointer-events-none z-0">
+<div class="hud-scanline"></div>
+<!-- Decorative grid lines following 8px rhythm -->
+<div class="absolute inset-0 opacity-[0.03]" style="background-size: 40px 40px; background-image: linear-gradient(to right, #171e19 1px, transparent 1px), linear-gradient(to bottom, #171e19 1px, transparent 1px);"></div>
+</div>
+<!-- Main Content Wrapper (Supressed Shell as per Transactional/Splash Rule) -->
+<main class="relative z-10 flex flex-col items-center animate-fade-in px-container-padding-mobile">
+<!-- Center Logo Section -->
+<div class="relative mb-stack-md">
+<div class="w-64 h-64 md:w-80 md:h-80 rounded-full glass-card flex items-center justify-center overflow-hidden shadow-[0_20px_50px_-12px_rgba(23,30,25,0.08)] p-8">
+<img alt="MISD Logo" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuYXLMb-XMOqy6TvV5-ZhieYUFGufD82nMwfpUSYz-zjzSLf4JgPH_j0ZY3jDJAlSg2Q_nQE0BLJnp37FuV4O3XDsATKWWLvEXKuon-uYX_ek77lGe6nmxLRIDriQ1m4YFjnYT2q6u72jfXROc711X6867l1dLkb3Ah4l02Qe3hDJDM1gdnMl5Nj1mO-2h-tF1TuOTTURRdKMzG0--P236htVehUKUQm_46F4F8M8e_j07LkKnKALTTAMnYkB2UfHDpdtpmgjacjA">
+</div>
+</div>
+<!-- Typography Section -->
+<div class="text-center space-y-4">
+<h1 class="text-primary-container font-headline-lg text-headline-lg tracking-tight">
+                Engineered for Precision
+            </h1>
+<h2 class="text-[#b7c6c2] text-label-sm font-label-sm uppercase tracking-[0.3em] font-bold">
+                COMMAND &amp; CONTROL SYSTEMS
+            </h2>
+<div class="pt-stack-md"><a href="{{DATA:SCREEN:SCREEN_35}}" class="inline-block bg-primary-container text-white px-8 py-3 rounded-full font-label-sm uppercase tracking-widest hover:opacity-90 transition-all shadow-lg">Authenticate Pilot</a></div></div>
+</main>
+<!-- Bottom Progress Indicator -->
+<div class="fixed bottom-12 left-0 right-0 flex flex-col items-center px-container-padding-mobile z-10">
+<div class="w-full max-w-xs space-y-3">
+<div class="flex justify-between items-end">
+<span class="text-primary-container text-label-sm font-label-sm font-black uppercase tracking-widest">
+                    INITIALIZING HUD
+                </span>
+<span class="text-on-surface-variant text-label-sm font-label-sm" id="progress-text">100%</span>
+</div>
+<!-- Sage Bar Background -->
+<div class="w-full h-[6px] bg-surface-container-highest rounded-full overflow-hidden border border-[#b7c6c2]/25">
+<!-- Active Sage Progress Bar -->
+<div class="h-full bg-[#b7c6c2] w-0 transition-all duration-300 ease-out" id="progress-bar" style="width: 100%;"></div>
+</div>
+</div>
+</div>
+<!-- Decorative Micro-Interactions Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            let progress = 0;
+
+            const interval = setInterval(() => {
+                // Non-linear progress simulation for realistic "loading" feel
+                const increment = Math.random() * 15;
+                progress += increment;
+                
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    
+                    // Optional: transition to dashboard here
+                    setTimeout(() => {
+                        document.body.style.transition = 'opacity 0.5s ease-out';
+                        document.body.style.opacity = '0';
+                    }, 500);
+                }
+
+                progressBar.style.width = `${progress}%`;
+                progressText.innerText = `${Math.floor(progress)}%`;
+            }, 120);
+        });
+    </script>
+<!-- Semantic Shell Suppression Logic: 
+         This is a Splash screen, so TopAppBar and BottomNavBar are omitted 
+         to prioritize the content canvas and central identity focus. 
+    -->
+
+
+<script>setTimeout(() => { window.location.href = '{{DATA:SCREEN:SCREEN_35}}'; }, 2500);</script></body></html>

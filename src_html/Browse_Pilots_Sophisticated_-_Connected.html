@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,600;1,700;1,800;1,900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+            background-color: #fcf9f7;
+        }
+        .pilot-card-shadow {
+            box-shadow: 0 20px 50px -12px rgba(23, 30, 25, 0.08);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error-container": "#ffdad6",
+                      "on-secondary-container": "#fffbff",
+                      "surface-dim": "#dcd9d8",
+                      "primary-fixed-dim": "#c1c8c0",
+                      "surface-container-lowest": "#ffffff",
+                      "surface": "#fcf9f7",
+                      "tertiary": "#000202",
+                      "on-tertiary-container": "#798884",
+                      "error": "#ba1a1a",
+                      "surface-container": "#f0edec",
+                      "tertiary-fixed": "#d7e6e2",
+                      "on-secondary-fixed-variant": "#93000a",
+                      "on-primary-fixed": "#161d18",
+                      "on-primary-container": "#7f867f",
+                      "surface-tint": "#59605a",
+                      "primary": "#000201",
+                      "on-secondary": "#ffffff",
+                      "inverse-primary": "#c1c8c0",
+                      "tertiary-container": "#121f1d",
+                      "secondary-fixed-dim": "#ffb4ab",
+                      "on-background": "#1b1c1b",
+                      "on-error-container": "#93000a",
+                      "on-primary-fixed-variant": "#414943",
+                      "primary-container": "#171e19",
+                      "on-surface-variant": "#444844",
+                      "background": "#fcf9f7",
+                      "surface-container-high": "#eae8e6",
+                      "tertiary-fixed-dim": "#bbcac6",
+                      "on-tertiary-fixed-variant": "#3c4a47",
+                      "on-error": "#ffffff",
+                      "surface-container-low": "#f6f3f1",
+                      "outline": "#747874",
+                      "on-primary": "#ffffff",
+                      "surface-variant": "#e5e2e0",
+                      "surface-bright": "#fcf9f7",
+                      "inverse-surface": "#313030",
+                      "secondary-container": "#e42022",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-fixed": "#410002",
+                      "on-tertiary-fixed": "#111e1c",
+                      "surface-container-highest": "#e5e2e0",
+                      "outline-variant": "#c4c7c2",
+                      "secondary": "#bb0011",
+                      "on-surface": "#1b1c1b",
+                      "primary-fixed": "#dde5dc",
+                      "secondary-fixed": "#ffdad6",
+                      "inverse-on-surface": "#f3f0ef"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "base": "8px",
+                      "gutter": "24px",
+                      "container-padding-mobile": "20px",
+                      "stack-lg": "48px",
+                      "container-padding-desktop": "40px",
+                      "stack-sm": "12px",
+                      "stack-md": "24px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": ["Nunito Sans"],
+                      "headline-lg": ["Nunito Sans"],
+                      "label-sm": ["Nunito Sans"],
+                      "headline-md": ["Nunito Sans"],
+                      "body-md": ["Nunito Sans"]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "900"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "900"}],
+                      "label-sm": ["10px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                      "headline-md": ["20px", {"lineHeight": "1.3", "fontWeight": "800"}],
+                      "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- Top AppBar -->
+<header class="bg-background fixed top-0 pt-[56px] flex justify-between items-center px-container-padding-mobile w-full z-40">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-variant flex items-center justify-center">
+<img alt="User Profile Greeting" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVMVsNvnKIn2S2LfCMxQVCQ6tK783gJ3xqv87eWU2qzPK_Idmvcjmu1M22sbJ3nfbajLk16DLK72Ov3gi4gDix4OQ1f1RAbllx_X8PuWy4bKMlhUO0UoIAgPQ6iO42-u_RO_tirqb1Ik1ludAocXgHxqo-5fD1pGQDoMZP3dGaWrVQMS-srLWu6zuDN3UZ_JopeWzoM2RXedSlw7Ructwk2xDi34SBUMoX7JEPlYjQ5N-COz_sggDtzHR7eA1dWjMbtrjh93EZq7U"/>
+</div>
+<span class="text-headline-md font-headline-md font-black text-primary">MISD Automation</span>
+</div>
+<button class="active:scale-95 transition-transform hover:opacity-80">
+<span class="material-symbols-outlined text-primary text-2xl">notifications</span>
+</button>
+</header>
+<main class="pt-[140px] pb-32 px-container-padding-mobile max-w-[1200px] mx-auto">
+<!-- Search Section -->
+<section class="mb-stack-md">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant">search</span>
+<input class="w-full py-4 pl-12 pr-4 bg-surface border border-[#b7c6c2] rounded-lg text-body-md focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all placeholder:text-outline-variant" placeholder="Search expert pilots..." type="text"/>
+</div>
+</section>
+<!-- Filter Chips -->
+<section class="mb-stack-lg overflow-x-auto hide-scrollbar flex gap-3 pb-2">
+<button class="px-6 py-2 rounded-full bg-primary text-on-primary text-label-sm font-label-sm whitespace-nowrap">ALL</button>
+<button class="px-6 py-2 rounded-full border border-outline-variant/30 bg-surface-container-low text-on-surface-variant text-label-sm font-label-sm whitespace-nowrap hover:bg-surface-variant transition-colors">AGRICULTURE</button>
+<button class="px-6 py-2 rounded-full border border-outline-variant/30 bg-surface-container-low text-on-surface-variant text-label-sm font-label-sm whitespace-nowrap hover:bg-surface-variant transition-colors">CINEMA</button>
+<button class="px-6 py-2 rounded-full border border-outline-variant/30 bg-surface-container-low text-on-surface-variant text-label-sm font-label-sm whitespace-nowrap hover:bg-surface-variant transition-colors">SURVEILLANCE</button>
+</section>
+<!-- Pilot List Heading -->
+<div class="mb-stack-md">
+<h2 class="text-headline-lg-mobile font-headline-lg-mobile text-primary">Available Pilots</h2>
+<p class="text-on-surface-variant text-body-md">Handpicked certified professionals for your mission.</p>
+</div>
+<!-- Pilot Cards Vertical List -->
+<div class="space-y-gutter">
+<!-- Pilot Card: Vikram Singh -->
+<article class="cursor-pointer pilot-card-shadow bg-surface-container-lowest border border-[#b7c6c2]/25 rounded-xl p-6 flex flex-col md:flex-row md:items-center gap-6 group transition-all hover:scale-[1.01]" onclick="window.location.href='{{DATA:SCREEN:SCREEN_50}}'">
+<div class="relative flex-shrink-0">
+<div class="w-24 h-24 rounded-lg overflow-hidden border-2 border-secondary/10">
+<img alt="Vikram Singh" class="w-full h-full object-cover bg-surface-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdFEFUBfg-YBNatTHk8I-h2ysM4W0koP0nVQhdvKD8L-GHgn_gYMWrGCqRcSqhgg7BaiXweupwuq7O6CBOHCquWo52saCqkMkYEZWEUJBUhV62HjCrBug9Dm7oiH7VpcpTurML7Y8hpPDKL-mry-9W6qROH7YbeckVECbivxcJKJmJHsndzApOBn6Tp_a6tBCFaSobq6YNEPBTaEKh5BjTZEK1wOe_7I1iKfSnNg0Sm6Mui5apgxV3LxHRDmoGX_dFZ7w2UNcs8Rk"/>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-secondary text-on-secondary text-[10px] font-bold px-2 py-1 rounded-full border-2 border-surface">
+                        VERIFIED
+                    </div>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="text-headline-md font-headline-md text-primary">Vikram Singh</h3>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined filled-icon text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-body-md font-bold text-on-surface">4.9</span>
+<span class="text-label-sm text-on-surface-variant ml-1">(128 Reviews)</span>
+</div>
+</div>
+<div class="text-right">
+<span class="text-label-sm font-label-sm text-on-surface-variant block uppercase">Starting at</span>
+<span class="text-headline-md font-black text-secondary">₹1,500/hr</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mt-4">
+<span class="px-3 py-1 bg-surface-variant/50 text-on-surface-variant text-label-sm rounded-full">Cinema</span>
+<span class="px-3 py-1 bg-surface-variant/50 text-on-surface-variant text-label-sm rounded-full">Night Operations</span>
+<span class="px-3 py-1 bg-surface-variant/50 text-on-surface-variant text-label-sm rounded-full">FLIR Thermal</span>
+</div>
+</div>
+<div class="md:border-l border-[#b7c6c2]/20 md:pl-6 flex flex-col justify-center gap-2">
+<button class="bg-secondary text-on-secondary px-8 py-3 rounded-lg font-bold text-body-md transition-all active:scale-95 hover:opacity-90 shadow-lg shadow-secondary/20" onclick="event.stopPropagation(); window.location.href='{{DATA:SCREEN:SCREEN_16}}'">Book Now</button>
+<button class="text-on-surface-variant text-label-sm font-bold uppercase tracking-wider hover:text-primary transition-colors py-2" onclick="event.stopPropagation(); window.location.href='{{DATA:SCREEN:SCREEN_50}}'">View Profile</button>
+</div>
+</article>
+<!-- Pilot Card: Ananya Iyer -->
+<article class="cursor-pointer pilot-card-shadow bg-surface-container-lowest border border-[#b7c6c2]/25 rounded-xl p-6 flex flex-col md:flex-row md:items-center gap-6 group transition-all hover:scale-[1.01]" onclick="window.location.href='{{DATA:SCREEN:SCREEN_50}}'">
+<div class="relative flex-shrink-0">
+<div class="w-24 h-24 rounded-lg overflow-hidden border-2 border-secondary/10">
+<img alt="Ananya Iyer" class="w-full h-full object-cover bg-surface-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB15CYT_we0QgZ_2yxNto97i0YvQz4pwPwhCP9khXrpicSRLJcBoeluU_gJvtm1aBR50IzerG9oaZGu5Ma-ufNvNk62U96UqYroOA8JQO--eLfwwmPk8TGAi__Q58sSSelMrsZK1tpmE7lx0sWsttIvikEUm6Rto2IovR0GzmKpukX0QmtyFH1GRgKYecwK1lxubmte1f-6g3t_ku0zoW-wkp4_lEWObzpU66-w4Io-y2GTARegXU3m-lT9uwOLsgWLv2q_g_iiWLY"/>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-secondary text-on-secondary text-[10px] font-bold px-2 py-1 rounded-full border-2 border-surface">
+                        TOP RATED
+                    </div>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="text-headline-md font-headline-md text-primary">Ananya Iyer</h3>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined filled-icon text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-body-md font-bold text-on-surface">4.8</span>
+<span class="text-label-sm text-on-surface-variant ml-1">(94 Reviews)</span>
+</div>
+</div>
+<div class="text-right">
+<span class="text-label-sm font-label-sm text-on-surface-variant block uppercase">Starting at</span>
+<span class="text-headline-md font-black text-secondary">₹1,200/hr</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mt-4">
+<span class="px-3 py-1 bg-surface-variant/50 text-on-surface-variant text-label-sm rounded-full">Agriculture</span>
+<span class="px-3 py-1 bg-surface-variant/50 text-on-surface-variant text-label-sm rounded-full">Mapping</span>
+<span class="px-3 py-1 bg-surface-variant/50 text-on-surface-variant text-label-sm rounded-full">Multispectral</span>
+</div>
+</div>
+<div class="md:border-l border-[#b7c6c2]/20 md:pl-6 flex flex-col justify-center gap-2">
+<button class="bg-secondary text-on-secondary px-8 py-3 rounded-lg font-bold text-body-md transition-all active:scale-95 hover:opacity-90 shadow-lg shadow-secondary/20" onclick="event.stopPropagation(); window.location.href='{{DATA:SCREEN:SCREEN_16}}'">Book Now</button>
+<button class="text-on-surface-variant text-label-sm font-bold uppercase tracking-wider hover:text-primary transition-colors py-2" onclick="event.stopPropagation(); window.location.href='{{DATA:SCREEN:SCREEN_50}}'">View Profile</button>
+</div>
+</article>
+<!-- Ad/Promo Card -->
+<div class="relative overflow-hidden rounded-xl h-48 bg-primary-container text-on-primary mt-12">
+<div class="absolute inset-0 opacity-20 pointer-events-none">
+<div class="absolute top-0 right-0 w-64 h-64 bg-secondary rounded-full -translate-y-1/2 translate-x-1/4 blur-3xl"></div>
+</div>
+<div class="relative z-10 p-8 h-full flex flex-col justify-center max-w-[60%]">
+<span class="text-label-sm text-secondary font-bold uppercase tracking-[0.2em] mb-2">New Season Offer</span>
+<h2 class="text-headline-md font-headline-md mb-2">Save 20% on Agricultural Surveys</h2>
+<p class="text-on-primary-container text-sm">Bulk booking available for precision farming needs.</p>
+</div>
+<div class="absolute right-0 bottom-0 w-1/3 h-full overflow-hidden">
+<img class="w-full h-full object-cover grayscale brightness-75 contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiV5xNT9A2xaHpp77f9-MZSuRQYx8OOqCFg1Tw19ibPQ5nqvLsJ91U_ifyl-0-fSo7vQHfTdL2smm1qKsnyfj_xTpiYutS81du3miLRPSkeyiL95zRQrkao6fpbvTQohNz1MpLB-EH9tYByL4-zuyt-WYTU-lV2dJgqcMrOW4hSrj4pCoLGXC9HUNJTS88rMuNgEg-gaj73lEl6ZksLD0_5J6xjSyP7HnjN7pS_5i1aGS5X7CRc42fj4PeKtBiwkhrfuvAWoCiNw8"/>
+</div>
+</div>
+<!-- Pilot Card: Rahul Mehta -->
+<article class="cursor-pointer pilot-card-shadow bg-surface-container-lowest border border-[#b7c6c2]/25 rounded-xl p-6 flex flex-col md:flex-row md:items-center gap-6 group transition-all hover:scale-[1.01] mt-8" onclick="window.location.href='{{DATA:SCREEN:SCREEN_50}}'">
+<div class="relative flex-shrink-0">
+<div class="w-24 h-24 rounded-lg overflow-hidden border-2 border-secondary/10">
+<img alt="Rahul Mehta" class="w-full h-full object-cover bg-surface-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDahkOMawAaDYZaZA2iJmO5NG4APdERmNSQ2puM1AJceaPauIGDqVl7rRWcsXrWBO6sgKCCDRJTJw78mOvr9sgYglnSt-BbSGnPbAMvOwkeDr1eHzJHFstfSfvXNHooh9sR5_2RXiSq-8YZLp3GGClsqiKbesFnEQOAT6MgArMZk7hAuUrWF9wnAnG05wFNPDncnnDQctiZoCRPTnEzxT4WDLciClx8StSnrXVSYHBvNb7avFftIT4JfuxeUMupmKD9W68AQPlerl8"/>
+</div>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="text-headline-md font-headline-md text-primary">Rahul Mehta</h3>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined filled-icon text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-body-md font-bold text-on-surface">4.7</span>
+<span class="text-label-sm text-on-surface-variant ml-1">(52 Reviews)</span>
+</div>
+</div>
+<div class="text-right">
+<span class="text-label-sm font-label-sm text-on-surface-variant block uppercase">Starting at</span>
+<span class="text-headline-md font-black text-secondary">₹1,100/hr</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mt-4">
+<span class="px-3 py-1 bg-surface-variant/50 text-on-surface-variant text-label-sm rounded-full">Surveillance</span>
+<span class="px-3 py-1 bg-surface-variant/50 text-on-surface-variant text-label-sm rounded-full">Infrastructure</span>
+</div>
+</div>
+<div class="md:border-l border-[#b7c6c2]/20 md:pl-6 flex flex-col justify-center gap-2">
+<button class="bg-secondary text-on-secondary px-8 py-3 rounded-lg font-bold text-body-md transition-all active:scale-95 hover:opacity-90 shadow-lg shadow-secondary/20" onclick="event.stopPropagation(); window.location.href='{{DATA:SCREEN:SCREEN_16}}'">Book Now</button>
+<button class="text-on-surface-variant text-label-sm font-bold uppercase tracking-wider hover:text-primary transition-colors py-2" onclick="event.stopPropagation(); window.location.href='{{DATA:SCREEN:SCREEN_50}}'">View Profile</button>
+</div>
+</article>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-base left-base right-base z-50 flex justify-around items-center px-4 h-[64px] bg-primary rounded-full shadow-[0_20px_50px_-12px_rgba(23,30,25,0.08)]">
+<a class="flex items-center justify-center text-on-secondary-fixed-variant w-12 h-12 hover:text-secondary-fixed-dim transition-all" href="{{DATA:SCREEN:SCREEN_14}}">
+<span class="material-symbols-outlined">home</span>
+</a>
+<button class="flex items-center justify-center bg-secondary text-on-secondary rounded-full w-12 h-12 -mt-8 border-4 border-background transition-all duration-300 ease-in-out">
+<span class="material-symbols-outlined">explore</span>
+</button>
+<button class="flex items-center justify-center text-on-secondary-fixed-variant w-12 h-12 hover:text-secondary-fixed-dim transition-all">
+<span class="material-symbols-outlined">add</span>
+</button>
+<button class="flex items-center justify-center text-on-secondary-fixed-variant w-12 h-12 hover:text-secondary-fixed-dim transition-all">
+<span class="material-symbols-outlined">assignment</span>
+</button>
+<button class="flex items-center justify-center text-on-secondary-fixed-variant w-12 h-12 hover:text-secondary-fixed-dim transition-all">
+<span class="material-symbols-outlined">person</span>
+</button>
+</nav>
+<script>
+        // Simple Interaction logic
+        document.querySelectorAll('article button').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.classList.add('scale-95');
+            });
+            button.addEventListener('mouseup', () => {
+                button.classList.remove('scale-95');
+            });
+        });
+
+        // Search highlight interaction
+        const searchInput = document.querySelector('input[type="text"]');
+        if(searchInput) {
+            searchInput.addEventListener('focus', () => {
+                searchInput.parentElement.classList.add('scale-[1.02]');
+            });
+            searchInput.addEventListener('blur', () => {
+                searchInput.parentElement.classList.remove('scale-[1.02]');
+            });
+        }
+    </script>
+</body></html>

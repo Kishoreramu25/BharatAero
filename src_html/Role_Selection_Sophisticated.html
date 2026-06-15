@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Role Selection - MISD DronePilot</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed-dim": "#ffb4ab",
+                    "on-secondary-container": "#fffbff",
+                    "inverse-on-surface": "#f3f0ef",
+                    "surface-dim": "#dcd9d8",
+                    "on-secondary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "on-surface-variant": "#444844",
+                    "on-secondary-fixed": "#410002",
+                    "tertiary-container": "#121f1d",
+                    "on-secondary-fixed-variant": "#93000a",
+                    "outline-variant": "#c4c7c2",
+                    "on-primary-fixed": "#161d18",
+                    "surface-container": "#f0edec",
+                    "on-primary-container": "#7f867f",
+                    "on-tertiary-fixed": "#111e1c",
+                    "secondary": "#ca0013",
+                    "error": "#ba1a1a",
+                    "surface-container-high": "#eae8e6",
+                    "surface-container-highest": "#e5e2e0",
+                    "on-error-container": "#93000a",
+                    "background": "#fcf9f7",
+                    "primary-container": "#171e19",
+                    "inverse-primary": "#c1c8c0",
+                    "primary": "#000201",
+                    "tertiary-fixed-dim": "#bbcac6",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-low": "#f6f3f1",
+                    "on-tertiary-fixed-variant": "#3c4a47",
+                    "surface": "#fcf9f7",
+                    "secondary-fixed": "#ffdad6",
+                    "tertiary-fixed": "#d7e6e2",
+                    "on-primary": "#ffffff",
+                    "surface-bright": "#fcf9f7",
+                    "inverse-surface": "#313030",
+                    "outline": "#747874",
+                    "primary-fixed-dim": "#c1c8c0",
+                    "surface-tint": "#59605a",
+                    "error-container": "#ffdad6",
+                    "on-background": "#1b1c1b",
+                    "secondary-container": "#e42022",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-variant": "#e5e2e0",
+                    "on-surface": "#1b1c1b",
+                    "on-tertiary-container": "#798884",
+                    "primary-fixed": "#dde5dc",
+                    "tertiary": "#000202",
+                    "on-primary-fixed-variant": "#414943"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "8px",
+                    "stack-lg": "48px",
+                    "container-padding-desktop": "40px",
+                    "container-padding-mobile": "20px",
+                    "gutter": "24px",
+                    "stack-sm": "12px",
+                    "stack-md": "24px"
+            },
+            "fontFamily": {
+                    "body-md": ["Nunito Sans"],
+                    "label-sm": ["Nunito Sans"],
+                    "headline-lg": ["Nunito Sans"],
+                    "headline-lg-mobile": ["Nunito Sans"],
+                    "headline-md": ["Nunito Sans"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-sm": ["10px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "900"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "900"}],
+                    "headline-md": ["20px", {"lineHeight": "1.3", "fontWeight": "800"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .active-role {
+            border: 2px solid #ca0013 !important;
+            transform: scale(1.02);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen font-body-md flex flex-col items-center">
+<!-- Top App Bar -->
+<header class="fixed top-0 pt-[56px] w-full flex justify-between items-center px-container-padding-mobile md:px-container-padding-desktop z-50 bg-background">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden">
+<img alt="User" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCV47DaBxqfxLcnTdUs7O5G3JIsjwPauCvXb65mPkf4w3sSOMK7Mfswubt2peFwRUMXRVl07aCOLepPbM9ushB06_TJ5uPbDBsFUwlNT1lYkE9jGHGAHwk2jH4uAMz6E7G5dj6tFhl6hXdDBxLcTGO-pSjbL6CvN4q5FhRXUkyVWXWpnFXbUlH2P4GLVzV9kTDTFeWcNJsMNL6qquQ2AG7Oycppt7oubV1ijhJwK45HmpNE8LwCj2Tu38x-q0t8w2LixMRMl9mfH-I"/>
+</div>
+<span class="text-primary font-black text-headline-md">MISD Automation</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:opacity-80 transition-transform active:scale-95">
+<span class="material-symbols-outlined text-primary">notifications</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="w-full max-w-[1200px] px-container-padding-mobile md:px-container-padding-desktop pt-32 pb-40 flex flex-col items-center">
+<!-- Headline Section -->
+<div class="text-center mb-stack-lg animate-fade-in">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-[#171e19] mb-stack-sm">
+                How will you use MISD DronePilot?
+            </h1>
+<p class="text-on-surface-variant font-body-md">Select your primary role to customize your experience.</p>
+</div>
+<!-- Role Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter w-full max-w-4xl">
+<!-- Client Role Card -->
+<div class="glass-card group relative cursor-pointer rounded-xl border border-[#b7c6c2]/25 p-6 flex flex-col gap-6 shadow-[0_20px_50px_-12px_rgba(23,30,25,0.08)]" id="role-client" onclick="selectRole('client')">
+<div class="h-64 w-full rounded-lg overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A cinematic high-angle wide shot of a professional drone performing an aerial agricultural survey over lush green fields. The lighting is golden hour warmth, emphasizing a clean and high-tech health and agricultural vibe. The visual style is minimalist and premium, with the drone as a central technological marvel against a serene organic landscape." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXjE2_9Uj6PCnGnvdW5Q8zY9BV0Qxwf7QmWw-aGYicheZpA2m_pa3f3Q65QmAoF5gpxZym31kIU2G86FlrBzfPr_juQAMN7eC3fePY2WmPZC2pUBa0jX7gEh32mqyOSUo5U8ltGykRtIJZEBuLrozJcgJDaa_2NUOklTBnM4QxzLotyYT2qGZfG8ZjCQ1IS8Cjw3JRcSdDX805l3QqgyPizHnn7NdkyOo1PRgXNHuFfTIyPbrTLlU4njxjVTYdrZ-b9p9H18RAgUw"/>
+</div>
+<div class="flex flex-col">
+<h2 class="text-headline-md font-headline-md text-primary mb-2">I Need Drone Services</h2>
+<p class="text-[#b7c6c2] text-[14px] leading-relaxed">
+                        Hire professional pilots for aerial photography, inspections, mapping, or agricultural monitoring with enterprise-grade security.
+                    </p>
+</div>
+<!-- Selection Indicator -->
+<div class="absolute top-4 right-4 w-6 h-6 rounded-full border-2 border-[#b7c6c2]/40 flex items-center justify-center bg-white transition-colors duration-300 role-check">
+<span class="material-symbols-outlined text-white text-[16px] hidden">check</span>
+</div>
+</div>
+<!-- Pilot Role Card -->
+<div class="glass-card group relative cursor-pointer rounded-xl border border-[#b7c6c2]/25 p-6 flex flex-col gap-6 shadow-[0_20px_50px_-12px_rgba(23,30,25,0.08)]" id="role-pilot" onclick="selectRole('pilot')">
+<div class="h-64 w-full rounded-lg overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A professional drone pilot in modern outdoor gear holding a sophisticated remote control console. The setting is a bright, clear day in a minimalist industrial park. The lighting is crisp and modern, reflecting a corporate and health-tech aesthetic with sharp focus and a clean, high-intensity atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSxb1o191CQhouUKX0ug1lyvA_JO6PmmHOQUN03n13IfRLG4_kjk3p_Ak76_oxirai8RCafODohv7tqhmLMa_n5_5RHe0PKjXafnHoK9i48_y1SHsw_6SF71RIgYQPzJ27w2eHp0-ydAre_bAWOjFbJymtZz0kCNS5400OX6p9cZl8-A6DPwCKzEJd5FZMAR9hQUAqbeFgQCCQwx0SrJq3sRx5wXFyK-SjhC9Dm1JRJdRferfYftQDnKDCI8UiSUJ55Ri8tlGTxeg"/>
+</div>
+<div class="flex flex-col">
+<h2 class="text-headline-md font-headline-md text-primary mb-2">I Am a Drone Pilot</h2>
+<p class="text-[#b7c6c2] text-[14px] leading-relaxed">
+                        Find high-value flight missions, manage your fleet, and access automated flight planning tools for professional operations.
+                    </p>
+</div>
+<!-- Selection Indicator -->
+<div class="absolute top-4 right-4 w-6 h-6 rounded-full border-2 border-[#b7c6c2]/40 flex items-center justify-center bg-white transition-colors duration-300 role-check">
+<span class="material-symbols-outlined text-white text-[16px] hidden">check</span>
+</div>
+</div>
+</div>
+<!-- Bottom CTA -->
+<div class="mt-stack-lg w-full flex flex-col items-center gap-4">
+<button class="px-16 py-4 rounded-full bg-secondary text-on-primary font-bold text-headline-md opacity-50 cursor-not-allowed transition-all duration-300 active:scale-95 shadow-lg shadow-secondary/20" disabled="" id="continue-btn">
+                Continue
+            </button>
+<p class="text-label-sm font-label-sm uppercase text-on-surface-variant tracking-widest">Step 1 of 3</p>
+</div>
+</main>
+<!-- Contextual Nav (only shown for top-level, but technically this is selection, so we keep it minimal or hide) -->
+<!-- Applying Suppression Rule: This is a Task-Focused Selection screen, suppressing global nav for focus -->
+<script>
+        let selectedRole = null;
+
+        function selectRole(role) {
+            selectedRole = role;
+            
+            // Remove active styles from all cards
+            document.querySelectorAll('.glass-card').forEach(card => {
+                card.classList.remove('active-role');
+                card.querySelector('.role-check').classList.remove('bg-secondary', 'border-secondary');
+                card.querySelector('.role-check span').classList.add('hidden');
+            });
+
+            // Add active style to selected
+            const activeCard = document.getElementById(`role-${role}`);
+            activeCard.classList.add('active-role');
+            
+            const checkIcon = activeCard.querySelector('.role-check');
+            checkIcon.classList.add('bg-secondary', 'border-secondary');
+            checkIcon.querySelector('span').classList.remove('hidden');
+
+            // Enable Continue Button
+            const btn = document.getElementById('continue-btn');
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            btn.classList.add('hover:opacity-90', 'hover:shadow-secondary/40');
+            
+            // Interaction feedback
+            btn.style.transform = 'translateY(-2px)';
+            setTimeout(() => {
+                btn.style.transform = 'translateY(0)';
+            }, 200);
+        }
+
+        // Lightweight atmospheric interaction
+        document.addEventListener('mousemove', (e) => {
+            const cards = document.querySelectorAll('.glass-card');
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                if (x > 0 && x < rect.width && y > 0 && y < rect.height) {
+                    card.style.setProperty('--mouse-x', `${x}px`);
+                    card.style.setProperty('--mouse-y', `${y}px`);
+                }
+            });
+        });
+    </script>
+</body></html>

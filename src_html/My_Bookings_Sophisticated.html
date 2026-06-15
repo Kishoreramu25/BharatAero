@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#f6f3f1",
+                    "on-tertiary-fixed": "#111e1c",
+                    "surface-bright": "#fcf9f7",
+                    "on-primary-fixed-variant": "#414943",
+                    "error-container": "#ffdad6",
+                    "primary-container": "#171e19",
+                    "on-secondary-container": "#fffbff",
+                    "surface-dim": "#dcd9d8",
+                    "primary-fixed-dim": "#c1c8c0",
+                    "tertiary-fixed": "#d7e6e2",
+                    "surface-container": "#f0edec",
+                    "secondary-container": "#e42022",
+                    "primary": "#000201",
+                    "on-surface-variant": "#444844",
+                    "on-error": "#ffffff",
+                    "surface": "#fcf9f7",
+                    "surface-variant": "#e5e2e0",
+                    "surface-tint": "#59605a",
+                    "secondary": "#bb0011",
+                    "tertiary-container": "#121f1d",
+                    "surface-container-highest": "#e5e2e0",
+                    "inverse-primary": "#c1c8c0",
+                    "on-tertiary-container": "#798884",
+                    "on-secondary-fixed-variant": "#93000a",
+                    "outline": "#747874",
+                    "outline-variant": "#c4c7c2",
+                    "on-surface": "#1b1c1b",
+                    "on-secondary-fixed": "#410002",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-high": "#eae8e6",
+                    "secondary-fixed-dim": "#ffb4ab",
+                    "on-background": "#1b1c1b",
+                    "on-secondary": "#ffffff",
+                    "inverse-on-surface": "#f3f0ef",
+                    "background": "#fcf9f7",
+                    "on-primary-container": "#7f867f",
+                    "secondary-fixed": "#ffdad6",
+                    "on-primary-fixed": "#161d18",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed-dim": "#bbcac6",
+                    "tertiary": "#000202",
+                    "primary-fixed": "#dde5dc",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed-variant": "#3c4a47",
+                    "inverse-surface": "#313030"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-padding-desktop": "40px",
+                    "base": "8px",
+                    "stack-md": "24px",
+                    "stack-lg": "48px",
+                    "gutter": "24px",
+                    "container-padding-mobile": "20px",
+                    "stack-sm": "12px"
+            },
+            "fontFamily": {
+                    "label-sm": ["Nunito Sans"],
+                    "headline-md": ["Nunito Sans"],
+                    "headline-lg-mobile": ["Nunito Sans"],
+                    "headline-lg": ["Nunito Sans"],
+                    "body-md": ["Nunito Sans"]
+            },
+            "fontSize": {
+                    "label-sm": ["10px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                    "headline-md": ["20px", {"lineHeight": "1.3", "fontWeight": "800"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "900"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "900"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #eeebe3;
+            color: #1b1c1b;
+            font-family: 'Nunito Sans', sans-serif;
+        }
+        .mission-card {
+            box-shadow: 0 20px 50px -12px rgba(23, 30, 25, 0.08);
+            border: 1px solid rgba(183, 198, 194, 0.25);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #b7c6c2;
+            border-radius: 10px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen flex flex-col">
+<!-- Top Navigation Anchor -->
+<header class="fixed top-0 left-0 w-full z-50 bg-surface h-16 flex justify-between items-center px-5 md:px-10 transition-all duration-300">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a drone pilot wearing a modern tech-focused jacket. The background is a clean, minimalist studio setting with soft lighting that emphasizes a high-tech corporate aesthetic. The overall mood is confident and reliable, utilizing a palette of soft greys and charcoal tones consistent with a premium medical-tech brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPTUYhCEpuotdbD8cwhD36N4AxwpxcpPNSN1khVRhZJXRJHWZJ4BItYX8cvJk6HiSuS49_gkD6zktP8LVwLY6ap-3JZdSRw2U_5eTsh5x8cikOD1yBmLl9WpiejsVvF0za_1wPImtZvWrN0_HuYP0Cy0z08IVGy4U9P5Wt3Cj2q8_JJVlarZY6lFDRaf9hcmwVVqpTuPl8vVrc2QwmEl4i10C0gfZHIXMMl-VZaAlUy8x-AxQkssjAcge1MUs1IEWhyxjGubki7eM"/>
+</div>
+<span class="font-headline-lg-mobile text-headline-lg-mobile font-extrabold text-primary">DronePilot</span>
+</div>
+<div class="flex items-center">
+<button class="material-symbols-outlined text-primary text-2xl hover:opacity-80 transition-opacity active:scale-90 p-2">notifications</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-24 pb-32 px-5 md:px-10 max-w-[1200px] mx-auto w-full">
+<div class="mb-10">
+<h1 class="font-headline-lg text-headline-lg mb-2">Mission Logbook</h1>
+<p class="text-on-surface-variant font-body-md opacity-80">Manage your active deployments and historical flight data.</p>
+</div>
+<!-- Missions Feed -->
+<div class="space-y-6">
+<!-- Mission Card 1: Active -->
+<div class="mission-card bg-white rounded-xl p-6 md:p-8 flex flex-col md:flex-row gap-8 transition-all hover:translate-y-[-4px]">
+<div class="w-full md:w-64 h-48 rounded-lg overflow-hidden bg-surface-container border border-gray-green/10 flex-shrink-0">
+<img alt="Mission Map" class="w-full h-full object-cover grayscale opacity-80" data-alt="A high-resolution satellite-style map view of a suburban neighborhood layout, featuring clean streets and green parks. Overlaid is a sleek digital flight path trajectory in a subtle charcoal color. The lighting is bright and airy, reflecting a professional medical-logistics interface style with a calm, authoritative atmosphere." data-location="San Francisco" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYs3UI5alPHmDWDReT25xy_tx4-67CABiyEvPH20LvXOZl3UBXMIlI6MqxAoZYWDdJelrcSbWufzIx9VquyVSaM6Ppytfbf7uUTVRDHmXe0D-_WMnI-SE0nHPsS9OzgEh0dgmcceft1hL4HfkQL5g8kuQOt0SUEaqipYRHgNE-XQw5AAbsQoJWFqTXv-PkDar4M0wN9gtPwwsDf9-002-xbwvuqw-uW1e-H0UOa4unO1ebhXfiDSfVRpbEUQwETMNILHnxjoPzRDI"/>
+</div>
+<div class="flex-grow flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-4">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Mission ID</span>
+<h3 class="font-headline-md text-headline-md text-primary mt-1">MSN-8842-VX</h3>
+</div>
+<span class="px-4 py-1.5 rounded-full bg-secondary-container/10 text-secondary font-label-sm text-label-sm">ACTIVE</span>
+</div>
+<div class="flex flex-wrap gap-6 mt-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-lg">calendar_today</span>
+<span class="font-body-md text-on-surface-variant">Today, 14:30 PM</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-lg">location_on</span>
+<span class="font-body-md text-on-surface-variant">North Medical Plaza</span>
+</div>
+</div>
+</div>
+<div class="mt-8 flex justify-end">
+<button class="bg-secondary text-white font-bold px-10 py-3 rounded-lg hover:opacity-90 transition-opacity active:scale-95 text-body-md">
+                            Track
+                        </button>
+</div>
+</div>
+</div>
+<!-- Mission Card 2: Done -->
+<div class="mission-card bg-white rounded-xl p-6 md:p-8 flex flex-col md:flex-row gap-8 transition-all hover:translate-y-[-4px]">
+<div class="w-full md:w-64 h-48 rounded-lg overflow-hidden bg-surface-container border border-gray-green/10 flex-shrink-0">
+<img alt="Mission Map" class="w-full h-full object-cover grayscale opacity-80" data-alt="A sophisticated digital rendering of a city skyline from a high angle, captured in a monochrome charcoal palette. The image conveys a sense of scale and urban density, with soft white lighting that creates highlights on skyscraper edges. The aesthetic is clean, professional, and suggests advanced drone surveillance or transport technology." data-location="Chicago" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxK-m-7jHAmCr9sau1Ojq2AsO7z0nGcvkL8yMoFc8lmXhXnFFHXot4ID7tDfzYSLhfftcTDWAUtMtFa8-gsD6xViRxPe9_U_C3jsWURvj7mN6XQe3ZghR8SmKlnp9X1_z_W2oDlNVZKkncid70utdNMyUqCdWK1K7Oa8byiafW_0Ob7EVzNKt96QL5XHdq-5EaxzFi0mtvET3MgJGmQTvlJ_OBjzNrJAh00CYQlGrdym3gtpJE22Fl6BoOh5SWuIyg4HbcVx_wskE"/>
+</div>
+<div class="flex-grow flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-4">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Mission ID</span>
+<h3 class="font-headline-md text-headline-md text-primary mt-1">MSN-7210-BK</h3>
+</div>
+<span class="px-4 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">DONE</span>
+</div>
+<div class="flex flex-wrap gap-6 mt-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-lg">calendar_today</span>
+<span class="font-body-md text-on-surface-variant">Oct 12, 2023</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-lg">location_on</span>
+<span class="font-body-md text-on-surface-variant">Central Distribution Hub</span>
+</div>
+</div>
+</div>
+<div class="mt-8 flex justify-end">
+<button class="bg-white border border-outline text-primary font-bold px-10 py-3 rounded-lg hover:bg-surface-container transition-colors active:scale-95 text-body-md">
+                            Details
+                        </button>
+</div>
+</div>
+</div>
+<!-- Mission Card 3: Canceled -->
+<div class="mission-card bg-white rounded-xl p-6 md:p-8 flex flex-col md:flex-row gap-8 transition-all hover:translate-y-[-4px] opacity-70">
+<div class="w-full md:w-64 h-48 rounded-lg overflow-hidden bg-surface-container border border-gray-green/10 flex-shrink-0">
+<img alt="Mission Map" class="w-full h-full object-cover grayscale contrast-75" data-alt="An abstract aerial photograph of a foggy industrial zone, emphasizing geometric lines and structures through a misty grey lens. The mood is quiet and still, with a color palette of muted whites, charcoal greys, and deep shadows. The visual style aligns with a minimal corporate health-tech interface, prioritizing clarity and form." data-location="Seattle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFwnHeGO57-5CiHYxfIrht4I_CVPIAxC4fHga9msy3wDM1U0rLWP0eC0IgMQsmQLuJICT-zv7mNxFl8sEF5AFanAhsCCd93jF5KMcpo6Rc9rKNxJRB1q3Fi6jcl5k1n55VJ4Po6lXbV4qhqodQ3c6caBxBv3CTKyeDdeLqzQUe8VcIoj4K_uqhvRyicRLusITybOZLCxFyY3Hjn-j_gErn1BrA0g3uOXX4wpBKZoonZ8hkxRQmXRe7WTgEOwl8v58Ok9wU4m9Lcas"/>
+</div>
+<div class="flex-grow flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-4">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Mission ID</span>
+<h3 class="font-headline-md text-headline-md text-primary mt-1">MSN-4192-ZZ</h3>
+</div>
+<span class="px-4 py-1.5 rounded-full border border-error text-error font-label-sm text-label-sm">CANCELED</span>
+</div>
+<div class="flex flex-wrap gap-6 mt-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-lg">calendar_today</span>
+<span class="font-body-md text-on-surface-variant">Oct 09, 2023</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-lg">location_on</span>
+<span class="font-body-md text-on-surface-variant">Regional Lab Service</span>
+</div>
+</div>
+</div>
+<div class="mt-8 flex justify-end">
+<button class="bg-white border border-outline text-primary font-bold px-10 py-3 rounded-lg hover:bg-surface-container transition-colors active:scale-95 text-body-md">
+                            View Report
+                        </button>
+</div>
+</div>
+</div>
+<!-- Mission Card 4: Upcoming -->
+<div class="mission-card bg-white rounded-xl p-6 md:p-8 flex flex-col md:flex-row gap-8 transition-all hover:translate-y-[-4px]">
+<div class="w-full md:w-64 h-48 rounded-lg overflow-hidden bg-surface-container border border-gray-green/10 flex-shrink-0">
+<img alt="Mission Map" class="w-full h-full object-cover grayscale opacity-80" data-alt="A clean, top-down view of a highway interchange rendered in a minimalist architectural style. The palette is dominated by light greys and whites, with deep charcoal used for the asphalt roads. The lighting is uniform and bright, suggesting a safe and controlled environment for medical drone navigation in a modern tech-driven city." data-location="Austin" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCIDF53mEt3gyGpeF1gtqapVq2uzPQKhV0xsLQDLufF3hlk0WFSv-LeAA9-Jdcaa_SEAf7YHx2Api8v_xQWBA5QhA3cSjN8aeqASM53wzb1IPvJXBPCc089806UY8p21ShF9Rx4AJNgtMf7f0ECu-KkSDshjNkmxPGrQFseCmVQbFOFKQKMezRsZ8Io1Ksskt5ICNlj36x6gqP8tU9Ptr2b7ie_jd8Y_EJvqOCGrhBf8fNJYvCwcI1FwQEvFPiyiDgbvFM2g6IyKI"/>
+</div>
+<div class="flex-grow flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-4">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Mission ID</span>
+<h3 class="font-headline-md text-headline-md text-primary mt-1">MSN-2900-WP</h3>
+</div>
+<span class="px-4 py-1.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-sm text-label-sm">UPCOMING</span>
+</div>
+<div class="flex flex-wrap gap-6 mt-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-lg">calendar_today</span>
+<span class="font-body-md text-on-surface-variant">Tomorrow, 09:00 AM</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-lg">location_on</span>
+<span class="font-body-md text-on-surface-variant">Austin Children's Hospital</span>
+</div>
+</div>
+</div>
+<div class="mt-8 flex justify-end">
+<button class="bg-white border border-outline text-primary font-bold px-10 py-3 rounded-lg hover:bg-surface-container transition-colors active:scale-95 text-body-md">
+                            Pre-Flight Check
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-surface-container rounded-t-xl shadow-lg border-none md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/20 transition-colors py-1" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/20 transition-colors py-1" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-label-md text-label-md">Browse</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-95 duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">assignment</span>
+<span class="font-label-md text-label-md">Bookings</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/20 transition-colors py-1" href="#">
+<span class="material-symbols-outlined">mail</span>
+<span class="font-label-md text-label-md">Messages</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/20 transition-colors py-1" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+<!-- Desktop Sidebar/Nav Mockup (Hidden on mobile) -->
+<nav class="hidden md:flex fixed left-0 top-16 bottom-0 w-20 flex-col items-center py-10 bg-surface gap-8">
+<a class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors text-2xl p-3" href="#">home</a>
+<a class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors text-2xl p-3" href="#">explore</a>
+<a class="material-symbols-outlined bg-primary-container text-on-primary-container rounded-full text-2xl p-3" href="#" style="font-variation-settings: 'FILL' 1;">assignment</a>
+<a class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors text-2xl p-3" href="#">mail</a>
+<a class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors text-2xl p-3" href="#">person</a>
+</nav>
+<script>
+        // Micro-interactions
+        document.querySelectorAll('.mission-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-4px)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0px)';
+            });
+        });
+
+        // Sticky Header Effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-sm', 'bg-white');
+            } else {
+                header.classList.remove('shadow-sm', 'bg-white');
+            }
+        });
+    </script>
+</body></html>

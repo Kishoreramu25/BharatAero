@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Booking Confirmation - DronePilot</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#f6f3f1",
+                    "on-tertiary-fixed": "#111e1c",
+                    "surface-bright": "#fcf9f7",
+                    "on-primary-fixed-variant": "#414943",
+                    "error-container": "#ffdad6",
+                    "primary-container": "#171e19",
+                    "on-secondary-container": "#fffbff",
+                    "surface-dim": "#dcd9d8",
+                    "primary-fixed-dim": "#c1c8c0",
+                    "tertiary-fixed": "#d7e6e2",
+                    "surface-container": "#f0edec",
+                    "secondary-container": "#e42022",
+                    "primary": "#000201",
+                    "on-surface-variant": "#444844",
+                    "on-error": "#ffffff",
+                    "surface": "#fcf9f7",
+                    "surface-variant": "#e5e2e0",
+                    "surface-tint": "#59605a",
+                    "secondary": "#bb0011",
+                    "tertiary-container": "#121f1d",
+                    "surface-container-highest": "#e5e2e0",
+                    "inverse-primary": "#c1c8c0",
+                    "on-tertiary-container": "#798884",
+                    "on-secondary-fixed-variant": "#93000a",
+                    "outline": "#747874",
+                    "outline-variant": "#c4c7c2",
+                    "on-surface": "#1b1c1b",
+                    "on-secondary-fixed": "#410002",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-high": "#eae8e6",
+                    "secondary-fixed-dim": "#ffb4ab",
+                    "on-background": "#1b1c1b",
+                    "on-secondary": "#ffffff",
+                    "inverse-on-surface": "#f3f0ef",
+                    "background": "#fcf9f7",
+                    "on-primary-container": "#7f867f",
+                    "secondary-fixed": "#ffdad6",
+                    "on-primary-fixed": "#161d18",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed-dim": "#bbcac6",
+                    "tertiary": "#000202",
+                    "primary-fixed": "#dde5dc",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed-variant": "#3c4a47",
+                    "inverse-surface": "#313030"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-padding-desktop": "40px",
+                    "base": "8px",
+                    "stack-md": "24px",
+                    "stack-lg": "48px",
+                    "gutter": "24px",
+                    "container-padding-mobile": "20px",
+                    "stack-sm": "12px"
+            },
+            "fontFamily": {
+                    "label-sm": ["Nunito Sans"],
+                    "headline-md": ["Nunito Sans"],
+                    "headline-lg-mobile": ["Nunito Sans"],
+                    "headline-lg": ["Nunito Sans"],
+                    "body-md": ["Nunito Sans"]
+            },
+            "fontSize": {
+                    "label-sm": ["10px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                    "headline-md": ["20px", {"lineHeight": "1.3", "fontWeight": "800"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "900"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "900"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .success-shadow {
+            box-shadow: 0 20px 50px -12px rgba(23, 30, 25, 0.08);
+        }
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen overflow-x-hidden flex flex-col">
+<!-- Top App Bar -->
+<header class="flex justify-between items-center px-container-padding-mobile md:px-container-padding-desktop h-16 w-full bg-surface z-10">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant/25">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6zPJnfs881MASEmlbphLBGUO1F3hxw28pDK2c2f2RBym0cmcMYphRZLIkC4p12d__gn8OzjbNpiJxqzoagxArxa2CUvoUpsJrko9cUFwLP2_HVf1VhoDwolNGkiqCphzVHd1dioMmKtd60LiOoF3O9WaGGuNIx8wni7lESxkL4xRHEuOuodVafgoicLIb7P-ZyQw5XroESa4iUWGljBuRWJ38x8b5yNo2wd_1N8b1QTiTJTugD5gAxR9Q4UXUFFnewUtsS0XE84w"/>
+</div>
+<span class="font-headline-lg-mobile text-headline-lg-mobile font-extrabold text-primary md:font-headline-lg md:text-headline-lg">DronePilot</span>
+</div>
+<button class="hover:opacity-80 transition-opacity scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-primary" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="flex-grow flex items-center justify-center px-container-padding-mobile py-stack-lg relative overflow-hidden">
+<!-- Atmospheric Background Elements -->
+<div class="absolute inset-0 pointer-events-none opacity-20 overflow-hidden">
+<div class="absolute top-[-10%] right-[-10%] w-96 h-96 bg-secondary-fixed-dim blur-[100px] rounded-full"></div>
+<div class="absolute bottom-[-5%] left-[-5%] w-72 h-72 bg-tertiary-fixed-dim blur-[80px] rounded-full"></div>
+</div>
+<!-- Success Container -->
+<div class="max-w-[600px] w-full relative z-10" id="confetti-anchor">
+<div class="bg-surface-container-lowest rounded-xl p-stack-md md:p-12 success-shadow border border-outline-variant/25 flex flex-col items-center text-center animate-in fade-in zoom-in duration-500">
+<!-- Success Icon -->
+<div class="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mb-stack-md border border-green-100">
+<span class="material-symbols-outlined text-green-600 text-[48px]" style="font-variation-settings: 'wght' 700;">check_circle</span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary mb-2">Mission Confirmed</h1>
+<p class="text-on-surface-variant font-body-md mb-stack-lg max-w-sm">Your flight plan has been approved and your pilot is currently prepping for takeoff.</p>
+<!-- Information Grid (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter w-full mb-stack-lg">
+<div class="bg-surface-container-low p-stack-md rounded-lg border border-outline-variant/25 text-left">
+<span class="font-label-sm text-label-sm text-on-surface-variant block mb-1">MISSION ID</span>
+<span class="font-headline-md text-headline-md text-primary">SKY-7742-PX</span>
+</div>
+<div class="bg-surface-container-low p-stack-md rounded-lg border border-outline-variant/25 text-left">
+<span class="font-label-sm text-label-sm text-on-surface-variant block mb-1">DEPARTURE</span>
+<span class="font-headline-md text-headline-md text-primary">14:30 Today</span>
+</div>
+<div class="bg-surface-container-low p-stack-md rounded-lg border border-outline-variant/25 text-left md:col-span-2 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden border border-outline-variant/25 bg-surface">
+<img alt="Pilot Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANMDKP_WdurvDldy7x5WS_OAgFY95n-q4rK5cjqraO3-NPliWE7VUmj0vlYADjtU02AXGLut0vj5Sq1wc3uTRqMxEV_JzhsRi5AmqymSYMOGGKkTOV6NysffCSrkeoz1X0169Wqx0JtrPKtw6OB56aOE0vRE5WR2nMsirJ5sZzl_Sd_EFSO9jEpIsX5tGph8ORw3Y34N8z4R3wxFWZhJ4PIrf9cCZVwmVDXkyrmg6PT-F8oN9daNXyr2A3UudHrTkiZ3VSGO2Hn2s"/>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mb-0">PILOT ASSIGNED</span>
+<span class="font-headline-md text-headline-md text-primary">Capt. Oliver Vance</span>
+</div>
+<div class="ml-auto">
+<span class="px-3 py-1 rounded-full bg-green-100 text-green-800 text-[12px] font-bold uppercase tracking-wider">Verified</span>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col gap-base w-full">
+<button class="w-full py-4 bg-secondary text-on-secondary rounded-lg font-bold text-body-md transition-all scale-95 active:scale-90 hover:opacity-90 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]" data-icon="download">download</span>
+                        Download Permit
+                    </button>
+<button class="w-full py-4 bg-white border border-outline text-primary rounded-lg font-bold text-body-md transition-all scale-95 active:scale-90 hover:bg-surface-container-low">
+                        Return to Dashboard
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Hidden for this sub-page intent as per mandate) -->
+<!-- Suppressed to prioritize the success message focus -->
+<script>
+        function createConfetti() {
+            const anchor = document.getElementById('confetti-anchor');
+            const colors = ['#ca0013', '#22c55e', '#3b82f6', '#f59e0b'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                const startX = Math.random() * 100;
+                const startY = Math.random() * 100;
+                
+                confetti.style.left = startX + '%';
+                confetti.style.top = startY + '%';
+                
+                anchor.appendChild(confetti);
+                
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 100 + Math.random() * 150;
+                const xDist = Math.cos(angle) * velocity;
+                const yDist = Math.sin(angle) * velocity;
+                
+                confetti.animate([
+                    { transform: 'translate(0, 0) rotate(0deg)', opacity: 1 },
+                    { transform: `translate(${xDist}px, ${yDist}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+                ], {
+                    duration: 1000 + Math.random() * 1000,
+                    easing: 'cubic-bezier(0, .9, .57, 1)',
+                    fill: 'forwards'
+                });
+
+                setTimeout(() => confetti.remove(), 2000);
+            }
+        }
+
+        // Trigger confetti on load
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(createConfetti, 300);
+        });
+    </script>
+</body></html>

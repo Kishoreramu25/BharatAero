@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MISD DronePilot | Commander Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error-container": "#ffdad6",
+                    "on-secondary-container": "#fffbff",
+                    "surface-dim": "#dcd9d8",
+                    "primary-fixed-dim": "#c1c8c0",
+                    "surface-container-lowest": "#ffffff",
+                    "surface": "#fcf9f7",
+                    "tertiary": "#000202",
+                    "on-tertiary-container": "#798884",
+                    "error": "#ba1a1a",
+                    "surface-container": "#f0edec",
+                    "tertiary-fixed": "#d7e6e2",
+                    "on-secondary-fixed-variant": "#93000a",
+                    "on-primary-fixed": "#161d18",
+                    "on-primary-container": "#7f867f",
+                    "surface-tint": "#59605a",
+                    "primary": "#000201",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#c1c8c0",
+                    "tertiary-container": "#121f1d",
+                    "secondary-fixed-dim": "#ffb4ab",
+                    "on-background": "#1b1c1b",
+                    "on-error-container": "#93000a",
+                    "on-primary-fixed-variant": "#414943",
+                    "primary-container": "#171e19",
+                    "on-surface-variant": "#444844",
+                    "background": "#fcf9f7",
+                    "surface-container-high": "#eae8e6",
+                    "tertiary-fixed-dim": "#bbcac6",
+                    "on-tertiary-fixed-variant": "#3c4a47",
+                    "on-error": "#ffffff",
+                    "surface-container-low": "#f6f3f1",
+                    "outline": "#747874",
+                    "on-primary": "#ffffff",
+                    "surface-variant": "#e5e2e0",
+                    "surface-bright": "#fcf9f7",
+                    "inverse-surface": "#313030",
+                    "secondary-container": "#e42022",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-fixed": "#410002",
+                    "on-tertiary-fixed": "#111e1c",
+                    "surface-container-highest": "#e5e2e0",
+                    "outline-variant": "#c4c7c2",
+                    "secondary": "#bb0011",
+                    "on-surface": "#1b1c1b",
+                    "primary-fixed": "#dde5dc",
+                    "secondary-fixed": "#ffdad6",
+                    "inverse-on-surface": "#f3f0ef"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "8px",
+                    "gutter": "24px",
+                    "container-padding-mobile": "20px",
+                    "stack-lg": "48px",
+                    "container-padding-desktop": "40px",
+                    "stack-sm": "12px",
+                    "stack-md": "24px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Nunito Sans"],
+                    "headline-lg": ["Nunito Sans"],
+                    "label-sm": ["Nunito Sans"],
+                    "headline-md": ["Nunito Sans"],
+                    "body-md": ["Nunito Sans"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "900"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "900"}],
+                    "label-sm": ["10px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                    "headline-md": ["20px", {"lineHeight": "1.3", "fontWeight": "800"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #fcf9f7;
+            font-family: 'Nunito Sans', sans-serif;
+            color: #1b1c1b;
+        }
+        .signature-shadow {
+            box-shadow: 0 20px 50px -12px rgba(23, 30, 25, 0.08);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .card-border {
+            border: 1px solid rgba(183, 198, 194, 0.25);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md flex justify-between items-center px-container-padding-mobile w-full h-[72px]">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-secondary">
+<img alt="Commander Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a modern drone fleet commander, wearing high-tech tactical apparel. The lighting is crisp and cinematic, emphasizing a warm yet authoritative tone. The background is a blurred futuristic mission control room with soft ambient light-mode colors and deep charcoal accents, fitting the MISD DronePilot aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGrwU0dTkzQisGLCQ3Z3mps07VaFQJKjagxF4FcDioG-eju5wXCHSsa_pGmDiFpofHEfWoN-nQk-ICp7MsX9ZoQ3_o2RFgBa9Cho1JEefTaxQcMOCyn9Vk2fY0jj5-iUlld6EMuBuT8R2Uc-7cTMaMd5kjV8YbWblNVAmBrx-APuvW1_rOm9AbAB4a-n1nAcDTmXh7nTuroxKoZpqFJoaCI72CuCKhMPo1a0wBO4I1r0apSp4EPzn-40NI1kgkEESaJOT4fufcyJk"/>
+</div>
+<span class="text-headline-md font-headline-md font-black text-primary tracking-tight">MISD Automation</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors active:scale-95">
+<span class="material-symbols-outlined text-primary">notifications</span>
+</button>
+</header>
+<main class="max-w-[1200px] mx-auto px-container-padding-mobile pt-24 space-y-stack-lg">
+<!-- Hero Greeting -->
+<section class="animate-in fade-in slide-in-from-bottom-4 duration-700">
+<p class="text-label-sm font-label-sm uppercase tracking-[0.2em] text-secondary mb-2">Fleet Command</p>
+<h1 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg-mobile md:font-headline-lg text-primary">Hello, Commander</h1>
+</section>
+<!-- Category Selector -->
+<section class="hide-scrollbar overflow-x-auto flex gap-stack-sm -mx-container-padding-mobile px-container-padding-mobile pb-2">
+<button class="flex-shrink-0 px-6 py-3 bg-primary text-on-primary rounded-full font-bold text-sm tracking-wide transition-transform active:scale-95">
+                All Operations
+            </button>
+<button class="flex-shrink-0 px-6 py-3 bg-white card-border text-on-surface-variant rounded-full font-bold text-sm tracking-wide hover:bg-surface-container-low transition-all">
+                Agriculture
+            </button>
+<button class="flex-shrink-0 px-6 py-3 bg-white card-border text-on-surface-variant rounded-full font-bold text-sm tracking-wide hover:bg-surface-container-low transition-all">
+                Surveillance
+            </button>
+<button class="flex-shrink-0 px-6 py-3 bg-white card-border text-on-surface-variant rounded-full font-bold text-sm tracking-wide hover:bg-surface-container-low transition-all">
+                Cinema
+            </button>
+<button class="flex-shrink-0 px-6 py-3 bg-white card-border text-on-surface-variant rounded-full font-bold text-sm tracking-wide hover:bg-surface-container-low transition-all">
+                Logistics
+            </button>
+</section>
+<!-- Bento Grid Dashboard -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-stack-md">
+<!-- Main Hero Card: Active Missions -->
+<div class="md:col-span-8 bg-white rounded-xl card-border signature-shadow p-8 flex flex-col justify-between relative overflow-hidden min-h-[320px]">
+<div class="relative z-10">
+<span class="inline-flex items-center gap-2 px-3 py-1 bg-secondary/10 text-secondary rounded-full text-[10px] font-bold uppercase tracking-wider mb-6">
+<span class="w-2 h-2 bg-secondary rounded-full animate-pulse"></span>
+                        Live Operations
+                    </span>
+<h2 class="text-[56px] font-black text-primary leading-none mb-2">24</h2>
+<p class="text-headline-md font-headline-md text-on-surface-variant">Active Missions</p>
+</div>
+<div class="mt-auto relative z-10 flex items-center gap-4">
+<button class="bg-secondary text-on-secondary px-8 py-4 rounded-lg font-bold text-sm transition-transform hover:scale-[1.02] active:scale-95">
+                        Launch Mission
+                    </button>
+<button class="bg-white card-border text-primary px-8 py-4 rounded-lg font-bold text-sm hover:bg-surface-container-low transition-all">
+                        View Map
+                    </button>
+</div>
+<!-- Atmospheric Decoration -->
+<div class="absolute -right-12 -bottom-12 w-64 h-64 opacity-5 pointer-events-none">
+<span class="material-symbols-outlined text-[240px]">rocket_launch</span>
+</div>
+</div>
+<!-- Side Bento Column -->
+<div class="md:col-span-4 flex flex-col gap-stack-md">
+<!-- Metric Card: Flight Hours -->
+<div class="bg-white rounded-xl card-border signature-shadow p-6 flex flex-col justify-between h-full">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-secondary text-3xl">timer</span>
+<span class="text-label-sm font-label-sm uppercase text-on-surface-variant">+12% vs last week</span>
+</div>
+<div>
+<h3 class="text-headline-lg-mobile font-black text-primary">1,402</h3>
+<p class="text-body-md text-on-surface-variant font-bold">Flight Hours</p>
+</div>
+</div>
+<!-- Metric Card: Fleet Status -->
+<div class="bg-primary-container rounded-xl signature-shadow p-6 flex flex-col justify-between h-full text-white">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-secondary text-3xl" style="font-variation-settings: 'FILL' 1;">security</span>
+<span class="text-label-sm font-label-sm uppercase text-on-primary-fixed-variant">All Secure</span>
+</div>
+<div>
+<h3 class="text-headline-lg-mobile font-black text-on-primary">Optimal</h3>
+<p class="text-body-md text-on-primary-container font-bold">Fleet Status</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Secondary Feed: Nearby Pilots -->
+<section class="space-y-stack-md">
+<div class="flex justify-between items-end">
+<div>
+<h2 class="text-headline-md font-headline-md text-primary">Nearby Pilots</h2>
+<p class="text-body-md text-on-surface-variant">Available for collaborative swarm missions</p>
+</div>
+<a class="text-secondary font-bold text-sm flex items-center gap-1 hover:underline" href="#">
+                    View All <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-stack-md">
+<!-- Pilot Card: Marcus Thorne -->
+<div class="bg-white rounded-xl card-border signature-shadow p-5 flex items-center gap-4 transition-all hover:translate-y-[-4px]">
+<img alt="Marcus Thorne" class="w-16 h-16 rounded-lg object-cover" data-alt="A portrait of a male drone pilot named Marcus Thorne, looking confident and focused. He is wearing a minimalist tech jacket in charcoal grey. The photo has a high-end editorial feel with clean studio lighting and a subtle off-white background consistent with the MISD brand colors." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBc_uP-t5vAeYInKjSaiXlEBsa3xwWfzGDKeexGBRHb1hdjPnx-6uSUF2HADiygppBap6OUsJPmzFXRGWOyAv5F7jvruhfO413MZHTo7pj-FghmpVpMie-0a1GEX9GF9uPUrbK1VUVwni4HX91EIIDYkvOPHkMGiRKsRYssZ54dK1DBjTqBreJiP_KbXo5EH41iLv9-HQiiYKaZ6M1QB9P7g7DLwdXN5OCxhcquv6FxCFgu_oLHYR96U-_C55X8Cxfk-Bahlo1oL3g"/>
+<div class="flex-1">
+<h4 class="font-black text-primary">Marcus Thorne</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="px-2 py-0.5 bg-surface-container-high rounded-full text-[10px] font-bold uppercase text-on-surface-variant">Pro Level 4</span>
+<span class="text-[10px] font-bold text-secondary uppercase flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">location_on</span> 0.8 mi
+                            </span>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface-container-low card-border flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined">chat_bubble</span>
+</button>
+</div>
+<!-- Pilot Card: Elena Vance -->
+<div class="bg-white rounded-xl card-border signature-shadow p-5 flex items-center gap-4 transition-all hover:translate-y-[-4px]">
+<img alt="Elena Vance" class="w-16 h-16 rounded-lg object-cover" data-alt="A portrait of a female drone pilot named Elena Vance with an expression of sharp intelligence. She is wearing sleek, modern aviation-inspired clothing. The visual style is minimal and sophisticated, using a high-key light palette with vibrant red accents and charcoal depth." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBco9uZjVoYcQm2JzdAyJluDXsL6dx0cXB140yDUifMesf3oe5cxl4GPjWtCVZBmpMiU4WNbF7T_zy6LQb3w_H9-npiCf6yaYxH5k1dvYGOXsUf155dvlm3oHPn68dtfEMy8iMynAUJH4K072W4Qc1LazzsEyNQj1nfCcTM3bxeuQiWfrzVpw6JDgYIsInXrDB1yGQ1ilCMJtFURDOcOFtnY5W2orwhRzzdNJwiWBGw0VcBmDC5v21PiN1r2ub9SjRH5DSKqL-wcYY"/>
+<div class="flex-1">
+<h4 class="font-black text-primary">Elena Vance</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="px-2 py-0.5 bg-surface-container-high rounded-full text-[10px] font-bold uppercase text-on-surface-variant">Swarm Lead</span>
+<span class="text-[10px] font-bold text-secondary uppercase flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">location_on</span> 2.4 mi
+                            </span>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface-container-low card-border flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined">chat_bubble</span>
+</button>
+</div>
+<!-- Pilot Card: Swarm Availability -->
+<div class="bg-surface-container-low border-2 border-dashed border-outline-variant rounded-xl p-5 flex flex-col items-center justify-center text-center opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined text-outline mb-2">add_circle</span>
+<p class="text-label-sm font-label-sm uppercase text-outline">Broadcasting Signal...</p>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-base left-base right-base z-50 flex justify-around items-center px-4 h-[64px] bg-primary dark:bg-primary-container rounded-full shadow-[0_20px_50px_-12px_rgba(23,30,25,0.08)]">
+<a class="flex items-center justify-center bg-secondary text-on-secondary rounded-full w-12 h-12 -mt-8 border-4 border-background transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined">home</span>
+</a>
+<a class="flex items-center justify-center text-on-secondary-fixed-variant w-12 h-12 hover:text-secondary-fixed-dim transition-colors" href="#">
+<span class="material-symbols-outlined">explore</span>
+</a>
+<a class="flex items-center justify-center text-on-secondary-fixed-variant w-12 h-12 hover:text-secondary-fixed-dim transition-colors" href="#">
+<span class="material-symbols-outlined">add</span>
+</a>
+<a class="flex items-center justify-center text-on-secondary-fixed-variant w-12 h-12 hover:text-secondary-fixed-dim transition-colors" href="#">
+<span class="material-symbols-outlined">assignment</span>
+</a>
+<a class="flex items-center justify-center text-on-secondary-fixed-variant w-12 h-12 hover:text-secondary-fixed-dim transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions for category selector
+        document.querySelectorAll('.hide-scrollbar button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.hide-scrollbar button').forEach(b => {
+                    b.classList.remove('bg-primary', 'text-on-primary');
+                    b.classList.add('bg-white', 'text-on-surface-variant', 'card-border');
+                });
+                this.classList.remove('bg-white', 'text-on-surface-variant', 'card-border');
+                this.classList.add('bg-primary', 'text-on-primary');
+            });
+        });
+
+        // Simple entrance animations for cards
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in', 'fade-in', 'slide-in-from-bottom-8', 'duration-1000');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.signature-shadow').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body></html>

@@ -1,0 +1,315 @@
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(183, 198, 194, 0.25);
+    }
+    .geometric-shape {
+      pointer-events: none;
+      z-index: 0;
+    }
+    .custom-shadow {
+      box-shadow: 0 20px 50px -12px rgba(23, 30, 25, 0.08);
+    }
+    body {
+      background-color: #fcf9f7;
+    }
+  </style>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "surface-container-low": "#f6f3f1",
+                  "on-tertiary-fixed": "#111e1c",
+                  "surface-bright": "#fcf9f7",
+                  "on-primary-fixed-variant": "#414943",
+                  "error-container": "#ffdad6",
+                  "primary-container": "#171e19",
+                  "on-secondary-container": "#fffbff",
+                  "surface-dim": "#dcd9d8",
+                  "primary-fixed-dim": "#c1c8c0",
+                  "tertiary-fixed": "#d7e6e2",
+                  "surface-container": "#f0edec",
+                  "secondary-container": "#e42022",
+                  "primary": "#000201",
+                  "on-surface-variant": "#444844",
+                  "on-error": "#ffffff",
+                  "surface": "#fcf9f7",
+                  "surface-variant": "#e5e2e0",
+                  "surface-tint": "#59605a",
+                  "secondary": "#bb0011",
+                  "tertiary-container": "#121f1d",
+                  "surface-container-highest": "#e5e2e0",
+                  "inverse-primary": "#c1c8c0",
+                  "on-tertiary-container": "#798884",
+                  "on-secondary-fixed-variant": "#93000a",
+                  "outline": "#747874",
+                  "outline-variant": "#c4c7c2",
+                  "on-surface": "#1b1c1b",
+                  "on-secondary-fixed": "#410002",
+                  "on-tertiary": "#ffffff",
+                  "surface-container-high": "#eae8e6",
+                  "secondary-fixed-dim": "#ffb4ab",
+                  "on-background": "#1b1c1b",
+                  "on-secondary": "#ffffff",
+                  "inverse-on-surface": "#f3f0ef",
+                  "background": "#fcf9f7",
+                  "on-primary-container": "#7f867f",
+                  "secondary-fixed": "#ffdad6",
+                  "on-primary-fixed": "#161d18",
+                  "error": "#ba1a1a",
+                  "tertiary-fixed-dim": "#bbcac6",
+                  "tertiary": "#000202",
+                  "primary-fixed": "#dde5dc",
+                  "surface-container-lowest": "#ffffff",
+                  "on-primary": "#ffffff",
+                  "on-error-container": "#93000a",
+                  "on-tertiary-fixed-variant": "#3c4a47",
+                  "inverse-surface": "#313030"
+          },
+          "borderRadius": {
+                  "DEFAULT": "1rem",
+                  "lg": "2rem",
+                  "xl": "3rem",
+                  "full": "9999px"
+          },
+          "spacing": {
+                  "container-padding-desktop": "40px",
+                  "base": "8px",
+                  "stack-md": "24px",
+                  "stack-lg": "48px",
+                  "gutter": "24px",
+                  "container-padding-mobile": "20px",
+                  "stack-sm": "12px"
+          },
+          "fontFamily": {
+                  "label-sm": ["Nunito Sans"],
+                  "headline-md": ["Nunito Sans"],
+                  "headline-lg-mobile": ["Nunito Sans"],
+                  "headline-lg": ["Nunito Sans"],
+                  "body-md": ["Nunito Sans"]
+          },
+          "fontSize": {
+                  "label-sm": ["10px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                  "headline-md": ["20px", {"lineHeight": "1.3", "fontWeight": "800"}],
+                  "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "900"}],
+                  "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "900"}],
+                  "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-surface selection:bg-secondary selection:text-white">
+<!-- Top Navigation Shell -->
+<header class="bg-surface fixed top-0 w-full z-50 flex justify-between items-center px-10 h-16 transition-opacity hover:opacity-95">
+<div class="flex items-center gap-2">
+<span class="font-headline-lg text-headline-lg font-extrabold text-primary">DronePilot</span>
+</div>
+<div class="hidden md:flex gap-8 items-center">
+<a class="font-label-sm text-label-sm text-primary uppercase tracking-widest hover:text-secondary transition-colors" href="#">Technology</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest hover:text-secondary transition-colors" href="#">Sectors</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest hover:text-secondary transition-colors" href="#">Ethics</a>
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed-dim overflow-hidden border border-outline-variant/30">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQWxNJ19_8wYB2s3P0Dgb9Uf9Saesmdw7YYFRKxUOo4RINayKws-VviLTMJ3tPSnq7Haq5gp-B4PBURVdl_stekafC4AvHrQSBjPEgKhuvlaMxqN2_YSVkyJTPy5_ETTW0Qz0haKo1SUck0wAuGWjA1nVE71x30GW35lhtDqbg1XBxT7lEUPy-04HfhIlUX19oLzBirEVku8xM5QkDQdW4YCsex108_efHCIVnmtQLAXtAzech4iLbddBGVz1tjhDQS7V26Na8eak"/>
+</div>
+</div>
+<div class="md:hidden">
+<span class="material-symbols-outlined text-primary" data-icon="menu">menu</span>
+</div>
+</header>
+<main class="relative pt-24 pb-32 overflow-hidden">
+<!-- Abstract Geometric Background Elements -->
+<div class="geometric-shape absolute top-20 -left-20 w-96 h-96 bg-tertiary-fixed/30 rounded-full blur-3xl"></div>
+<div class="geometric-shape absolute top-60 -right-20 w-80 h-80 bg-secondary/10 rounded-xl rotate-12 blur-2xl"></div>
+<div class="geometric-shape absolute bottom-20 left-1/2 -translate-x-1/2 w-[1200px] h-96 bg-surface-container-low rounded-[100px] -rotate-6 opacity-40"></div>
+<div class="max-w-[1200px] mx-auto px-10 relative z-10">
+<!-- Hero Section -->
+<section class="mb-stack-lg">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<div>
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-[0.2em] mb-4 block">About DronePilot</span>
+<h1 class="font-headline-lg text-[64px] leading-tight font-black text-primary mb-8 tracking-tight">
+              Engineered for <br/>
+<span class="text-secondary">Precision</span>
+</h1>
+<p class="font-body-md text-on-surface-variant text-lg max-w-md leading-relaxed mb-10">
+              We redefine flight through the lens of mathematical absolute. Our philosophy is rooted in the intersection of organic safety and surgical technological accuracy.
+            </p>
+<div class="flex gap-4">
+<button class="bg-secondary text-white px-8 py-4 rounded-lg font-bold hover:scale-105 transition-transform active:scale-95">
+                Experience the Flight
+              </button>
+<button class="border border-outline-variant bg-white text-primary px-8 py-4 rounded-lg font-bold hover:bg-surface-container transition-colors">
+                Whitepaper
+              </button>
+</div>
+</div>
+<div class="relative">
+<!-- Overlapping Shapes Decoration -->
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-secondary rounded-full flex items-center justify-center z-20 animate-pulse">
+<span class="text-white font-bold text-center text-xs uppercase tracking-tighter">99.9%<br/>Accuracy</span>
+</div>
+<div class="absolute inset-0 bg-tertiary-fixed-dim/20 rounded-xl transform rotate-3 translate-x-4 translate-y-4"></div>
+<div class="relative rounded-xl overflow-hidden custom-shadow border border-outline-variant/25">
+<img class="w-full h-[500px] object-cover" data-alt="A cinematic shot of a sleek, matte black professional drone hovering perfectly still against a crisp sunset horizon. The lighting is dramatic, highlighting the carbon fiber textures and precision-machined joints of the aircraft. The overall mood is high-tech, minimalist, and powerful, utilizing a sophisticated palette of deep blacks, soft grays, and a sharp accent of vibrant red from the drone's status indicators." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvh3niNlZ0B46ud-IYdcnnuaGBIo5BluE47jyZ5N-nvmNsPHdq1eoH8LSGFBXGC82aBPQNDRhdmHEvS08VkucfteWXkenMWqTmAtzUPYiTYXTBbL0AVAgwHHDNFxvefMaRyCUO66G5SfzPyGXPuTQ_3VYgcTeii3_KPLpP5DydZSjyBAaQK1nwkMtouF0L0CwxKitOXW5vA9zwpmyaEVUodPhRrXNDs4gPnAi06MgLxduGI9hnNtW9gOcnQQgDQmtDeft8A4mC-jg"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Philosophy Grid -->
+<section class="mb-stack-lg">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="p-10 glass-card rounded-lg flex flex-col gap-6 hover:-translate-y-2 transition-transform duration-500 group">
+<div class="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="architecture">architecture</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary group-hover:text-secondary transition-colors">Architectural Integrity</h3>
+<p class="text-on-surface-variant font-body-md">Every drone frame is machined from a single block of aerospace-grade titanium, ensuring structural zero-flex during high-G maneuvers.</p>
+</div>
+<div class="p-10 glass-card rounded-lg flex flex-col gap-6 hover:-translate-y-2 transition-transform duration-500 group border-secondary/20 bg-white shadow-xl">
+<div class="w-12 h-12 bg-secondary rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="analytics" data-weight="fill" style="font-variation-settings: 'FILL' 1;">analytics</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary">Algorithmic Mastery</h3>
+<p class="text-on-surface-variant font-body-md">Our proprietary 'NeuroFlight' AI processes 12 million environmental data points per second to maintain sub-millimeter positioning.</p>
+</div>
+<div class="p-10 glass-card rounded-lg flex flex-col gap-6 hover:-translate-y-2 transition-transform duration-500 group">
+<div class="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="eco">eco</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary group-hover:text-secondary transition-colors">Organic Resilience</h3>
+<p class="text-on-surface-variant font-body-md">Inspired by biomimicry, our rotors adapt their pitch dynamically to match ambient wind patterns, much like a hawk's wings.</p>
+</div>
+</div>
+</section>
+<!-- Services Section: Asymmetric Bento Grid -->
+<section class="mb-stack-lg">
+<div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+<div class="max-w-xl">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-4">Specialized Sectors</h2>
+<p class="text-on-surface-variant text-lg">We don't just fly; we solve industry-specific challenges with surgical precision tools designed for the ground up.</p>
+</div>
+<a class="font-label-sm text-label-sm text-secondary border-b-2 border-secondary pb-1 tracking-widest uppercase" href="#">View All Industry Solutions</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter h-auto md:h-[700px]">
+<!-- Agriculture -->
+<div class="md:col-span-8 relative rounded-lg overflow-hidden group border border-outline-variant/30 custom-shadow">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A lush, expansive agricultural field at dawn with rolling green hills. A specialized agricultural drone is hovering low, spraying a fine, precise mist over the crops. The morning sun creates a golden, soft glow. The visual style is crisp and clean, reflecting a modern light-mode design with a focus on deep sage greens and the vibrant red of the drone's brand markings." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuOLOfcrGvB2k_Ujgk2qf3S-TFmWwGqF36Sa3Ez9Zjdc0gYjej06xnZ0eD80MZHeoV83PWZylwbm5jD_-_EVzpjIvwPXWS_d5BF2nKnmFCz2Adpr15Ipm6JBJZtQqj-dJlfovOc9RoysVshRTUTMnoUcgZRL42FlrcjwhVlYVe3tmO24sTXKio7d8iXv0JCnk7_lmQFiHY7i_AZrbi7LSS5BGgt1rcC2N28I8_X7SNR-2l-zsEXGTp0n6lOpg6bJl_0aB6I-tiuAo"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-transparent to-transparent flex flex-col justify-end p-10">
+<div class="flex items-center gap-3 mb-2">
+<span class="px-3 py-1 bg-tertiary-fixed-dim text-on-tertiary-fixed font-label-sm text-[8px] rounded-full uppercase">Precision Farming</span>
+</div>
+<h4 class="font-headline-lg text-white mb-4">Agriculture</h4>
+<p class="text-white/80 max-w-md font-body-md">Multispectral mapping and autonomous crop management systems that increase yield efficiency by up to 34%.</p>
+</div>
+</div>
+<!-- Surveillance & Cinema Stack -->
+<div class="md:col-span-4 flex flex-col gap-gutter">
+<!-- Surveillance -->
+<div class="relative flex-1 rounded-lg overflow-hidden group border border-outline-variant/30 custom-shadow">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A futuristic urban skyline at night, characterized by cool blue and charcoal tones. A surveillance drone with glowing red optical sensors is positioned in the foreground, overlooking the city grid. The scene is shot with high contrast and sharp focus, emphasizing the corporate modern aesthetic and the precision-driven surveillance technology." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0-uDil2XAJb66Ei1zLoLKVxedA93vsdfUHYwSAvtcdwbM66DZZc-n-YjcGOKrEdQULNgdOfW-hvluRn-mgRNdDU9lhKUnHgh_j0aRYHLEeyp1hUJFMNJbqiQ1wDbZLdf6B66VkuFqp4PAlWiZgW4mZAYnlkpAMPq1wHW2Vm9vxQ3iuPWhsy5qoDxpg_NHE9AfDMYWx07zUhgjIYySnSK5nDcFI-80lAj9KyxHt2lHuhJVjsKJniRA25-7_lnP_VCHKlrxsyVox_g"/>
+<div class="absolute inset-0 bg-gradient-to-t from-secondary/90 via-transparent to-transparent flex flex-col justify-end p-8">
+<h4 class="font-headline-md text-white mb-2">Surveillance</h4>
+<p class="text-white/80 text-sm font-body-md">24/7 autonomous perimeter security with thermal tracking and AI threat detection.</p>
+</div>
+</div>
+<!-- Cinema -->
+<div class="relative flex-1 rounded-lg overflow-hidden group border border-outline-variant/30 custom-shadow">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A professional film set in a rugged mountain canyon during the golden hour. A heavy-duty cinema drone carrying a high-end large-format camera is mid-flight, capturing a car chase. The dust and light create a gritty yet cinematic atmosphere. The color palette features warm earth tones contrasted by the sleek charcoal and red of the drone equipment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_ESpRN9ZbDt0ukQhrtR3i7Gmpo2KsOmhyrDfLxXKdvAZJOIm1xPx-4KAM6aCJAR_VroXwYQ-Prswz7OpyMFUYWC0Ksmk9nHp5BZwUuI7iO6jzlHy5dh7XJ0wvkiGACoHUU2o52z0oh-LsuFyQC0pka2nMFbrs7rG2g3MnP93KnEGQqw7bbgmE5rjuPofFiO0PnH7Y0Gg3QM-POMDXQ3PSYiR-w03deuwAjBcvQghix-HZxVoxRYjTB2aT99rGRASZ8exCSL-Nygk"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-transparent to-transparent flex flex-col justify-end p-8">
+<h4 class="font-headline-md text-white mb-2">Cinema</h4>
+<p class="text-white/80 text-sm font-body-md">Unmatched stability for large-format cameras. The choice for Hollywood's most demanding aerial DP work.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Brand Identity "Lock" Section -->
+<section class="bg-primary text-white rounded-xl p-16 relative overflow-hidden flex flex-col items-center text-center">
+<!-- Background Shapes -->
+<div class="absolute -top-20 -left-20 w-64 h-64 border-[40px] border-white/5 rounded-full"></div>
+<div class="absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/20 rounded-xl rotate-45"></div>
+<div class="max-w-2xl relative z-10">
+<span class="material-symbols-outlined text-secondary text-5xl mb-6" data-icon="verified_user">verified_user</span>
+<h2 class="font-headline-lg text-[48px] leading-tight mb-8">The Gold Standard of Airborne Intelligence</h2>
+<p class="text-surface-variant text-lg mb-12 opacity-80">
+            Founded by aerospace engineers and data scientists, MISD is not just a hardware manufacturer. We are an ethics-first intelligence collective building the nervous system of the future sky.
+          </p>
+<div class="flex flex-wrap justify-center gap-12 border-t border-white/10 pt-12">
+<div>
+<div class="text-3xl font-black mb-1">150+</div>
+<div class="font-label-sm text-[8px] uppercase tracking-widest text-secondary">Patents Held</div>
+</div>
+<div>
+<div class="text-3xl font-black mb-1">12k</div>
+<div class="font-label-sm text-[8px] uppercase tracking-widest text-secondary">Global Pilots</div>
+</div>
+<div>
+<div class="text-3xl font-black mb-1">0.001s</div>
+<div class="font-label-sm text-[8px] uppercase tracking-widest text-secondary">Latency Peak</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Navigation Footer Shell -->
+<footer class="fixed bottom-0 left-0 w-full z-50 bg-surface-container flex justify-around items-center px-4 py-2 pb-safe shadow-lg rounded-t-xl md:hidden">
+<button class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1">
+<span class="material-symbols-outlined" data-icon="home" data-weight="fill" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-sm text-[10px]">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="font-label-sm text-[10px]">Browse</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="assignment">assignment</span>
+<span class="font-label-sm text-[10px]">Bookings</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+<span class="font-label-sm text-[10px]">Messages</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm text-[10px]">Profile</span>
+</button>
+</footer>
+<script>
+    // Micro-interactions for scrolling
+    document.addEventListener('scroll', () => {
+      const header = document.querySelector('header');
+      if (window.scrollY > 50) {
+        header.classList.add('shadow-md');
+        header.classList.remove('h-16');
+        header.classList.add('h-14');
+      } else {
+        header.classList.remove('shadow-md');
+        header.classList.remove('h-14');
+        header.classList.add('h-16');
+      }
+    });
+
+    // Simple interaction for bento grid hover logic (handled via tailwind group-hover)
+  </script>
+</body></html>
