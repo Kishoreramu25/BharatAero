@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { 
-  ArrowLeft, Calendar, MapPin, Clock, ChevronRight, 
-  DollarSign, Briefcase, Shield, FileText, AlertTriangle 
-} from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 export default function BookPilot() {
   const { navigate, addBooking } = useApp();
@@ -215,17 +212,14 @@ export default function BookPilot() {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-between bg-slate-50 text-[#1b1c1b] h-full pb-6 relative select-none" style={{
-      backgroundImage: `radial-gradient(rgba(183, 198, 194, 0.2) 1px, transparent 1px)`,
-      backgroundSize: '16px 16px'
-    }}>
+    <div className="flex-1 flex flex-col justify-between bg-white text-[#1b1c1b] h-full pb-6 relative select-none">
       
       {/* Top App Bar */}
-      <header className="sticky top-0 bg-white/85 backdrop-blur-md flex items-center justify-between px-4 h-[64px] border-b border-[#b7c6c2]/15 z-40">
+      <header className="sticky top-0 bg-white/85 backdrop-blur-md flex items-center justify-between px-4 h-[64px] border-b border-[#b7c6c2]/60 z-40">
         <div className="flex items-center">
           <button 
             onClick={() => navigate('client_dashboard', 'home')}
-            className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-neutral-100 transition-colors"
+            className="w-10 h-10 flex items-center justify-center rounded-none hover:bg-neutral-100 transition-colors"
           >
             <ArrowLeft size={18} className="text-[#000201]" />
           </button>
@@ -234,9 +228,9 @@ export default function BookPilot() {
         <button
           type="button"
           onClick={handleMagicFill}
-          className="text-[9px] bg-red-600 hover:bg-red-700 active:scale-95 text-white px-3 py-1.5 rounded-full font-headline font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm shadow-red-200"
+          className="text-[10px] bg-neutral-800 text-white px-3 py-2 rounded-none font-headline font-bold uppercase tracking-wider hover:bg-neutral-900 transition-colors cursor-pointer"
         >
-          ✨ Magic Fill
+          Magic Fill
         </button>
       </header>
 
@@ -247,40 +241,34 @@ export default function BookPilot() {
           <div className="space-y-5">
             
             {/* Section 1: Mission Identity */}
-            <div className="bg-white rounded-3xl border border-neutral-200/50 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.015)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.025)] hover:-translate-y-0.5 transition-all duration-300 space-y-5 relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#ca0013] to-red-400"></div>
-              
-              <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
-                <h4 className="text-[10px] font-headline font-black uppercase tracking-widest text-[#ca0013] flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[14px]">assignment</span>
+            <div className="space-y-4 pt-2">
+              <div className="pb-2.5 border-b border-[#b7c6c2]/30">
+                <h3 className="text-xs font-headline font-black text-[#000201] uppercase tracking-wider">
                   1. Mission Identity & Operation
-                </h4>
+                </h3>
               </div>
 
               {/* Title */}
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-headline font-bold text-[#747874] uppercase tracking-wider ml-1">
+                <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider ml-1">
                   Mission / Job Title
                 </label>
-                <div className="relative flex items-center bg-neutral-50/50 hover:bg-neutral-50 border border-neutral-200/70 rounded-2xl overflow-hidden px-4 py-0.5 transition-all duration-200 focus-within:border-[#ca0013] focus-within:bg-white focus-within:ring-4 focus-within:ring-red-50">
-                  <Briefcase size={15} className="text-neutral-400 mr-2.5 shrink-0" />
-                  <input 
-                    type="text" 
-                    placeholder="e.g. 50-Acre Paddy Crop Spraying"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="w-full bg-transparent border-none py-3.5 text-xs outline-none font-body text-[#1b1c1b] placeholder-neutral-400/80"
-                    required
-                  />
-                </div>
+                <input 
+                  type="text" 
+                  placeholder="e.g. 50-Acre Paddy Crop Spraying"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full bg-white border border-[#b7c6c2]/60 px-4 py-3 text-xs outline-none font-body text-[#1b1c1b] placeholder-neutral-400/80 rounded-none focus:border-[#ca0013] transition-colors"
+                  required
+                />
               </div>
 
               {/* Category / Industry */}
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-headline font-bold text-[#747874] uppercase tracking-wider ml-1">
+                <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider ml-1">
                   Operation Type / Category
                 </label>
-                <div className="relative flex items-center">
+                <div className="relative">
                   <select 
                     value={category}
                     onChange={(e) => {
@@ -289,7 +277,7 @@ export default function BookPilot() {
                         setCustomCategory('');
                       }
                     }}
-                    className="w-full bg-neutral-50/50 hover:bg-neutral-50 border border-neutral-200/70 py-3.5 pl-4 pr-10 rounded-2xl text-xs font-body outline-none appearance-none cursor-pointer transition-all duration-200 focus:border-[#ca0013] focus:bg-white focus:ring-4 focus:ring-red-50 text-[#1b1c1b]"
+                    className="w-full bg-white border border-[#b7c6c2]/60 py-3 px-4 rounded-none text-xs font-body outline-none appearance-none cursor-pointer text-[#1b1c1b] pr-10 focus:border-[#ca0013] transition-colors"
                   >
                     <option value="Agricultural Survey">Agricultural Survey & Spraying</option>
                     <option value="Thermal Roof Inspection">Thermal & Roof Inspection</option>
@@ -306,99 +294,88 @@ export default function BookPilot() {
                     <option value="Construction Site Monitoring">Construction Progress Tracking</option>
                     <option value="Other">Other (Specify below...)</option>
                   </select>
-                  <div className="absolute right-4 pointer-events-none text-neutral-400">
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                   </div>
                 </div>
               </div>
 
-              {/* Custom Category Input (Only shows if category is 'Other') */}
+              {/* Custom Category Input */}
               {category === 'Other' && (
                 <div className="space-y-1.5 animate-fade-in">
-                  <label className="block text-[10px] font-headline font-bold text-[#ca0013] uppercase tracking-wider ml-1">
+                  <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider ml-1">
                     Specify Custom Operation Type
                   </label>
-                  <div className="relative flex items-center bg-white border border-[#ca0013] rounded-2xl overflow-hidden px-4">
-                    <input 
-                      type="text" 
-                      placeholder="Enter custom operation type (e.g. Wildlife Tracking)"
-                      value={customCategory}
-                      onChange={(e) => setCustomCategory(e.target.value)}
-                      className="w-full bg-transparent border-none py-3.5 text-xs outline-none font-body text-[#1b1c1b]"
-                      required={category === 'Other'}
-                    />
-                  </div>
+                  <input 
+                    type="text" 
+                    placeholder="Enter custom operation type (e.g. Wildlife Tracking)"
+                    value={customCategory}
+                    onChange={(e) => setCustomCategory(e.target.value)}
+                    className="w-full bg-white border border-[#b7c6c2]/60 px-4 py-3 text-xs outline-none font-body text-[#1b1c1b] placeholder-neutral-400 rounded-none focus:border-[#ca0013] transition-colors"
+                    required={category === 'Other'}
+                  />
                 </div>
               )}
             </div>
 
             {/* Section 2: Time & Budget */}
-            <div className="bg-white rounded-3xl border border-neutral-200/50 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.015)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.025)] hover:-translate-y-0.5 transition-all duration-300 space-y-5 relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-400 to-[#128807]"></div>
-              
-              <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
-                <h4 className="text-[10px] font-headline font-black uppercase tracking-widest text-[#ca0013] flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[14px]">schedule</span>
+            <div className="space-y-4 pt-4">
+              <div className="pb-2.5 border-b border-[#b7c6c2]/30">
+                <h3 className="text-xs font-headline font-black text-[#000201] uppercase tracking-wider">
                   2. Dispatch Parameters & Financials
-                </h4>
+                </h3>
               </div>
 
               {/* Date Field */}
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-headline font-bold text-[#747874] uppercase tracking-wider ml-1">
+                <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider ml-1">
                   Mission Date
                 </label>
-                <div className="relative flex items-center bg-neutral-50/50 hover:bg-neutral-50 border border-neutral-200/70 rounded-2xl overflow-hidden px-4 py-0.5 transition-all duration-200 focus-within:border-[#ca0013] focus-within:bg-white focus-within:ring-4 focus-within:ring-red-50">
-                  <Calendar size={15} className="text-neutral-400 mr-2.5 shrink-0" />
-                  <input 
-                    type="date" 
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full bg-transparent border-none py-3.5 text-xs outline-none font-body text-[#1b1c1b]"
-                    required
-                  />
-                </div>
+                <input 
+                  type="date" 
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full bg-white border border-[#b7c6c2]/60 px-4 py-3 text-xs outline-none font-body text-[#1b1c1b] rounded-none focus:border-[#ca0013] transition-colors"
+                  required
+                />
               </div>
 
               {/* Time Slot (Clock Pickers) */}
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-headline font-bold text-[#747874] uppercase tracking-wider ml-1">
+                <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider ml-1">
                   Deploy Time Window (IST)
                 </label>
                 <div className="flex items-center gap-3">
                   {/* Start Time */}
-                  <div className="flex-1 relative flex items-center bg-neutral-50/50 hover:bg-neutral-50 border border-neutral-200/70 rounded-2xl overflow-hidden px-3.5 py-0.5 transition-all duration-200 focus-within:border-[#ca0013] focus-within:bg-white focus-within:ring-4 focus-within:ring-red-50">
-                    <Clock size={14} className="text-neutral-400 mr-2 shrink-0" />
-                    <span className="text-[9px] font-bold text-neutral-400 mr-1.5 uppercase shrink-0">Start</span>
+                  <div className="flex-grow flex items-center bg-white border border-[#b7c6c2]/60 rounded-none px-3">
+                    <span className="text-[9px] font-bold text-[#747874] mr-2 uppercase shrink-0">Start</span>
                     <input 
                       type="time" 
                       value={startTime}
                       onChange={(e) => setStartTime(e.target.value)}
-                      className="w-full bg-transparent border-none py-3.5 text-xs outline-none font-body text-[#1b1c1b] cursor-pointer"
+                      className="w-full bg-transparent py-3 text-xs outline-none font-body text-[#1b1c1b] cursor-pointer"
                       required
                     />
                   </div>
                   
-                  <span className="text-[10px] font-headline font-bold text-[#747874] uppercase shrink-0">to</span>
+                  <span className="text-[10px] font-bold text-[#747874] uppercase shrink-0">to</span>
 
                   {/* End Time */}
-                  <div className="flex-1 relative flex items-center bg-neutral-50/50 hover:bg-neutral-50 border border-neutral-200/70 rounded-2xl overflow-hidden px-3.5 py-0.5 transition-all duration-200 focus-within:border-[#ca0013] focus-within:bg-white focus-within:ring-4 focus-within:ring-red-50">
-                    <Clock size={14} className="text-neutral-400 mr-2 shrink-0" />
-                    <span className="text-[9px] font-bold text-neutral-400 mr-1.5 uppercase shrink-0">End</span>
+                  <div className="flex-grow flex items-center bg-white border border-[#b7c6c2]/60 rounded-none px-3">
+                    <span className="text-[9px] font-bold text-[#747874] mr-2 uppercase shrink-0">End</span>
                     <input 
                       type="time" 
                       value={endTime}
                       onChange={(e) => setEndTime(e.target.value)}
-                      className="w-full bg-transparent border-none py-3.5 text-xs outline-none font-body text-[#1b1c1b] cursor-pointer"
+                      className="w-full bg-transparent py-3 text-xs outline-none font-body text-[#1b1c1b] cursor-pointer"
                       required
                     />
                   </div>
                 </div>
                 
-                {/* AM/PM Live Preview Badge */}
+                {/* Time Selected Text Info */}
                 <div className="pt-1 flex justify-end">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-[#ca0013] text-[9px] font-bold font-headline uppercase tracking-wider border border-red-100/40 rounded-xl">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#ca0013] animate-pulse"></span>
+                  <span className="text-[10px] font-bold text-[#747874] uppercase tracking-wider">
                     Selected: {formatTimeTo12Hour(startTime)} - {formatTimeTo12Hour(endTime)} IST
                   </span>
                 </div>
@@ -408,82 +385,70 @@ export default function BookPilot() {
               <div className="grid grid-cols-2 gap-4">
                 {/* Budget */}
                 <div className="space-y-1.5">
-                  <label className="block text-[10px] font-headline font-bold text-[#747874] uppercase tracking-wider ml-1">
+                  <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider ml-1">
                     Budget Offer (INR)
                   </label>
-                  <div className="relative flex items-center bg-neutral-50/50 hover:bg-neutral-50 border border-neutral-200/70 rounded-2xl overflow-hidden px-3.5 py-0.5 transition-all duration-200 focus-within:border-[#ca0013] focus-within:bg-white focus-within:ring-4 focus-within:ring-red-50">
-                    <span className="text-xs font-black text-neutral-400 mr-1.5 shrink-0">₹</span>
-                    <input 
-                      type="number" 
-                      placeholder="e.g. 15000"
-                      value={budget}
-                      onChange={(e) => setBudget(e.target.value)}
-                      className="w-full bg-transparent border-none py-3.5 text-xs outline-none font-body text-[#1b1c1b]"
-                      required
-                    />
-                  </div>
+                  <input 
+                    type="number" 
+                    placeholder="e.g. 15000"
+                    value={budget}
+                    onChange={(e) => setBudget(e.target.value)}
+                    className="w-full bg-white border border-[#b7c6c2]/60 px-4 py-3 text-xs outline-none font-body text-[#1b1c1b] placeholder-neutral-400 rounded-none focus:border-[#ca0013] transition-colors"
+                    required
+                  />
                 </div>
 
                 {/* Duration */}
                 <div className="space-y-1.5">
-                  <label className="block text-[10px] font-headline font-bold text-[#747874] uppercase tracking-wider ml-1">
+                  <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider ml-1">
                     Est. Flight Hours
                   </label>
-                  <div className="relative flex items-center bg-neutral-50/50 hover:bg-neutral-50 border border-neutral-200/70 rounded-2xl overflow-hidden px-3.5 py-0.5 transition-all duration-200 focus-within:border-[#ca0013] focus-within:bg-white focus-within:ring-4 focus-within:ring-red-50">
-                    <Clock size={14} className="text-neutral-400 mr-2 shrink-0" />
-                    <input 
-                      type="number" 
-                      placeholder="e.g. 3"
-                      value={duration}
-                      onChange={(e) => setDuration(e.target.value)}
-                      className="w-full bg-transparent border-none py-3.5 text-xs outline-none font-body text-[#1b1c1b]"
-                      required
-                    />
-                  </div>
+                  <input 
+                    type="number" 
+                    placeholder="e.g. 3"
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
+                    className="w-full bg-white border border-[#b7c6c2]/60 px-4 py-3 text-xs outline-none font-body text-[#1b1c1b] placeholder-neutral-400 rounded-none focus:border-[#ca0013] transition-colors"
+                    required
+                  />
                 </div>
               </div>
             </div>
 
             {/* Section 3: Equipment & Location */}
-            <div className="bg-white rounded-3xl border border-neutral-200/50 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.015)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.025)] hover:-translate-y-0.5 transition-all duration-300 space-y-5 relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#128807] to-emerald-400"></div>
-              
-              <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
-                <h4 className="text-[10px] font-headline font-black uppercase tracking-widest text-[#ca0013] flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[14px]">my_location</span>
+            <div className="space-y-4 pt-4">
+              <div className="pb-2.5 border-b border-[#b7c6c2]/30">
+                <h3 className="text-xs font-headline font-black text-[#000201] uppercase tracking-wider">
                   3. Flight Zone & Payload Specifications
-                </h4>
+                </h3>
               </div>
 
               {/* Location Field */}
               <div className="space-y-2">
-                <label className="block text-[10px] font-headline font-bold text-[#747874] uppercase tracking-wider ml-1">
+                <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider ml-1">
                   Mission Location / Area
                 </label>
                 <div className="flex gap-2">
-                  <div className="relative flex-grow flex items-center bg-neutral-50/50 hover:bg-neutral-50 border border-neutral-200/70 rounded-2xl overflow-hidden px-4 py-0.5 transition-all duration-200 focus-within:border-[#ca0013] focus-within:bg-white focus-within:ring-4 focus-within:ring-red-50">
-                    <MapPin size={15} className="text-neutral-400 mr-2 shrink-0" />
-                    <input 
-                      type="text" 
-                      placeholder="Enter area, city, or coordinates"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      className="w-full bg-transparent border-none py-3.5 text-xs outline-none font-body text-[#1b1c1b]"
-                      required
-                    />
-                  </div>
+                  <input 
+                    type="text" 
+                    placeholder="Enter area, city, or coordinates"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="flex-grow bg-white border border-[#b7c6c2]/60 px-4 py-3 text-xs outline-none font-body text-[#1b1c1b] placeholder-neutral-400 rounded-none focus:border-[#ca0013] transition-colors"
+                    required
+                  />
                   <button
                     type="button"
                     onClick={handleSearchLocation}
-                    className="bg-[#000201] text-white hover:bg-neutral-800 text-[10px] font-headline font-bold px-6 py-4 rounded-2xl uppercase transition-all cursor-pointer shrink-0 active:scale-95 shadow-md shadow-neutral-950/5"
+                    className="bg-[#000201] text-white hover:bg-neutral-800 text-[10px] font-headline font-bold px-6 py-3 rounded-none uppercase transition-all cursor-pointer shrink-0"
                     title="Locate on map"
                   >
                     Locate
                   </button>
                 </div>
                 
-                {/* Premium Map Container */}
-                <div className="relative border border-neutral-200 bg-neutral-50 h-[380px] w-full overflow-hidden mt-3 rounded-3xl shadow-md">
+                {/* Map Container */}
+                <div className="relative border border-[#b7c6c2]/60 bg-neutral-50 h-[380px] w-full overflow-hidden mt-3 rounded-none">
                   {!mapLoaded && (
                     <div className="absolute inset-0 flex items-center justify-center bg-neutral-50 z-10 text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
                       Loading Interactive Map...
@@ -497,10 +462,10 @@ export default function BookPilot() {
 
               {/* Required UAV Category */}
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-headline font-bold text-[#747874] uppercase tracking-wider ml-1">
+                <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider ml-1">
                   Required UAV / Drone Model
                 </label>
-                <div className="relative flex items-center">
+                <div className="relative">
                   <select 
                     value={droneModel}
                     onChange={(e) => {
@@ -509,7 +474,7 @@ export default function BookPilot() {
                         setCustomDroneModel('');
                       }
                     }}
-                    className="w-full bg-neutral-50/50 hover:bg-neutral-50 border border-neutral-200/70 py-3.5 pl-4 pr-10 rounded-2xl text-xs font-body outline-none appearance-none cursor-pointer transition-all duration-200 focus:border-[#ca0013] focus:bg-white focus:ring-4 focus:ring-red-50 text-[#1b1c1b]"
+                    className="w-full bg-white border border-[#b7c6c2]/60 py-3 px-4 rounded-none text-xs font-body outline-none appearance-none cursor-pointer text-[#1b1c1b] pr-10 focus:border-[#ca0013] transition-colors"
                   >
                     <option value="DJI Mavic 3 Enterprise (Thermal)">DJI Mavic 3 Enterprise (Thermal)</option>
                     <option value="DJI Agras T40 / T50 (Agriculture)">DJI Agras T40 / T50 (Agriculture)</option>
@@ -523,82 +488,71 @@ export default function BookPilot() {
                     <option value="Custom Fixed-Wing (Long Range Mapping)">Custom Fixed-Wing (Long Range Mapping)</option>
                     <option value="Other">Other (Specify below...)</option>
                   </select>
-                  <div className="absolute right-4 pointer-events-none text-neutral-400">
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                   </div>
                 </div>
               </div>
 
-              {/* Custom Drone Model Input (Only shows if droneModel is 'Other') */}
+              {/* Custom Drone Model Input */}
               {droneModel === 'Other' && (
                 <div className="space-y-1.5 animate-fade-in">
-                  <label className="block text-[10px] font-headline font-bold text-[#ca0013] uppercase tracking-wider ml-1">
+                  <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider ml-1">
                     Specify Custom Drone Model
                   </label>
-                  <div className="relative flex items-center bg-white border border-[#ca0013] rounded-2xl overflow-hidden px-4">
-                    <input 
-                      type="text" 
-                      placeholder="Enter custom UAV model (e.g. DJI Phantom 4 RTK)"
-                      value={customDroneModel}
-                      onChange={(e) => setCustomDroneModel(e.target.value)}
-                      className="w-full bg-transparent border-none py-3.5 text-xs outline-none font-body text-[#1b1c1b]"
-                      required={droneModel === 'Other'}
-                    />
-                  </div>
+                  <input 
+                    type="text" 
+                    placeholder="Enter custom UAV model (e.g. DJI Phantom 4 RTK)"
+                    value={customDroneModel}
+                    onChange={(e) => setCustomDroneModel(e.target.value)}
+                    className="w-full bg-white border border-[#b7c6c2]/60 px-4 py-3 text-xs outline-none font-body text-[#1b1c1b] placeholder-neutral-400 rounded-none focus:border-[#ca0013] transition-colors"
+                    required={droneModel === 'Other'}
+                  />
                 </div>
               )}
 
               {/* Certifications Required */}
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-headline font-bold text-[#747874] uppercase tracking-wider ml-1">
+                <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider ml-1">
                   Pilot Certifications Required
                 </label>
-                <div className="relative flex items-center bg-neutral-50/50 hover:bg-neutral-50 border border-neutral-200/70 rounded-2xl overflow-hidden px-4 py-0.5 transition-all duration-200 focus-within:border-[#ca0013] focus-within:bg-white focus-within:ring-4 focus-within:ring-red-50">
-                  <Shield size={15} className="text-neutral-400 mr-2.5 shrink-0" />
-                  <input 
-                    type="text" 
-                    placeholder="e.g. DGCA Certified, FAA Part 107, Flight Insurance"
-                    value={certifications}
-                    onChange={(e) => setCertifications(e.target.value)}
-                    className="w-full bg-transparent border-none py-3.5 text-xs outline-none font-body text-[#1b1c1b]"
-                    required
-                  />
-                </div>
+                <input 
+                  type="text" 
+                  placeholder="e.g. DGCA Certified, FAA Part 107, Flight Insurance"
+                  value={certifications}
+                  onChange={(e) => setCertifications(e.target.value)}
+                  className="w-full bg-white border border-[#b7c6c2]/60 px-4 py-3 text-xs outline-none font-body text-[#1b1c1b] placeholder-neutral-400 rounded-none focus:border-[#ca0013] transition-colors"
+                  required
+                />
               </div>
 
               {/* Site Hazards */}
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-headline font-bold text-[#747874] uppercase tracking-wider ml-1">
+                <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider ml-1">
                   Site Hazards & Airspace Obstacles
                 </label>
-                <div className="relative flex items-center bg-neutral-50/50 hover:bg-neutral-50 border border-neutral-200/70 rounded-2xl overflow-hidden px-4 py-0.5 transition-all duration-200 focus-within:border-[#ca0013] focus-within:bg-white focus-within:ring-4 focus-within:ring-red-50">
-                  <AlertTriangle size={15} className="text-neutral-400 mr-2.5 shrink-0" />
-                  <input 
-                    type="text" 
-                    placeholder="e.g. Tall trees, high tension power lines nearby"
-                    value={hazards}
-                    onChange={(e) => setHazards(e.target.value)}
-                    className="w-full bg-transparent border-none py-3.5 text-xs outline-none font-body text-[#1b1c1b]"
-                  />
-                </div>
+                <input 
+                  type="text" 
+                  placeholder="e.g. Tall trees, high tension power lines nearby"
+                  value={hazards}
+                  onChange={(e) => setHazards(e.target.value)}
+                  className="w-full bg-white border border-[#b7c6c2]/60 px-4 py-3 text-xs outline-none font-body text-[#1b1c1b] placeholder-neutral-400 rounded-none focus:border-[#ca0013] transition-colors"
+                />
               </div>
 
               {/* Scope of Work */}
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-headline font-bold text-[#747874] uppercase tracking-wider ml-1">
+                <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider ml-1">
                   Detailed Scope of Work
                 </label>
-                <div className="relative flex bg-neutral-50/50 hover:bg-neutral-50 border border-neutral-200/70 rounded-2xl overflow-hidden px-4 py-2 transition-all duration-200 focus-within:border-[#ca0013] focus-within:bg-white focus-within:ring-4 focus-within:ring-red-50">
-                  <FileText size={15} className="text-neutral-400 mr-2.5 mt-1 shrink-0" />
-                  <textarea 
-                    placeholder="Provide details about the mission layout, objectives, and any deliverable files (e.g. Orthomosaic TIFs, RAW footage, PDF survey reports)"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={4}
-                    className="w-full bg-transparent border-none py-1.5 text-xs outline-none font-body text-[#1b1c1b] resize-none"
-                    required
-                  />
-                </div>
+                <textarea 
+                  placeholder="Provide details about the mission layout, objectives, and any deliverable files (e.g. Orthomosaic TIFs, RAW footage, PDF survey reports)"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={4}
+                  className="w-full bg-white border border-[#b7c6c2]/60 px-4 py-3 text-xs outline-none font-body text-[#1b1c1b] resize-none rounded-none focus:border-[#ca0013] transition-colors"
+                  required
+                />
               </div>
 
             </div>
@@ -607,10 +561,9 @@ export default function BookPilot() {
           {/* Confirm Button */}
           <button 
             type="submit"
-            className="w-full bg-gradient-to-r from-[#ca0013] to-[#a3000b] text-white py-4.5 rounded-2xl font-headline font-bold text-xs hover:shadow-xl hover:shadow-red-500/25 active:scale-[0.99] transition-all tracking-wider uppercase flex items-center justify-center gap-2 cursor-pointer mt-8 shadow-md"
+            className="w-full bg-[#ca0013] text-white py-4 rounded-none font-headline font-bold text-xs hover:opacity-90 transition-opacity uppercase tracking-wider cursor-pointer mt-8"
           >
-            <span>Confirm & Broadcast Mission</span>
-            <ChevronRight size={15} />
+            Confirm & Broadcast Mission
           </button>
 
         </form>
@@ -619,4 +572,3 @@ export default function BookPilot() {
     </div>
   );
 }
-

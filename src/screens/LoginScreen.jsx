@@ -145,85 +145,17 @@ export default function LoginScreen() {
   const [otpLoading, setOtpLoading] = useState(false);
   const [showOtpHint, setShowOtpHint] = useState(false);
 
-  // Google Sign-In Client State
-  const [tokenClient, setTokenClient] = useState(null);
-
-  useEffect(() => {
-    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '585485498597-vuv188s9m1bun3mipkdql29qglv49r1h.apps.googleusercontent.com';
-
-    const loadGis = () => {
-      if (window.google?.accounts?.oauth2) {
-        try {
-          const client = window.google.accounts.oauth2.initTokenClient({
-            client_id: googleClientId,
-            scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
-            callback: async (tokenResponse) => {
-              if (tokenResponse && tokenResponse.access_token) {
-                setOtpLoading(true);
-                setErrorMsg('');
-                setSuccessMsg('');
-                try {
-                  const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-                    headers: {
-                      Authorization: `Bearer ${tokenResponse.access_token}`
-                    }
-                  });
-                  if (res.ok) {
-                    const userInfo = await res.json();
-                    const googleName = userInfo.name || userInfo.given_name || 'Google User';
-                    const googleEmail = userInfo.email;
-
-                    setRegisteredUser({
-                      name: googleName,
-                      email: googleEmail,
-                      password: ''
-                    });
-
-                    setIsLoggedIn(true);
-                    
-                    if (userRole === 'pilot') {
-                      setCurrentScreen('pilot_dashboard');
-                    } else {
-                      setCurrentScreen('client_dashboard');
-                    }
-                  } else {
-                    console.error('Failed to fetch userinfo from Google');
-                    setErrorMsg('Failed to retrieve profile information from Google.');
-                  }
-                } catch (err) {
-                  console.error('Error fetching Google userinfo:', err);
-                  setErrorMsg('Network error while authenticating with Google.');
-                } finally {
-                  setOtpLoading(false);
-                }
-              }
-            },
-          });
-          setTokenClient(client);
-        } catch (e) {
-          console.error('Failed to initialize Google client:', e);
-        }
-      }
-    };
-
-    if (window.google?.accounts?.oauth2) {
-      loadGis();
-    } else {
-      const script = document.createElement('script');
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      script.onload = loadGis;
-      document.body.appendChild(script);
-    }
-  }, []);
-
   const handleGoogleClick = () => {
-    if (tokenClient) {
-      tokenClient.requestAccessToken();
-    } else {
-      setErrorMsg('Google Sign-In is initializing. Please try again.');
-    }
+    setErrorMsg('');
+    setSuccessMsg('');
+    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '585485498597-vuv188s9m1bun3mipkdql29qglv49r1h.apps.googleusercontent.com';
+    const redirectUri = window.location.origin + '/auth/callback'; // Whitelisted redirect URI
+    const scope = 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
+    const responseType = 'token';
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}`;
+    
+    // Redirect current page to Google OAuth full screen
+    window.location.href = authUrl;
   };
 
   const handleAuthSubmit = async (e) => {
@@ -267,7 +199,6 @@ export default function LoginScreen() {
 
     try {
       console.log(`%c[MISD SECURITY SERVICE] OTP Verification code for ${email} is: ${otpCode}`, "background: #222; color: #ca0013; font-size: 14px; font-weight: bold; padding: 4px 8px; border-radius: 4px;");
-      console.log(`%c(Tip: You can also enter the developer bypass OTP code: '112233')`, "color: #747874; font-size: 11px;");
 
       const recipientName = authMode === 'signup' ? name.trim() : (registeredUser.name || 'User');
       await sendResendEmail(email, otpCode, recipientName);
@@ -290,8 +221,8 @@ export default function LoginScreen() {
     setErrorMsg('');
     setSuccessMsg('');
 
-    // Verify entered OTP (accept actual generated OTP or master bypass code)
-    if (enteredOtp === generatedOtp || enteredOtp === '112233') {
+    // Verify entered OTP
+    if (enteredOtp === generatedOtp) {
       setIsLoggedIn(true);
       
       if (authMode === 'signup') {
@@ -312,22 +243,13 @@ export default function LoginScreen() {
     }
   };
 
-  const handleDevBypass = () => {
-    setIsLoggedIn(true);
-    if (userRole === 'pilot') {
-      setCurrentScreen('pilot_dashboard');
-    } else {
-      setCurrentScreen('client_dashboard');
-    }
-  };
-
   return (
     <div className="flex-1 flex flex-col justify-between bg-white text-[#1b1c1b] h-full relative overflow-y-auto no-scrollbar select-none">
       
       {/* Top Banner with premium dark background to make white logo elements stand out */}
       <div className="h-[220px] rounded-b-[40px] bg-gradient-to-br from-[#121316] to-[#0a0a0b] border-b border-neutral-800/40 relative flex flex-col justify-center items-center shadow-sm shrink-0 overflow-hidden">
         <img 
-          src="/logo.png" 
+          src="/logo.webp" 
           alt="MISD Logo Banner" 
           className="h-[135px] w-auto object-contain pointer-events-none -mt-5"
         />
@@ -428,7 +350,7 @@ export default function LoginScreen() {
 
               {showOtpHint && (
                 <p className="text-[10px] text-amber-600 bg-amber-50 border border-amber-200/50 p-2.5 rounded-xl text-center leading-normal">
-                  💡 <strong>Simulator Alert:</strong> If you did not receive the email, please check your browser console (F12) for the code, or use master bypass code <strong>112233</strong>!
+                  💡 <strong>Simulator Alert:</strong> If you did not receive the email, please check your browser console (F12) for the code.
                 </p>
               )}
 
@@ -590,28 +512,6 @@ export default function LoginScreen() {
                 >
                   <span className="btn-text">{authMode === 'signin' ? 'Sign In' : 'Register'}</span>
                   <span className="btn-icon-wrapper bg-white border-[3px] border-[#ca0013] text-[#ca0013]">
-                    <svg width="14" height="16" viewBox="0 0 16 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="1.61321" cy="1.61321" r="1.5" fill="currentColor"></circle>
-                      <circle cx="5.73583" cy="1.61321" r="1.5" fill="currentColor"></circle>
-                      <circle cx="5.73583" cy="5.5566" r="1.5" fill="currentColor"></circle>
-                      <circle cx="9.85851" cy="5.5566" r="1.5" fill="currentColor"></circle>
-                      <circle cx="9.85851" cy="9.5" r="1.5" fill="currentColor"></circle>
-                      <circle cx="13.9811" cy="9.5" r="1.5" fill="currentColor"></circle>
-                      <circle cx="5.73583" cy="13.4434" r="1.5" fill="currentColor"></circle>
-                      <circle cx="9.85851" cy="13.4434" r="1.5" fill="currentColor"></circle>
-                      <circle cx="1.61321" cy="17.3868" r="1.5" fill="currentColor"></circle>
-                      <circle cx="5.73583" cy="17.3868" r="1.5" fill="currentColor"></circle>
-                    </svg>
-                  </span>
-                </button>
-
-                <button 
-                  type="button"
-                  onClick={handleDevBypass}
-                  className="uiverse-btn bg-white border border-dashed border-[#ca0013]/40 text-[#ca0013] hover:bg-red-50/50 hover:border-[#ca0013]/60 active:scale-[0.99]"
-                >
-                  <span className="btn-text">Dev Bypass Authentication</span>
-                  <span className="btn-icon-wrapper bg-[#ca0013] border-[3px] border-white text-white">
                     <svg width="14" height="16" viewBox="0 0 16 19" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="1.61321" cy="1.61321" r="1.5" fill="currentColor"></circle>
                       <circle cx="5.73583" cy="1.61321" r="1.5" fill="currentColor"></circle>

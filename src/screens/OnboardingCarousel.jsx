@@ -50,36 +50,40 @@ export default function OnboardingCarousel() {
       </div>
 
       {/* Slide Carousel Track */}
-      <div className="flex-1 flex flex-col">
-        {/* Carousel slide container */}
-        <div className="relative w-full h-[55%] overflow-hidden bg-neutral-200">
+      <div className="flex-1 flex flex-col overflow-hidden relative">
+        <div 
+          className="flex-1 flex transition-transform duration-300 ease-out"
+          style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+        >
           {slides.map((slide, index) => (
             <div 
               key={index} 
-              className={`absolute inset-0 w-full h-full`}
-              style={{ transform: `translateX(${(index - currentSlide) * 100}%)` }}
+              className="w-full flex-shrink-0 flex flex-col h-full"
             >
-              <img 
-                className="w-full h-full object-cover" 
-                src={slide.image} 
-                alt={slide.title} 
-              />
-              {/* Fade bottom shadow */}
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#eeebe3]"></div>
+              {/* Carousel slide image container */}
+              <div className="relative w-full h-[55%] overflow-hidden bg-neutral-200">
+                <img 
+                  className="w-full h-full object-cover" 
+                  src={slide.image} 
+                  alt={slide.title} 
+                />
+                {/* Fade bottom shadow */}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#eeebe3]"></div>
+              </div>
+
+              {/* Slide Info Section */}
+              <div className="flex-grow flex flex-col justify-end px-6 pb-6 pt-2">
+                <div className="bg-white border border-[#b7c6c2]/60 rounded-none p-8 flex flex-col gap-3 min-h-[200px] shadow-sm relative z-10">
+                  <h2 className="text-2xl font-headline font-black text-[#000201] tracking-tight">
+                    {slide.title}
+                  </h2>
+                  <p className="text-[#444844] font-body text-sm leading-relaxed">
+                    {slide.desc}
+                  </p>
+                </div>
+              </div>
             </div>
           ))}
-        </div>
-
-        {/* Slide Info Section */}
-        <div className="flex-grow flex flex-col justify-end px-6 pb-6 pt-2">
-          <div className="bg-white border border-[#b7c6c2]/60 rounded-none p-8 flex flex-col gap-3 min-h-[200px] shadow-sm relative z-10">
-            <h2 className="text-2xl font-headline font-black text-[#000201] tracking-tight">
-              {slides[currentSlide].title}
-            </h2>
-            <p className="text-[#444844] font-body text-sm leading-relaxed">
-              {slides[currentSlide].desc}
-            </p>
-          </div>
         </div>
       </div>
 
