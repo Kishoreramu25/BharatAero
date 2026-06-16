@@ -125,20 +125,17 @@ export default function LoginScreen() {
   const { setCurrentScreen, userRole, setIsLoggedIn, registeredUser, setRegisteredUser } = useApp();
   
   useEffect(() => {
-    // Only initialize native Google SDK on native mobile platforms (Android/iOS)
-    if (Capacitor.getPlatform() !== 'web') {
-      const initGoogle = async () => {
-        try {
-          const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '585485498597-229j0qeck6c4m7bdv43cr5pdq117cr7e.apps.googleusercontent.com';
-          await GoogleSignIn.initialize({
-            clientId: googleClientId,
-          });
-        } catch (err) {
-          console.warn('Google SDK init warning:', err);
-        }
-      };
-      initGoogle();
-    }
+    const initGoogle = async () => {
+      try {
+        const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '585485498597-229j0qeck6c4m7bdv43cr5pdq117cr7e.apps.googleusercontent.com';
+        await GoogleSignIn.initialize({
+          clientId: googleClientId,
+        });
+      } catch (err) {
+        console.warn('Google SDK init warning:', err);
+      }
+    };
+    initGoogle();
   }, []);
   const [authMode, setAuthMode] = useState('signin'); // 'signin' or 'signup'
   
@@ -167,33 +164,13 @@ export default function LoginScreen() {
   const handleGoogleClick = async () => {
     setErrorMsg('');
     setSuccessMsg('');
-
-    // Graceful web fallback for local browser testing
-    if (Capacitor.getPlatform() === 'web') {
-      console.log('[Google Sign-In] Web browser detected. Using simulated Google OAuth session.');
-      setIsLoggedIn(true);
-      setRegisteredUser({
-        name: 'Mock Google User',
-        email: 'pilot.mock@bharataero.com',
-        password: 'google-oauth-session'
-      });
-      
-      if (userRole === 'pilot') {
-        setCurrentScreen('pilot_dashboard');
-      } else {
-        setCurrentScreen('client_dashboard');
-      }
-      return;
-    }
-
-    // Native mobile flow
     try {
       const result = await GoogleSignIn.signIn();
-      console.log('Native Google Sign-In Success:', result);
+      console.log('Google Sign-In Success:', result);
       
       setIsLoggedIn(true);
       setRegisteredUser({
-        name: result.name || 'Google User',
+        name: result.name || result.givenName || 'Google User',
         email: result.email,
         password: 'google-oauth-session'
       });
@@ -204,8 +181,8 @@ export default function LoginScreen() {
         setCurrentScreen('client_dashboard');
       }
     } catch (err) {
-      console.error('Native Google Sign-In failed:', err);
-      setErrorMsg('Native Google Sign-In failed. Please try again.');
+      console.error('Google Sign-In failed:', err);
+      setErrorMsg('Google Sign-In failed. Please try again.');
     }
   };
 
