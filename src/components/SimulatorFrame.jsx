@@ -1,5 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 import { useApp } from '../context/AppContext';
+import { prefetchScreen } from '../hooks/useRouterPrefetch';
 
 // Lazy load screens
 const OnboardingCarousel = lazy(() => import('../screens/OnboardingCarousel'));
@@ -26,7 +27,21 @@ const ScreenLoader = () => (
 );
 
 export default function SimulatorFrame() {
-  const { currentScreen } = useApp();
+  const { currentScreen, transitionTimerRef } = useApp();
+
+  // Stop route transition timer on render/mount
+  React.useEffect(() => {
+    if (transitionTimerRef && transitionTimerRef.current) {
+      transitionTimerRef.current.end();
+      transitionTimerRef.current = null;
+    }
+  }, [currentScreen, transitionTimerRef]);
+
+  // On mount, prefetch next likely screens (role selection, login) to speed up initial clicks
+  React.useEffect(() => {
+    prefetchScreen('role_selection');
+    prefetchScreen('login');
+  }, []);
 
   const renderScreen = () => {
     switch (currentScreen) {

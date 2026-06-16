@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { perfMonitor } from '../utils/perfMonitor';
 
 const AppContext = createContext();
 
@@ -365,8 +366,13 @@ export const AppProvider = ({ children }) => {
     checkGoogleRedirect();
   }, []);
 
+  const transitionTimerRef = useRef(null);
+
   // Navigate utility
   const navigate = (screen, tab = 'home') => {
+    if (currentScreen !== screen) {
+      transitionTimerRef.current = perfMonitor.startRouteTransition(currentScreen, screen);
+    }
     setCurrentScreen(screen);
     setActiveTab(tab);
   };
@@ -401,7 +407,8 @@ export const AppProvider = ({ children }) => {
         setRegisteredUser,
         selectedPilot,
         setSelectedPilot,
-        sendResendEmail
+        sendResendEmail,
+        transitionTimerRef
       }}
     >
       {children}

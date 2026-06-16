@@ -8,3 +8,16 @@ createRoot(document.getElementById('root')).render(
     <App />
   </StrictMode>,
 )
+
+// Register Service Worker for caching and offline support
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((reg) => {
+        console.log('[ServiceWorker] Registration successful with scope: ', reg.scope);
+      })
+      .catch((err) => {
+        console.warn('[ServiceWorker] Registration failed: ', err);
+      });
+  });
+}

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import BottomNav from '../components/BottomNav';
 import { useApp } from '../context/AppContext';
 import { Search, MapPin, Star, Bell, Compass } from 'lucide-react';
+import ProgressiveImage from '../components/ProgressiveImage';
+import { prefetchScreen } from '../hooks/useRouterPrefetch';
 
 export default function BrowsePilots() {
   const { pilotsList, navigate, activeTab, setSelectedPilot } = useApp();
@@ -12,6 +14,21 @@ export default function BrowsePilots() {
     pilot.specialty.toLowerCase().includes(searchQuery.toLowerCase()) ||
     pilot.location.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handlePrefetch = (pilot) => {
+    // Proactively prefetch the pilot profile JS bundle
+    prefetchScreen('pilot_profile');
+    
+    // Proactively preload the pilot's avatar and banner images into cache
+    if (pilot.image) {
+      const img = new Image();
+      img.src = pilot.image;
+    }
+    if (pilot.bannerImage) {
+      const img = new Image();
+      img.src = pilot.bannerImage;
+    }
+  };
 
   return (
     <div className="flex-1 flex flex-col justify-between bg-white text-[#1b1c1b] h-full pb-[60px] relative select-none">
@@ -58,14 +75,17 @@ export default function BrowsePilots() {
                 setSelectedPilot(pilot);
                 navigate('pilot_profile');
               }}
+              onMouseEnter={() => handlePrefetch(pilot)}
+              onTouchStart={() => handlePrefetch(pilot)}
               className="bg-white rounded-2xl border border-[#b7c6c2]/25 overflow-hidden shadow-[0_12px_24px_rgba(23,30,25,0.03)] cursor-pointer hover:border-neutral-300 transition-all flex flex-col"
             >
               {/* Card Banner Image */}
               <div className="h-32 w-full relative bg-neutral-200">
-                <img 
+                <ProgressiveImage 
                   src={pilot.bannerImage} 
                   alt={`${pilot.name} banner`} 
-                  className="w-full h-full object-cover"
+                  className="w-full h-full"
+                  skeletonHeight="h-32"
                 />
                 <div className="absolute top-3 right-3 bg-[#ca0013] text-white font-headline font-bold text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider shadow">
                   ${pilot.price} / Mission
@@ -76,7 +96,12 @@ export default function BrowsePilots() {
               <div className="p-4 flex gap-4 relative">
                 {/* Profile Pic Floating */}
                 <div className="w-14 h-14 rounded-xl overflow-hidden border-2 border-white bg-neutral-100 shadow-md -mt-10 relative z-10 flex-shrink-0">
-                  <img src={pilot.image} alt={pilot.name} className="w-full h-full object-cover" />
+                  <ProgressiveImage 
+                    src={pilot.image} 
+                    alt={pilot.name} 
+                    className="w-full h-full"
+                    skeletonHeight="h-14"
+                  />
                 </div>
 
                 {/* Pilot text details */}

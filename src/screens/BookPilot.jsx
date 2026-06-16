@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { ArrowLeft } from 'lucide-react';
+import { prefetchScreen } from '../hooks/useRouterPrefetch';
 
 export default function BookPilot() {
   const { navigate, addBooking } = useApp();
@@ -26,6 +27,9 @@ export default function BookPilot() {
 
   // Load Leaflet Map CSS/JS via CDN dynamically
   useEffect(() => {
+    // Proactively prefetch the booking confirmation screen chunk
+    prefetchScreen('booking_confirmed');
+
     if (window.L) {
       setMapLoaded(true);
       return;
