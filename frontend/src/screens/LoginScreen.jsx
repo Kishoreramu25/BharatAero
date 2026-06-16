@@ -148,7 +148,7 @@ export default function LoginScreen() {
   const handleGoogleClick = () => {
     setErrorMsg('');
     setSuccessMsg('');
-    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '585485498597-vuv188s9m1bun3mipkdql29qglv49r1h.apps.googleusercontent.com';
+    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '585485498597-bpcmvh4rfgff2pq0sfj3146c97t2dsea.apps.googleusercontent.com';
     const redirectUri = window.location.origin + '/auth/callback'; // Whitelisted redirect URI
     const scope = 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
     const responseType = 'token';
