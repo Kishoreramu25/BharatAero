@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { ArrowLeft, Lock, CheckCircle, AlertTriangle, Mail, Eye, EyeOff, Key, User } from 'lucide-react';
+import { GoogleSignIn } from '@capawesome/capacitor-google-sign-in';
 
 const sendResendEmail = async (toEmail, otpCode, recipientName) => {
   const apiKey = import.meta.env.VITE_RESEND_API_KEY;
@@ -121,6 +122,20 @@ const sendResendEmail = async (toEmail, otpCode, recipientName) => {
 
 export default function LoginScreen() {
   const { setCurrentScreen, userRole, setIsLoggedIn, registeredUser, setRegisteredUser } = useApp();
+  
+  useEffect(() => {
+    const initGoogle = async () => {
+      try {
+        const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '585485498597-229j0qeck6c4m7bdv43cr5pdq117cr7e.apps.googleusercontent.com';
+        await GoogleSignIn.initialize({
+          clientId: googleClientId,
+        });
+      } catch (err) {
+        console.warn('Google SDK init warning:', err);
+      }
+    };
+    initGoogle();
+  }, []);
   const [authMode, setAuthMode] = useState('signin'); // 'signin' or 'signup'
   
   // Form fields
@@ -145,17 +160,29 @@ export default function LoginScreen() {
   const [otpLoading, setOtpLoading] = useState(false);
   const [showOtpHint, setShowOtpHint] = useState(false);
 
-  const handleGoogleClick = () => {
+  const handleGoogleClick = async () => {
     setErrorMsg('');
     setSuccessMsg('');
-    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '585485498597-bpcmvh4rfgff2pq0sfj3146c97t2dsea.apps.googleusercontent.com';
-    const redirectUri = window.location.origin + '/auth/callback'; // Whitelisted redirect URI
-    const scope = 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
-    const responseType = 'token';
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}`;
-    
-    // Redirect current page to Google OAuth full screen
-    window.location.href = authUrl;
+    try {
+      const result = await GoogleSignIn.signIn();
+      console.log('Native Google Sign-In Success:', result);
+      
+      setIsLoggedIn(true);
+      setRegisteredUser({
+        name: result.name || 'Google User',
+        email: result.email,
+        password: 'google-oauth-session'
+      });
+      
+      if (userRole === 'pilot') {
+        setCurrentScreen('pilot_dashboard');
+      } else {
+        setCurrentScreen('client_dashboard');
+      }
+    } catch (err) {
+      console.error('Native Google Sign-In failed:', err);
+      setErrorMsg('Native Google Sign-In failed. Please try again.');
+    }
   };
 
   const handleAuthSubmit = async (e) => {

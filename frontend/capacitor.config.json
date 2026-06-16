@@ -1,5 +1,15 @@
 {
   "appId": "com.bharataero.app",
   "appName": "Bharat Aero",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "GoogleSignIn": {
+      "clientId": "585485498597-229j0qeck6c4m7bdv43cr5pdq117cr7e.apps.googleusercontent.com",
+      "androidClientId": "585485498597-bpcmvh4rfgff2pq0sfj3146c97t2dsea.apps.googleusercontent.com"
+    },
+    "GoogleAuth": {
+      "clientId": "585485498597-229j0qeck6c4m7bdv43cr5pdq117cr7e.apps.googleusercontent.com",
+      "androidClientId": "585485498597-bpcmvh4rfgff2pq0sfj3146c97t2dsea.apps.googleusercontent.com"
+    }
+  }
 }
