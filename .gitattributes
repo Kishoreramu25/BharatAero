@@ -1,0 +1,4 @@
+# Exclude legacy static mockup HTML files from GitHub language statistics
+frontend/src_html/** linguist-detectable=false
+frontend/android/** linguist-detectable=false
+frontend/ios/** linguist-detectable=false
