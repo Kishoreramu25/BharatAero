@@ -7,7 +7,7 @@ import {
 import BottomNav from '../components/BottomNav';
 
 export default function ClientDashboard() {
-  const { setCurrentScreen, activeTab, navigate, bookings, pilotsList, setSelectedPilot, registeredUser } = useApp();
+  const { setCurrentScreen, activeTab, navigate, bookings, pilotsList, setSelectedPilot, registeredUser, setAutoOpenProfileModal, t } = useApp();
   const [selectedCategory, setSelectedCategory] = useState('All');
 
   const categories = ['All', 'Agriculture', 'Surveillance', 'Cinema', 'Logistics'];
@@ -27,15 +27,22 @@ export default function ClientDashboard() {
       
       {/* Top App Bar */}
       <header className="sticky top-0 bg-white/85 backdrop-blur-md flex justify-between items-center px-5 h-[72px] border-b border-[#b7c6c2]/15 z-40">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary">
+        <div 
+          onClick={() => {
+            setAutoOpenProfileModal(true);
+            navigate('settings', 'settings');
+          }}
+          className="flex items-center gap-3 cursor-pointer hover:opacity-85"
+          title="Click to edit profile bio, photo and links"
+        >
+          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#ca0013] shrink-0">
             <img 
               alt="Commander Profile" 
               className="w-full h-full object-cover" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGrwU0dTkzQisGLCQ3Z3mps07VaFQJKjagxF4FcDioG-eju5wXCHSsa_pGmDiFpofHEfWoN-nQk-ICp7MsX9ZoQ3_o2RFgBa9Cho1JEefTaxQcMOCyn9Vk2fY0jj5-iUlld6EMuBuT8R2Uc-7cTMaMd5kjV8YbWblNVAmBrx-APuvW1_rOm9AbAB4a-n1nAcDTmXh7nTuroxKoZpqFJoaCI72CuCKhMPo1a0wBO4I1r0apSp4EPzn-40NI1kgkEESaJOT4fufcyJk"
+              src={registeredUser?.profilePic || "https://lh3.googleusercontent.com/aida-public/AB6AXuDGrwU0dTkzQisGLCQ3Z3mps07VaFQJKjagxF4FcDioG-eju5wXCHSsa_pGmDiFpofHEfWoN-nQk-ICp7MsX9ZoQ3_o2RFgBa9Cho1JEefTaxQcMOCyn9Vk2fY0jj5-iUlld6EMuBuT8R2Uc-7cTMaMd5kjV8YbWblNVAmBrx-APuvW1_rOm9AbAB4a-n1nAcDTmXh7nTuroxKoZpqFJoaCI72CuCKhMPo1a0wBO4I1r0apSp4EPzn-40NI1kgkEESaJOT4fufcyJk"}
             />
           </div>
-          <span className="text-xl font-headline font-black text-[#000201] tracking-tight">MISD Automation</span>
+          <span className="text-xl font-headline font-black text-[#000201] tracking-tight">{registeredUser?.name || 'MISD Automation'}</span>
         </div>
         <button 
           onClick={() => navigate('notifications')}
@@ -47,14 +54,21 @@ export default function ClientDashboard() {
           )}
         </button>
       </header>
-
-      {/* Main Content Dashboard */}
-      <main className="flex-1 px-5 pt-4 space-y-6 overflow-y-auto no-scrollbar">
-        {/* Greetings */}
-        <section className="animate-fade-in">
-          <p className="text-[10px] font-headline font-bold uppercase tracking-widest text-[#ca0013] mb-1">Fleet Command</p>
-          <h1 className="text-2xl font-headline font-black text-[#000201]">Hello, {registeredUser?.name || 'Commander'}</h1>
-        </section>
+ 
+       {/* Main Content Dashboard */}
+       <main className="flex-1 px-5 pt-4 space-y-6 overflow-y-auto no-scrollbar">
+         {/* Greetings */}
+         <section 
+           onClick={() => {
+             setAutoOpenProfileModal(true);
+             navigate('settings', 'settings');
+           }}
+           className="animate-fade-in cursor-pointer hover:opacity-85"
+           title="Click to edit profile"
+         >
+           <p className="text-[10px] font-headline font-bold uppercase tracking-widest text-[#ca0013] mb-1">{t('Client Dashboard')}</p>
+           <h1 className="text-2xl font-headline font-black text-[#000201]">{t('Welcome back')}, <span className="underline decoration-dotted decoration-[#ca0013]">{registeredUser?.name || 'Commander'}</span></h1>
+         </section>
 
         {/* Category Pills Selector */}
         <section className="flex gap-2.5 overflow-x-auto no-scrollbar py-1 -mx-5 px-5">

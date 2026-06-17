@@ -122,21 +122,8 @@ const sendResendEmail = async (toEmail, otpCode, recipientName) => {
 };
 
 export default function LoginScreen() {
-  const { setCurrentScreen, userRole, setIsLoggedIn, registeredUser, setRegisteredUser } = useApp();
+  const { setCurrentScreen, userRole, setIsLoggedIn, registeredUser, setRegisteredUser, t } = useApp();
   
-  useEffect(() => {
-    const initGoogle = async () => {
-      try {
-        const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '585485498597-229j0qeck6c4m7bdv43cr5pdq117cr7e.apps.googleusercontent.com';
-        await GoogleSignIn.initialize({
-          clientId: googleClientId,
-        });
-      } catch (err) {
-        console.warn('Google SDK init warning:', err);
-      }
-    };
-    initGoogle();
-  }, []);
   const [authMode, setAuthMode] = useState('signin'); // 'signin' or 'signup'
   
   // Form fields
@@ -170,7 +157,7 @@ export default function LoginScreen() {
       
       setIsLoggedIn(true);
       setRegisteredUser({
-        name: result.name || result.givenName || 'Google User',
+        name: result.displayName || result.name || result.givenName || 'Google User',
         email: result.email,
         password: 'google-oauth-session'
       });
@@ -183,6 +170,22 @@ export default function LoginScreen() {
     } catch (err) {
       console.error('Google Sign-In failed:', err);
       setErrorMsg('Google Sign-In failed. Please try again.');
+    }
+  };
+
+  const handleDevBypass = () => {
+    setIsLoggedIn(true);
+    setRegisteredUser({
+      name: 'Dev Bypass User',
+      email: 'developer@misd-automation.com',
+      password: 'dev-bypass-passcode',
+      phone: '+91 99999 99999',
+      id: userRole === 'pilot' ? 'DEV-PILOT-9999' : 'DEV-CLIENT-9999'
+    });
+    if (userRole === 'pilot') {
+      setCurrentScreen('pilot_dashboard');
+    } else {
+      setCurrentScreen('client_dashboard');
     }
   };
 
@@ -290,6 +293,15 @@ export default function LoginScreen() {
         >
           <ArrowLeft size={18} />
         </button>
+
+        {/* Dev Bypass Button */}
+        <button
+          type="button"
+          onClick={handleDevBypass}
+          className="absolute top-5 right-5 px-3 py-1.5 text-[9px] font-headline font-bold uppercase tracking-wider bg-neutral-900/60 hover:bg-neutral-950 text-white rounded-full border border-neutral-800/50 cursor-pointer transition-all duration-200 z-10"
+        >
+          {t('🛠️ Dev Bypass')}
+        </button>
       </div>
 
       {/* Main Form Card - Overlapping top banner */}
@@ -312,7 +324,7 @@ export default function LoginScreen() {
                   : 'text-neutral-500 bg-transparent hover:bg-neutral-100'
                 }`}
               >
-                Sign In
+                {t('Sign In')}
               </button>
               <button 
                 type="button"
@@ -327,7 +339,7 @@ export default function LoginScreen() {
                   : 'text-neutral-500 bg-transparent hover:bg-neutral-100'
                 }`}
               >
-                Create Account
+                {t('Create Account')}
               </button>
             </div>
           )}
@@ -411,7 +423,7 @@ export default function LoginScreen() {
                     onClick={handleAuthSubmit}
                     className="flex-1 py-3 px-4 border border-neutral-200 hover:bg-neutral-50 rounded-xl text-[10px] font-headline font-bold uppercase tracking-wider text-[#747874] cursor-pointer"
                   >
-                    Resend Code
+                    {t('Resend Code')}
                   </button>
                   <button 
                     type="button"
@@ -423,7 +435,7 @@ export default function LoginScreen() {
                     }}
                     className="flex-1 py-3 px-4 border border-neutral-200 hover:bg-neutral-50 rounded-xl text-[10px] font-headline font-bold uppercase tracking-wider text-[#747874] cursor-pointer"
                   >
-                    Back to Login
+                    {t('Back to Login')}
                   </button>
                 </div>
               </div>
@@ -454,7 +466,7 @@ export default function LoginScreen() {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Full Name"
+                    placeholder={t('Full Name')}
                     required
                     className="flex-grow bg-transparent border-0 text-xs text-[#1b1c1b] focus:outline-none placeholder-neutral-400 p-0"
                   />
@@ -468,7 +480,7 @@ export default function LoginScreen() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email Address"
+                  placeholder={t('Email Address')}
                   required
                   className="flex-grow bg-transparent border-0 text-xs text-[#1b1c1b] focus:outline-none placeholder-neutral-400 p-0"
                 />
@@ -481,7 +493,7 @@ export default function LoginScreen() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
+                  placeholder={t('Password')}
                   required
                   className="flex-grow bg-transparent border-0 text-xs text-[#1b1c1b] focus:outline-none placeholder-neutral-400 p-0"
                 />
@@ -502,7 +514,7 @@ export default function LoginScreen() {
                     type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm Password"
+                    placeholder={t('Confirm Password')}
                     required
                     className="flex-grow bg-transparent border-0 text-xs text-[#1b1c1b] focus:outline-none placeholder-neutral-400 p-0"
                   />
@@ -538,7 +550,7 @@ export default function LoginScreen() {
                   type="submit"
                   className="uiverse-btn bg-gradient-to-r from-[#ca0013] to-[#a3000b] hover:from-[#b80011] hover:to-[#8c0009] text-white shadow-md shadow-red-200 hover:shadow-lg hover:shadow-red-300/40 active:scale-[0.99] border-0"
                 >
-                  <span className="btn-text">{authMode === 'signin' ? 'Sign In' : 'Register'}</span>
+                  <span className="btn-text">{authMode === 'signin' ? t('Sign In') : t('Create Account')}</span>
                   <span className="btn-icon-wrapper bg-white border-[3px] border-[#ca0013] text-[#ca0013]">
                     <svg width="14" height="16" viewBox="0 0 16 19" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="1.61321" cy="1.61321" r="1.5" fill="currentColor"></circle>
@@ -563,7 +575,7 @@ export default function LoginScreen() {
           {!isOtpSent && !otpLoading && (
             <div className="pt-3 border-t border-red-100/50 space-y-4">
               <p className="text-[10px] font-headline font-bold text-[#ca0013]/60 uppercase tracking-wider text-center">
-                Or continue with
+                {t('Or continue with')}
               </p>
               
               <div className="flex justify-center">
@@ -580,7 +592,7 @@ export default function LoginScreen() {
                       <path fill="#FBBC05" d="M10.54 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.98-6.19z"/>
                       <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-6.64-5.15c-1.85 1.24-4.22 1.99-6.85 1.99-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
                     </svg>
-                    <span>Continue with Google</span>
+                    <span>{t('Continue with Google')}</span>
                   </span>
                   <span className="btn-icon-wrapper bg-white border-[3px] border-[#4285F4] text-[#4285F4]">
                     <svg width="14" height="16" viewBox="0 0 16 19" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -615,7 +627,7 @@ export default function LoginScreen() {
               }}
               className="inline-block text-xs font-body text-neutral-500 hover:text-neutral-900 hover:underline cursor-pointer bg-transparent border-0 font-bold transition-colors duration-200"
             >
-              {authMode === 'signin' ? 'New here? Create New Account' : 'Already have an account? Sign in'}
+              {authMode === 'signin' ? t('New here? Create New Account') : t('Already have an account? Sign in')}
             </button>
           </div>
         )}
@@ -626,12 +638,12 @@ export default function LoginScreen() {
       <footer className="w-full py-5 border-t border-neutral-100 flex justify-center items-center gap-6 select-none bg-white text-[#747874] z-10 relative shrink-0">
         <div className="flex items-center gap-2 text-[10px] font-black font-headline tracking-widest text-[#747874]">
           <Lock size={13} className="text-[#747874]" />
-          <span>Safe & Secure</span>
+          <span>{t('Safe & Secure')}</span>
         </div>
         <div className="w-1.5 h-1.5 rounded-full bg-neutral-200"></div>
         <div className="flex items-center gap-1.5 text-[10px] font-black font-headline tracking-widest text-[#747874]">
           <span className="material-symbols-outlined text-[14px] font-bold text-[#747874]">verified_user</span>
-          <span>Made in India</span>
+          <span>{t('Made in India')}</span>
         </div>
       </footer>
     </div>

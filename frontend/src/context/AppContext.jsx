@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { perfMonitor } from '../utils/perfMonitor';
+import { GoogleSignIn } from '@capawesome/capacitor-google-sign-in';
+import { Capacitor } from '@capacitor/core';
+import { getTranslation } from '../utils/translations';
 
 const AppContext = createContext();
 
@@ -138,6 +141,16 @@ export const AppProvider = ({ children }) => {
       return { name: '', email: '', password: '', phone: '', id: '' };
     }
   });
+  const [autoOpenProfileModal, setAutoOpenProfileModal] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState(() => {
+    try {
+      const saved = localStorage.getItem('bharataero_selected_language');
+      return saved || 'English';
+    } catch (e) {
+      console.warn("Failed to load selectedLanguage from localStorage:", e);
+      return 'English';
+    }
+  });
   const [selectedPilot, setSelectedPilot] = useState(null);
 
   // Shared Data States
@@ -195,6 +208,14 @@ export const AppProvider = ({ children }) => {
     }
   }, [registeredUser]);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem('bharataero_selected_language', selectedLanguage);
+    } catch (e) {
+      console.warn("Failed to save selectedLanguage to localStorage:", e);
+    }
+  }, [selectedLanguage]);
+
   // Pilots Data (Static references with rating and prices)
   const pilotsList = [
     {
@@ -249,14 +270,21 @@ export const AppProvider = ({ children }) => {
   };
 
   // Helper function to accept a booking
-  const acceptBooking = (bookingId, pilotName, pilotPhone) => {
+  const acceptBooking = (bookingId, pilotName, pilotPhone, pilotProfile = null) => {
     setBookings(prev => 
       prev.map(b => b.id === bookingId ? { 
         ...b, 
         status: 'Confirmed', 
         pilotName, 
         pilotPhone,
-        pilotImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAEar_up8KhgESF_MeXQRJ0PqL3eqb64LpZpvQFx7OmZhkkKKd3x0d4lPv6S2lPVb_hyLCWGb0jlqOGNsy4BosH7adSDS9EaDCtGXEDDeDijf4953yN7FUkdDIeJIpmE4kArH9Q-WxEALZ8XzQWvSBph7_HKHRyot2VpNGidEV8-sXwwj059lp-Zg_mRt-fuA3KFSDFoebuwC96dF9AZgyuki-JClbEjCcBHEDrznPBkpyNVVTDi4o_VwPGj0dgvVx7_VlfNV8N6U4' 
+        pilotImage: pilotProfile?.profilePic || 'https://lh3.googleusercontent.com/aida-public/AB6AXuAEar_up8KhgESF_MeXQRJ0PqL3eqb64LpZpvQFx7OmZhkkKKd3x0d4lPv6S2lPVb_hyLCWGb0jlqOGNsy4BosH7adSDS9EaDCtGXEDDeDijf4953yN7FUkdDIeJIpmE4kArH9Q-WxEALZ8XzQWvSBph7_HKHRyot2VpNGidEV8-sXwwj059lp-Zg_mRt-fuA3KFSDFoebuwC96dF9AZgyuki-JClbEjCcBHEDrznPBkpyNVVTDi4o_VwPGj0dgvVx7_VlfNV8N6U4',
+        pilotProfile: pilotProfile || {
+          name: pilotName,
+          phone: pilotPhone,
+          email: 'pilot@misd-automation.com',
+          bio: 'Professional Drone Pilot and UAV Specialist.',
+          profilePic: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCV47DaBxqfxLcnTdUs7O5G3JIsjwPauCvXb65mPkf4w3sSOMK7Mfswubt2peFwRUMXRVl07aCOLepPbM9ushB06_TJ5uPbDBsFUwlNT1lYkE9jGHGAHwk2jH4uAMz6E7G5dj6tFhl6hXdDBxLcTGO-pSjbL6CvN4q5FhRXUkyVWXWpnFXbUlH2P4GLVzV9kTDTFeWcNJsMNL6qquQ2AG7Oycppt7oubV1ijhJwK45HmpNE8LwCj2Tu38x-q0t8w2LixMRMl9mfH-I'
+        }
       } : b)
     );
 
@@ -301,6 +329,8 @@ export const AppProvider = ({ children }) => {
     return completedSum; // Started from $0.00, clean of demo data
   };
 
+  const t = (key) => getTranslation(selectedLanguage, key);
+
   // Sync dark class on html tag
   useEffect(() => {
     const root = window.document.documentElement;
@@ -315,20 +345,63 @@ export const AppProvider = ({ children }) => {
 
   // Handle Google OAuth Callback in Redirect Flow
   useEffect(() => {
-    const checkGoogleRedirect = async () => {
-      const hash = window.location.hash;
-      const isCallbackPath = window.location.pathname === '/auth/callback';
-      const hasAccessToken = hash && hash.includes('access_token');
-
-      if (isCallbackPath || hasAccessToken) {
-        const params = new URLSearchParams(hash.substring(1));
-        const accessToken = params.get('access_token');
+    const initGoogle = async () => {
+      // 1. Run Capawesome Google Sign-In setup
+      try {
+        const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '585485498597-229j0qeck6c4m7bdv43cr5pdq117cr7e.apps.googleusercontent.com';
         
-        if (accessToken) {
-          // Clean up the URL: reset path to / and strip out hash details
-          window.history.replaceState({}, document.title, '/');
+        const initOptions = {
+          clientId: googleClientId,
+        };
+        
+        if (Capacitor.getPlatform() === 'web') {
+          // Set redirect URL to current page to receive query params
+          initOptions.redirectUrl = window.location.href.split(/[?#]/)[0];
+        }
+
+        await GoogleSignIn.initialize(initOptions);
+        console.log('Google Sign-In plugin initialized successfully.');
+
+        // Handle redirect callback if we are on web and the URL has OAuth params
+        if (Capacitor.getPlatform() === 'web') {
+          const url = window.location.href;
+          if (url.includes('code=') || url.includes('state=')) {
+            const result = await GoogleSignIn.handleRedirectCallback();
+            console.log('Google Sign-In Success from redirect:', result);
+            
+            setRegisteredUser({
+              name: result.displayName || result.givenName || 'Google User',
+              email: result.email,
+              password: 'google-oauth-session'
+            });
+            setIsLoggedIn(true);
+            
+            setUserRole(prev => {
+              const role = prev || 'client';
+              setCurrentScreen(role === 'pilot' ? 'pilot_dashboard' : 'client_dashboard');
+              return role;
+            });
+            
+            window.history.replaceState({}, document.title, window.location.pathname);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('Google SDK init/callback warning:', err);
+      }
+
+      // 2. Hash-based custom fallback (if any)
+      try {
+        const hash = window.location.hash;
+        const isCallbackPath = window.location.pathname === '/auth/callback';
+        const hasAccessToken = hash && hash.includes('access_token');
+
+        if (isCallbackPath || hasAccessToken) {
+          const params = new URLSearchParams(hash.substring(1));
+          const accessToken = params.get('access_token');
           
-          try {
+          if (accessToken) {
+            window.history.replaceState({}, document.title, '/');
             const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
               headers: {
                 Authorization: `Bearer ${accessToken}`
@@ -344,26 +417,22 @@ export const AppProvider = ({ children }) => {
                 email: googleEmail,
                 password: ''
               });
-
               setIsLoggedIn(true);
 
-              // Switch to the role-specific dashboard based on current role selection state (or default to client)
               setUserRole(prev => {
                 const role = prev || 'client';
                 setCurrentScreen(role === 'pilot' ? 'pilot_dashboard' : 'client_dashboard');
                 return role;
               });
-            } else {
-              console.error('Failed to fetch userinfo from Google redirected callback');
             }
-          } catch (err) {
-            console.error('Error fetching Google userinfo on redirected callback:', err);
           }
         }
+      } catch (err) {
+        console.error('Error fetching Google userinfo on hash callback:', err);
       }
     };
 
-    checkGoogleRedirect();
+    initGoogle();
   }, []);
 
   const transitionTimerRef = useRef(null);
@@ -405,6 +474,11 @@ export const AppProvider = ({ children }) => {
         navigate,
         registeredUser,
         setRegisteredUser,
+        autoOpenProfileModal,
+        setAutoOpenProfileModal,
+        selectedLanguage,
+        setSelectedLanguage,
+        t,
         selectedPilot,
         setSelectedPilot,
         sendResendEmail,

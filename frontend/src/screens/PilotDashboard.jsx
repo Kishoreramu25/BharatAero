@@ -7,7 +7,7 @@ export default function PilotDashboard() {
   const { 
     bookings, setBookings, 
     navigate, activeTab, registeredUser,
-    acceptBooking
+    acceptBooking, setAutoOpenProfileModal, t
   } = useApp();
 
   const [selectedReq, setSelectedReq] = useState(null);
@@ -45,13 +45,27 @@ export default function PilotDashboard() {
           <span className="text-base font-headline font-black text-[#000201] tracking-tight">BharatAero</span>
         </div>
 
-        <div className="flex items-center">
+        <div className="flex items-center gap-3">
           <button 
             onClick={() => navigate('notifications')}
             className="w-10 h-10 flex items-center justify-center rounded-none hover:bg-neutral-100 transition-colors"
           >
             <Bell size={18} className="text-[#000201]" />
           </button>
+          <div 
+            onClick={() => {
+              setAutoOpenProfileModal(true);
+              navigate('settings', 'settings');
+            }}
+            className="w-8 h-8 rounded-none overflow-hidden border border-[#ca0013] cursor-pointer shrink-0"
+            title="Click to edit profile bio, photo and links"
+          >
+            <img 
+              alt="Pilot Profile" 
+              className="w-full h-full object-cover" 
+              src={registeredUser?.profilePic || "https://lh3.googleusercontent.com/aida-public/AB6AXuCV47DaBxqfxLcnTdUs7O5G3JIsjwPauCvXb65mPkf4w3sSOMK7Mfswubt2peFwRUMXRVl07aCOLepPbM9ushB06_TJ5uPbDBsFUwlNT1lYkE9jGHGAHwk2jH4uAMz6E7G5dj6tFhl6hXdDBxLcTGO-pSjbL6CvN4q5FhRXUkyVWXWpnFXbUlH2P4GLVzV9kTDTFeWcNJsMNL6qquQ2AG7Oycppt7oubV1ijhJwK45HmpNE8LwCj2Tu38x-q0t8w2LixMRMl9mfH-I"}
+            />
+          </div>
         </div>
       </header>
 
@@ -61,9 +75,16 @@ export default function PilotDashboard() {
         {/* Pending Flight Requests Section */}
         <section className="space-y-3">
           <div className="flex justify-between items-end">
-            <div>
-              <h2 className="text-xs font-headline font-bold uppercase tracking-wider text-[#000201]">Mission Requests</h2>
-              <p className="text-xs text-[#747874]">Broadcasted orders waiting for approval</p>
+            <div 
+              onClick={() => {
+                setAutoOpenProfileModal(true);
+                navigate('settings', 'settings');
+              }}
+              className="cursor-pointer hover:opacity-85"
+              title="Click to edit profile"
+            >
+              <h2 className="text-xs font-headline font-bold uppercase tracking-wider text-[#000201]">{t('Pilot Dashboard')}</h2>
+              <p className="text-xs text-[#747874]">{t('Welcome back')}, <span className="underline decoration-dotted decoration-[#ca0013] font-bold text-[#000201]">{registeredUser?.name || 'Operator'}</span></p>
             </div>
           </div>
 
@@ -299,7 +320,17 @@ export default function PilotDashboard() {
                         alert("Please fill in both name and phone number fields.");
                         return;
                       }
-                      acceptBooking(selectedReq.id, pilotNameInput.trim(), pilotPhoneInput.trim());
+                      acceptBooking(selectedReq.id, pilotNameInput.trim(), pilotPhoneInput.trim(), {
+                        name: pilotNameInput.trim(),
+                        phone: pilotPhoneInput.trim(),
+                        email: registeredUser?.email || 'pilot@misd-automation.com',
+                        bio: registeredUser?.bio || 'Professional Drone Pilot and UAV Specialist.',
+                        dob: registeredUser?.dob || '',
+                        instagramUrl: registeredUser?.instagramUrl || '',
+                        linkedinUrl: registeredUser?.linkedinUrl || '',
+                        otherUrl: registeredUser?.otherUrl || '',
+                        profilePic: registeredUser?.profilePic || 'https://lh3.googleusercontent.com/aida-public/AB6AXuCV47DaBxqfxLcnTdUs7O5G3JIsjwPauCvXb65mPkf4w3sSOMK7Mfswubt2peFwRUMXRVl07aCOLepPbM9ushB06_TJ5uPbDBsFUwlNT1lYkE9jGHGAHwk2jH4uAMz6E7G5dj6tFhl6hXdDBxLcTGO-pSjbL6CvN4q5FhRXUkyVWXWpnFXbUlH2P4GLVzV9kTDTFeWcNJsMNL6qquQ2AG7Oycppt7oubV1ijhJwK45HmpNE8LwCj2Tu38x-q0t8w2LixMRMl9mfH-I'
+                      });
                       setSelectedReq(null);
                       setIsAccepting(false);
                     }}

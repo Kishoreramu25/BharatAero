@@ -10,6 +10,13 @@
     "GoogleAuth": {
       "clientId": "585485498597-229j0qeck6c4m7bdv43cr5pdq117cr7e.apps.googleusercontent.com",
       "androidClientId": "585485498597-bpcmvh4rfgff2pq0sfj3146c97t2dsea.apps.googleusercontent.com"
+    },
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "launchAutoHide": true,
+      "backgroundColor": "#0a0a0b",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP"
     }
   }
 }

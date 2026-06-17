@@ -17,6 +17,7 @@
     "@capacitor/android": "^8.4.0",
     "@capacitor/core": "^8.4.0",
     "@capacitor/ios": "^8.4.0",
+    "@capacitor/splash-screen": "^8.0.1",
     "@capawesome/capacitor-google-sign-in": "^0.1.2",
     "lucide-react": "^1.18.0",
     "react": "^19.2.6",

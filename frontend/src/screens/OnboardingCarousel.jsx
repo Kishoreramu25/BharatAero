@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 
 export default function OnboardingCarousel() {
-  const { setCurrentScreen } = useApp();
+  const { setCurrentScreen, t } = useApp();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [
@@ -45,7 +45,7 @@ export default function OnboardingCarousel() {
           onClick={() => setCurrentScreen('role_selection')}
           className="bg-[#b7c6c2]/20 hover:bg-[#b7c6c2]/35 text-[#1b1c1b] font-headline text-[10px] font-bold px-4 py-2 rounded-none uppercase tracking-wider"
         >
-          Skip
+          {t('Skip')}
         </button>
       </div>
 
@@ -110,11 +110,11 @@ export default function OnboardingCarousel() {
           onClick={handleNext}
           className="w-full bg-[#ca0013] text-white py-4 rounded-none font-headline font-bold text-base hover:opacity-95 uppercase tracking-wider"
         >
-          {currentSlide === slides.length - 1 ? 'Get Started' : 'Next'}
+          {currentSlide === slides.length - 1 ? t('Get Started') : t('Next')}
         </button>
 
         <p className="text-center text-[10px] text-[#747874] font-bold uppercase tracking-widest">
-          Proudly Made In India
+          {t('Made in India')}
         </p>
       </div>
     </div>

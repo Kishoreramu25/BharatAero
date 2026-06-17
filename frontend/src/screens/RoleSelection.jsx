@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { ArrowLeft, Check } from 'lucide-react';
 
 export default function RoleSelection() {
-  const { setCurrentScreen, userRole, setUserRole } = useApp();
+  const { setCurrentScreen, userRole, setUserRole, t } = useApp();
   const [selected, setSelected] = useState(userRole);
 
   const handleContinue = () => {
@@ -39,10 +39,10 @@ export default function RoleSelection() {
         {/* Title */}
         <div className="text-center">
           <h1 className="font-headline font-black text-2xl text-[#171e19] leading-tight mb-1">
-            How will you use MISD DronePilot?
+            {t('How will you use MISD DronePilot?')}
           </h1>
           <p className="text-[#444844] font-body text-xs">
-            Select your primary role to customize your experience.
+            {t('Select your primary role to customize your experience.')}
           </p>
         </div>
 
@@ -80,7 +80,7 @@ export default function RoleSelection() {
             {/* Text details */}
             <div className="p-4 flex flex-col justify-center">
               <h2 className="text-base font-headline font-black text-[#000201] mb-1">
-                I Need Drone Services
+                {t('I Need Drone Services')}
               </h2>
               <p className="text-[#747874] text-xs leading-relaxed">
                 Hire professional pilots for aerial photography, inspections, mapping, or agricultural monitoring with enterprise-grade security.
@@ -119,7 +119,7 @@ export default function RoleSelection() {
             {/* Text details */}
             <div className="p-4 flex flex-col justify-center">
               <h2 className="text-base font-headline font-black text-[#000201] mb-1">
-                I Am a Drone Pilot
+                {t('I Am a Drone Pilot')}
               </h2>
               <p className="text-[#747874] text-xs leading-relaxed">
                 Find high-value flight missions, manage your fleet, and access automated flight planning tools for professional operations.
@@ -141,7 +141,7 @@ export default function RoleSelection() {
             : 'bg-neutral-200 text-neutral-400 cursor-not-allowed'
           }`}
         >
-          Continue
+          {t('Continue')}
         </button>
         <p className="text-[10px] font-headline font-bold uppercase text-[#747874] tracking-widest">Step 1 of 3</p>
       </footer>

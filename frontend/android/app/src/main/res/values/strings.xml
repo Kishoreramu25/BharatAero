@@ -4,4 +4,5 @@
     <string name="title_activity_main">Bharat Aero</string>
     <string name="package_name">com.bharataero.app</string>
     <string name="custom_url_scheme">com.bharataero.app</string>
+    <string name="server_client_id">585485498597-229j0qeck6c4m7bdv43cr5pdq117cr7e.apps.googleusercontent.com</string>
 </resources>

@@ -205,3 +205,144 @@ input, textarea, select, [contenteditable="true"] {
     margin-left: 10px;
   }
 }
+
+/* Premium Dark Mode Overrides */
+.dark, 
+.dark body {
+  background-color: #0d0e12 !important;
+  color: #f3f4f6 !important;
+}
+
+/* Background overrides */
+.dark .bg-white,
+.dark .bg-background,
+.dark .bg-neutral-50\/35,
+.dark main.bg-white,
+.dark div.bg-white {
+  background-color: #0d0e12 !important;
+}
+
+/* Surfaces and Cards */
+.dark .bg-white.rounded-none.border,
+.dark .bg-white.border.border-neutral-100,
+.dark .bg-white.rounded-2xl,
+.dark .bg-white.rounded-xl,
+.dark .bg-white.rounded-3xl,
+.dark .bg-white.rounded-none,
+.dark header.sticky,
+.dark form {
+  background-color: #16171d !important;
+}
+
+/* Inputs and interactive elements */
+.dark .bg-neutral-50,
+.dark .bg-neutral-100,
+.dark select,
+.dark input,
+.dark .bg-neutral-50\/35 input {
+  background-color: #22242d !important;
+  color: #f3f4f6 !important;
+}
+
+/* Icons background and border */
+.dark .bg-neutral-100.text-\[\#000201\] {
+  background-color: #22242d !important;
+  color: #f3f4f6 !important;
+}
+
+/* Muted buttons, Clear search cross */
+.dark .bg-neutral-100\/20,
+.dark .bg-neutral-100\/10 {
+  background-color: #1c1d24 !important;
+}
+
+/* Text Colors */
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6,
+.dark p,
+.dark span,
+.dark label,
+.dark input,
+.dark select,
+.dark option,
+.dark textarea,
+.dark .text-\[\#1b1c1b\],
+.dark .text-\[\#000201\],
+.dark .text-\[\#171e19\],
+.dark .text-\[\#111827\],
+.dark .text-\[\#1f2937\],
+.dark .text-\[\#4b5563\] {
+  color: #f3f4f6 !important;
+}
+
+/* Exception: Keep active switcher button text and background visible */
+.dark .bg-white.text-\[\#000201\] {
+  background-color: #ffffff !important;
+  color: #0d0e12 !important;
+}
+
+/* Exception: Keep red accent color visible */
+.dark .text-\[\#ca0013\],
+.dark .text-red-600 {
+  color: #ef4444 !important;
+}
+
+/* Exception: Keep green/emerald status colors visible */
+.dark .text-emerald-600,
+.dark .text-green-600 {
+  color: #10b981 !important;
+}
+
+/* Exception: Keep amber rating stars visible */
+.dark .text-amber-500 {
+  color: #f59e0b !important;
+}
+
+/* Muted / Secondary Text */
+.dark .text-\[\#747874\],
+.dark .text-\[\#444844\],
+.dark .text-neutral-500,
+.dark .text-neutral-400,
+.dark .text-gray-400,
+.dark .text-gray-500 {
+  color: #a3a3a3 !important;
+}
+
+/* Borders & Dividers */
+.dark .border,
+.dark .border-neutral-100,
+.dark .border-neutral-200,
+.dark .border-\[\#b7c6c2\]\/60,
+.dark .border-\[\#b7c6c2\]\/25,
+.dark .border-\[\#b7c6c2\]\/10,
+.dark .border-t,
+.dark .border-b,
+.dark .border-r,
+.dark .border-l {
+  border-color: #252731 !important;
+}
+
+.dark .divide-y > :not([hidden]) ~ :not([hidden]) {
+  border-color: #252731 !important;
+}
+
+/* Hover effects */
+.dark .hover\:bg-neutral-50:hover,
+.dark .hover\:bg-neutral-100:hover,
+.dark .hover\:bg-neutral-200:hover,
+.dark .hover\:bg-neutral-900\/50:hover {
+  background-color: #22242d !important;
+}
+
+/* Modal and bottom sheets */
+.dark .fixed.bg-black\/60 {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+}
+.dark .bg-white.w-full.max-w-\[480px\] {
+  background-color: #16171d !important;
+}
+
