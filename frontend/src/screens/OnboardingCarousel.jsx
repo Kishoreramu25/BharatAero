@@ -8,7 +8,7 @@ export default function OnboardingCarousel() {
   const slides = [
     {
       title: "National Recognition",
-      desc: "National recognition for innovation and development, affirming MISD's position as a leader in autonomous robotics and precision engineering.",
+      desc: "National recognition for innovation and development, affirming Bharat Aero's position as a leader in autonomous robotics and precision engineering.",
       image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDvnmvEKDjKbvPfrdMrJBfZXpeggFF-517U3vv4ze4qjc_7XrOXU6BO7kc0iv6CfrN_6bGqHWnw-J_B3QVKaVrGEUHb9FFurb0YZZGlww_HzTH1wQxPjt-r7BxabxGjbXafNkvP_tnlncV03xAxfDR7AyhvqN44G3H3gR3v09NzQngu5of-FZOngxu8DAHxHTcOEKtqlfl1vraNm71bg5cUA0AlmGUdMUnYDzQhK110lHpqm30GPbU_-ZbQoCHBcWH5Dw6skQa93yY"
     },
     {

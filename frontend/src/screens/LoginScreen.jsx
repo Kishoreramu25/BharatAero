@@ -223,7 +223,7 @@ export default function LoginScreen() {
       <div className="h-[220px] rounded-b-[40px] bg-gradient-to-br from-[#121316] to-[#0a0a0b] border-b border-neutral-800/40 relative flex flex-col justify-center items-center shadow-sm shrink-0 overflow-hidden">
         <img 
           src="/logo.webp" 
-          alt="MISD Logo Banner" 
+          alt="Bharat Aero Logo Banner" 
           className="h-[135px] w-auto object-contain pointer-events-none -mt-5"
         />
 
