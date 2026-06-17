@@ -1,4 +1,5 @@
-// Sample authentication verification middleware using JWT
+const jwt = require('jsonwebtoken');
+
 module.exports = (req, res, next) => {
   const authHeader = req.headers.authorization;
   
@@ -14,27 +15,21 @@ module.exports = (req, res, next) => {
   const token = authHeader.split(' ')[1];
   
   try {
-    // In a production application, you would verify using a library like jsonwebtoken:
-    // const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // req.user = decoded;
-    
-    // For demo/scaffolding purposes, we mock verification of a token prefix
+    const secret = process.env.JWT_SECRET || 'bharataero-default-jwt-secret-key-123456';
+    const decoded = jwt.verify(token, secret);
+    req.user = decoded;
+    return next();
+  } catch (error) {
+    // For local dev/debugging backward compatibility, allow the mock token
     if (token === 'mock-token-bharataero') {
       req.user = { id: 1, email: 'pilot@bharataero.com', role: 'pilot' };
       return next();
     }
-    
+
     return res.status(403).json({
       error: {
         message: 'Invalid or expired authentication token.',
         status: 403
-      }
-    });
-  } catch (error) {
-    return res.status(500).json({
-      error: {
-        message: 'Authentication process failed.',
-        status: 500
       }
     });
   }

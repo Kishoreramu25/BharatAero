@@ -5,6 +5,7 @@ const router = express.Router();
 const pilotController = require('../controllers/pilotController');
 const bookingController = require('../controllers/bookingController');
 const authController = require('../controllers/authController');
+const auth = require('../middleware/auth');
 const validate = require('../middleware/validate');
 
 // Rate limiting: 3 requests per minute per identifier (email/phone/IP)
@@ -41,10 +42,11 @@ const pilotQuerySchema = {
 router.get('/pilots', validate(pilotQuerySchema), pilotController.listPilots);
 router.get('/pilots/:id', pilotController.getPilotDetails);
 
-router.post('/bookings', validate(bookingSchema), bookingController.createBooking);
-router.get('/bookings', bookingController.listBookings);
+router.post('/bookings', auth, validate(bookingSchema), bookingController.createBooking);
+router.get('/bookings', auth, bookingController.listBookings);
 
-// Secure OTP Routes
+// Secure OTP & Registration Routes
+router.post('/register', authController.register);
 router.post('/send-otp', otpLimiter, authController.requestOtp);
 router.post('/request-otp', otpLimiter, authController.requestOtp);
 router.post('/verify-otp', authController.verifyOtp);

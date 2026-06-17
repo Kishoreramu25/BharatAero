@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { ArrowLeft, Lock, CheckCircle, AlertTriangle, Mail, Eye, EyeOff, Key, User } from 'lucide-react';
 import { GoogleSignIn } from '@capawesome/capacitor-google-sign-in';
 import { Capacitor } from '@capacitor/core';
+import { SecureStorage } from '../utils/SecureStorage';
 
 
 export default function LoginScreen() {
@@ -78,18 +79,8 @@ export default function LoginScreen() {
     setErrorMsg('');
     setSuccessMsg('');
 
-    // Pre-validate credentials before requesting OTP
-    if (authMode === 'signin') {
-      const cleanEmail = email.trim().toLowerCase();
-      const regEmail = registeredUser.email ? registeredUser.email.toLowerCase() : '';
-      
-      if (regEmail && cleanEmail === regEmail && password === registeredUser.password) {
-        // Valid registered credentials, proceed
-      } else {
-        setErrorMsg('Invalid email or password credentials. (Note: If this is a clean start, please Create Account first.)');
-        return;
-      }
-    } else {
+    // Pre-validate credentials format before requesting OTP
+    if (authMode === 'signup') {
       if (!name.trim()) {
         setErrorMsg('Please enter your full name.');
         return;
@@ -102,23 +93,54 @@ export default function LoginScreen() {
         setErrorMsg('You must agree to the terms and conditions.');
         return;
       }
+    } else {
+      if (!email.trim() || !password) {
+        setErrorMsg('Please enter both email and password.');
+        return;
+      }
     }
 
     setOtpLoading(true);
 
     try {
-      const recipientName = authMode === 'signup' ? name.trim() : (registeredUser.name || 'User');
       const isWeb = Capacitor.getPlatform() === 'web';
-      const url = isWeb ? '/api/send-otp' : 'http://localhost:5000/api/send-otp';
+      const baseUrl = isWeb ? '' : 'http://localhost:5000';
 
-      const response = await fetch(url, {
+      // Step 1: If signup and OTP not yet sent, register first
+      if (authMode === 'signup' && !isOtpSent) {
+        const registerUrl = `${baseUrl}/api/register`;
+        const regResponse = await fetch(registerUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: name.trim(),
+            email: email.trim(),
+            password: password
+          })
+        });
+
+        const regData = await regResponse.json();
+        if (!regResponse.ok) {
+          throw new Error((regData.error && regData.error.message) || regData.message || 'Registration failed.');
+        }
+      }
+
+      // Step 2: Request OTP
+      const otpUrl = `${baseUrl}/api/send-otp`;
+      const recipientName = authMode === 'signup' ? name.trim() : 'User';
+
+      const response = await fetch(otpUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           email: email.trim(),
-          name: recipientName
+          name: recipientName,
+          password: password,
+          isSignup: authMode === 'signup'
         })
       });
 
@@ -166,15 +188,20 @@ export default function LoginScreen() {
         throw new Error((data.error && data.error.message) || data.message || 'Verification failed');
       }
 
-      setIsLoggedIn(true);
-      
-      if (authMode === 'signup') {
-        setRegisteredUser({
-          name: name.trim(),
-          email: email.trim(),
-          password: password
-        });
+      // Save returned secure JWT token in SecureStorage
+      if (data.token) {
+        await SecureStorage.set({ key: 'bharataero_auth_token', value: data.token });
       }
+
+      // Save user details (excluding password)
+      const userProfile = data.user || {
+        name: authMode === 'signup' ? name.trim() : 'User',
+        email: email.trim()
+      };
+      delete userProfile.password;
+      setRegisteredUser(userProfile);
+
+      setIsLoggedIn(true);
 
       if (userRole === 'pilot') {
         setCurrentScreen('pilot_dashboard');

@@ -65,7 +65,11 @@ export const AppProvider = ({ children }) => {
     const loadStorage = async () => {
       try {
         const savedUser = await SecureStorage.get({ key: 'bharataero_registered_user' });
-        if (savedUser) setRegisteredUser(JSON.parse(savedUser));
+        if (savedUser) {
+          const parsedUser = JSON.parse(savedUser);
+          if (parsedUser.password) delete parsedUser.password;
+          setRegisteredUser(parsedUser);
+        }
 
         const savedLang = await SecureStorage.get({ key: 'bharataero_selected_language' });
         if (savedLang) setSelectedLanguage(savedLang);
@@ -75,6 +79,16 @@ export const AppProvider = ({ children }) => {
 
         const savedNotifications = await SecureStorage.get({ key: 'bharataero_notifications' });
         if (savedNotifications) setNotifications(JSON.parse(savedNotifications));
+
+        const savedToken = await SecureStorage.get({ key: 'bharataero_auth_token' });
+        const savedLoggedIn = await SecureStorage.get({ key: 'bharataero_is_logged_in' });
+        const savedRole = await SecureStorage.get({ key: 'bharataero_user_role' });
+
+        if (savedToken && savedLoggedIn === 'true' && savedRole) {
+          setIsLoggedIn(true);
+          setUserRole(savedRole);
+          setCurrentScreen(savedRole === 'pilot' ? 'pilot_dashboard' : 'client_dashboard');
+        }
       } catch (e) {
         console.warn("Failed to load from SecureStorage:", e);
       } finally {
@@ -99,7 +113,9 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     if (!isStorageLoaded) return;
-    SecureStorage.set({ key: 'bharataero_registered_user', value: JSON.stringify(registeredUser) })
+    const userToSave = { ...registeredUser };
+    if (userToSave.password) delete userToSave.password;
+    SecureStorage.set({ key: 'bharataero_registered_user', value: JSON.stringify(userToSave) })
       .catch(e => console.warn("Failed to save registeredUser to SecureStorage:", e));
   }, [registeredUser, isStorageLoaded]);
 
@@ -108,6 +124,22 @@ export const AppProvider = ({ children }) => {
     SecureStorage.set({ key: 'bharataero_selected_language', value: selectedLanguage })
       .catch(e => console.warn("Failed to save selectedLanguage to SecureStorage:", e));
   }, [selectedLanguage, isStorageLoaded]);
+
+  useEffect(() => {
+    if (!isStorageLoaded) return;
+    SecureStorage.set({ key: 'bharataero_is_logged_in', value: String(isLoggedIn) })
+      .catch(e => console.warn("Failed to save isLoggedIn to SecureStorage:", e));
+  }, [isLoggedIn, isStorageLoaded]);
+
+  useEffect(() => {
+    if (!isStorageLoaded) return;
+    if (userRole) {
+      SecureStorage.set({ key: 'bharataero_user_role', value: userRole })
+        .catch(e => console.warn("Failed to save userRole to SecureStorage:", e));
+    } else {
+      SecureStorage.remove({ key: 'bharataero_user_role' }).catch(() => {});
+    }
+  }, [userRole, isStorageLoaded]);
 
 
   // Pilots Data (Static references with rating and prices)
@@ -242,10 +274,13 @@ export const AppProvider = ({ children }) => {
     const initGoogle = async () => {
       // 1. Run Capawesome Google Sign-In setup
       try {
-        const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '585485498597-229j0qeck6c4m7bdv43cr5pdq117cr7e.apps.googleusercontent.com';
+        const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+        if (!googleClientId) {
+          console.warn('Google Client ID (VITE_GOOGLE_CLIENT_ID) is missing from environment variables.');
+        }
         
         const initOptions = {
-          clientId: googleClientId,
+          clientId: googleClientId || '',
         };
         
         if (Capacitor.getPlatform() === 'web') {
@@ -340,6 +375,19 @@ export const AppProvider = ({ children }) => {
     setActiveTab(tab);
   };
 
+  const logout = async () => {
+    setIsLoggedIn(false);
+    setUserRole(null);
+    try {
+      await SecureStorage.remove({ key: 'bharataero_auth_token' });
+      await SecureStorage.remove({ key: 'bharataero_is_logged_in' });
+      await SecureStorage.remove({ key: 'bharataero_user_role' });
+    } catch (e) {
+      console.warn("Failed to clean SecureStorage on logout:", e);
+    }
+    navigate('role_selection');
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -376,6 +424,7 @@ export const AppProvider = ({ children }) => {
         selectedPilot,
         setSelectedPilot,
         sendResendEmail,
+        logout,
         transitionTimerRef
       }}
     >

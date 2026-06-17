@@ -3,6 +3,7 @@ import React from 'react';
 import BottomNav from '../components/BottomNav';
 
 import { useApp } from '../context/AppContext';
+import { SecureStorage } from '../utils/SecureStorage';
 
 import { 
 
@@ -86,7 +87,7 @@ export default function SettingsScreen() {
 
     theme, setTheme, userRole, 
 
-    setIsLoggedIn, navigate, activeTab, registeredUser, setRegisteredUser,
+    logout, navigate, activeTab, registeredUser, setRegisteredUser,
 
     sendResendEmail, selectedLanguage, setSelectedLanguage, autoOpenProfileModal, setAutoOpenProfileModal, t
 
@@ -311,6 +312,10 @@ export default function SettingsScreen() {
         throw new Error((resData.error && resData.error.message) || resData.message || 'Incorrect verification code. Please check and try again.');
       }
 
+      if (resData.token) {
+        await SecureStorage.set({ key: 'bharataero_auth_token', value: resData.token });
+      }
+
       setRegisteredUser({
         ...registeredUser,
         name: editName,
@@ -329,9 +334,7 @@ export default function SettingsScreen() {
 
   const handleLogout = () => {
 
-    setIsLoggedIn(false);
-
-    navigate('role_selection');
+    logout();
 
   };
 

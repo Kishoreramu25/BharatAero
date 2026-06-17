@@ -1,8 +1,20 @@
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 const { Resend } = require('resend');
 const redisClient = require('../config/redis');
+const db = require('../config/db');
 
 // Initialize Resend
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+
+// In-memory user store fallback
+const memoryUserStore = new Map();
+
+// Helper to generate secure salted password hash via PBKDF2
+const hashPassword = (password) => {
+  const salt = 'bharataero_secure_salt_98765';
+  return crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+};
 
 // Helper to format phone number to E.164
 const formatPhoneNumber = (phone) => {
@@ -20,27 +32,130 @@ const formatPhoneNumber = (phone) => {
   return formatted;
 };
 
-// Generates a 6-digit OTP
-const generateOtp = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+// Find user by email helper
+const findUserByEmail = async (email) => {
+  try {
+    const result = await db.query('SELECT * FROM users WHERE email = $1', [email.trim().toLowerCase()]);
+    if (result.rows.length > 0) {
+      return result.rows[0];
+    }
+  } catch (err) {
+    console.warn('[Database Warning] User query failed, checking memory fallback. Error:', err.message);
+  }
+  return memoryUserStore.get(email.trim().toLowerCase()) || null;
+};
+
+// Save user helper
+const saveUser = async (name, email, password, phone) => {
+  const passwordHash = hashPassword(password);
+  const cleanEmail = email.trim().toLowerCase();
+  
+  try {
+    const result = await db.query(
+      'INSERT INTO users (name, email, password_hash, phone) VALUES ($1, $2, $3, $4) RETURNING *',
+      [name, cleanEmail, passwordHash, phone || null]
+    );
+    return result.rows[0];
+  } catch (err) {
+    console.warn('[Database Warning] User insert failed, using memory fallback. Error:', err.message);
+    const mockUser = {
+      id: Math.floor(1000 + Math.random() * 9000),
+      name,
+      email: cleanEmail,
+      password_hash: passwordHash,
+      phone: phone || null
+    };
+    memoryUserStore.set(cleanEmail, mockUser);
+    return mockUser;
+  }
+};
+
+// User Registration Route
+exports.register = async (req, res, next) => {
+  try {
+    const { name, email, password, phone } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Name, email, and password are required fields.' }
+      });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Invalid email address format.' }
+      });
+    }
+
+    const existingUser = await findUserByEmail(email);
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'An account with this email address already exists.' }
+      });
+    }
+
+    const newUser = await saveUser(name, email, password, phone);
+
+    return res.status(201).json({
+      success: true,
+      message: 'Registration successful',
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        phone: newUser.phone
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.requestOtp = async (req, res, next) => {
   try {
-    const { email, phone, name } = req.body;
+    const { email, phone, name, password, isSignup } = req.body;
     const recipientName = name || 'User';
 
     if (!email && !phone) {
       return res.status(400).json({
         success: false,
-        error: { message: 'Either email or phone number is required to request an OTP.' }
+        error: { message: 'Either email or phone number is required.' }
       });
     }
 
-    const otpCode = generateOtp();
+    // If Email Sign-In, verify password against hashed DB copy first!
+    if (email && !isSignup) {
+      if (!password) {
+        return res.status(400).json({
+          success: false,
+          error: { message: 'Password is required for signing in.' }
+        });
+      }
+
+      const user = await findUserByEmail(email);
+      if (!user) {
+        return res.status(400).json({
+          success: false,
+          error: { message: 'Invalid email or password credentials.' }
+        });
+      }
+
+      const hash = hashPassword(password);
+      if (user.password_hash !== hash) {
+        return res.status(400).json({
+          success: false,
+          error: { message: 'Invalid email or password credentials.' }
+        });
+      }
+    }
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
 
     if (email) {
-      // Validate Email Format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         return res.status(400).json({
@@ -49,11 +164,10 @@ exports.requestOtp = async (req, res, next) => {
         });
       }
 
-      // Store in Redis
       const redisKey = `otp:${email.trim().toLowerCase()}`;
       await redisClient.setex(redisKey, 600, otpCode);
 
-      // Email HTML Template (Matching the premium branding in client)
+      const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
       const htmlContent = `
         <div style="font-family: 'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f3f4f6; padding: 40px 10px; margin: 0; min-height: 100%;">
           <div style="max-width: 500px; margin: 0 auto; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;">
@@ -115,18 +229,16 @@ exports.requestOtp = async (req, res, next) => {
       if (resend) {
         try {
           await resend.emails.send({
-            from: 'onboarding@resend.dev',
+            from: fromEmail,
             to: email,
             subject: 'Your Bharat Aero OTP Verification Code',
             html: htmlContent
           });
         } catch (resendErr) {
           console.warn('[Resend] Direct Resend dispatch failed:', resendErr.message);
-          // Fallback simulation print for testing in case of sandbox or key issues
-          console.log(`%c[BACKEND SECURITY SERVICE] OTP Verification code for ${email} is: ${otpCode}`, "background: #222; color: #ca0013; font-size: 14px; font-weight: bold; padding: 4px 8px; border-radius: 4px;");
+          console.log(`\n========================================\n[SIMULATION] OTP Verification code for ${email} is: ${otpCode}\n========================================\n`);
         }
       } else {
-        // Simulated output print
         console.log(`\n========================================\n[SIMULATION] OTP Verification code for ${email} is: ${otpCode}\n========================================\n`);
       }
 
@@ -138,8 +250,6 @@ exports.requestOtp = async (req, res, next) => {
 
     if (phone) {
       const formattedPhone = formatPhoneNumber(phone);
-
-      // Store in Redis
       const redisKey = `otp:${formattedPhone}`;
       await redisClient.setex(redisKey, 600, otpCode);
 
@@ -204,7 +314,7 @@ exports.verifyOtp = async (req, res, next) => {
     if (!email && !phone) {
       return res.status(400).json({
         success: false,
-        error: { message: 'Either email or phone number is required to verify the OTP.' }
+        error: { message: 'Either email or phone number is required.' }
       });
     }
 
@@ -221,12 +331,35 @@ exports.verifyOtp = async (req, res, next) => {
     }
 
     if (cachedCode === code.trim()) {
-      // Delete key from cache after successful verification
       await redisClient.del(redisKey);
       
+      // Generate a signed JWT token
+      const jwtSecret = process.env.JWT_SECRET || 'bharataero-default-jwt-secret-key-123456';
+      const token = jwt.sign(
+        { email: email ? email.trim().toLowerCase() : undefined, phone: phone ? formatPhoneNumber(phone) : undefined },
+        jwtSecret,
+        { expiresIn: '7d' }
+      );
+
+      // Try to load user profile to return to client
+      let user = null;
+      if (email) {
+        const dbUser = await findUserByEmail(email);
+        if (dbUser) {
+          user = {
+            id: dbUser.id,
+            name: dbUser.name,
+            email: dbUser.email,
+            phone: dbUser.phone
+          };
+        }
+      }
+
       return res.status(200).json({
         success: true,
-        message: 'Verification successful'
+        message: 'Verification successful',
+        token,
+        user
       });
     } else {
       return res.status(400).json({
