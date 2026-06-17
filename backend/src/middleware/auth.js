@@ -20,11 +20,6 @@ module.exports = (req, res, next) => {
     req.user = decoded;
     return next();
   } catch (error) {
-    // For local dev/debugging backward compatibility, allow the mock token
-    if (token === 'mock-token-bharataero') {
-      req.user = { id: 1, email: 'pilot@bharataero.com', role: 'pilot' };
-      return next();
-    }
 
     return res.status(403).json({
       error: {

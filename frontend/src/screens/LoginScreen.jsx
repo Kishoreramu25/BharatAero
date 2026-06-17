@@ -58,21 +58,6 @@ export default function LoginScreen() {
     }
   };
 
-  const handleDevBypass = () => {
-    setIsLoggedIn(true);
-    setRegisteredUser({
-      name: 'Dev Bypass User',
-      email: 'developer@misd-automation.com',
-      password: 'dev-bypass-passcode',
-      phone: '+91 99999 99999',
-      id: userRole === 'pilot' ? 'DEV-PILOT-9999' : 'DEV-CLIENT-9999'
-    });
-    if (userRole === 'pilot') {
-      setCurrentScreen('pilot_dashboard');
-    } else {
-      setCurrentScreen('client_dashboard');
-    }
-  };
 
   const handleAuthSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -90,7 +75,7 @@ export default function LoginScreen() {
         return;
       }
       if (!iAgree) {
-        setErrorMsg('You must agree to the terms and conditions.');
+        setErrorMsg('You must agree to the Terms, Privacy Policy, and data processing consent.');
         return;
       }
     } else {
@@ -236,14 +221,6 @@ export default function LoginScreen() {
           <ArrowLeft size={18} />
         </button>
 
-        {/* Dev Bypass Button */}
-        <button
-          type="button"
-          onClick={handleDevBypass}
-          className="absolute top-5 right-5 px-3 py-1.5 text-[9px] font-headline font-bold uppercase tracking-wider bg-neutral-900/60 hover:bg-neutral-950 text-white rounded-full border border-neutral-800/50 cursor-pointer transition-all duration-200 z-10"
-        >
-          {t('🛠️ Dev Bypass')}
-        </button>
       </div>
 
       {/* Main Form Card - Overlapping top banner */}
@@ -481,7 +458,7 @@ export default function LoginScreen() {
                     className="w-4 h-4 mt-0.5 rounded border-red-200 text-[#ca0013] focus:ring-0 cursor-pointer accent-[#ca0013] bg-white transition-all shrink-0"
                   />
                   <label htmlFor="agreeProtocols" className="text-[10px] text-[#747874] leading-tight select-none">
-                    I agree to the <span className="underline cursor-pointer text-[#ca0013] font-bold hover:opacity-85">terms and conditions</span> of flight operations.
+                    I agree to the <span className="underline cursor-pointer text-[#ca0013] font-bold hover:opacity-85" onClick={() => setCurrentScreen('about')}>Terms and Conditions</span> and <span className="underline cursor-pointer text-[#ca0013] font-bold hover:opacity-85" onClick={() => setCurrentScreen('about')}>Privacy Policy</span>, and consent to the secure processing of my personal data under GDPR.
                   </label>
                 </div>
               )}

@@ -11,6 +11,7 @@ apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
     implementation project(':capacitor-splash-screen')
     implementation project(':capawesome-capacitor-google-sign-in')
+    implementation project(':capacitor-secure-storage-plugin')
 
 }
 
