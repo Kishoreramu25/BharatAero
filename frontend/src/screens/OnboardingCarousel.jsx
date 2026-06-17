@@ -38,8 +38,8 @@ export default function OnboardingCarousel() {
       {/* Top Action Bar */}
       <div className="absolute top-6 left-0 w-full px-6 flex justify-between items-center z-20">
         <div className="flex items-center gap-2">
-          <span className="text-[#000201] font-black text-xl font-headline">MISD</span>
-          <span className="text-[#444844] font-body opacity-60 text-sm">DronePilot</span>
+          <span className="text-[#000201] font-black text-xl font-headline">Bharat</span>
+          <span className="text-[#444844] font-body opacity-60 text-sm">Aero</span>
         </div>
         <button 
           onClick={() => setCurrentScreen('role_selection')}

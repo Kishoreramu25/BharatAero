@@ -30,7 +30,7 @@ export default function RoleSelection() {
         >
           <ArrowLeft size={18} className="text-[#000201]" />
         </button>
-        <span className="text-[#000201] font-black text-lg font-headline">MISD System</span>
+        <span className="text-[#000201] font-black text-lg font-headline">Bharat System</span>
         <div className="w-10"></div>
       </header>
 
@@ -39,7 +39,7 @@ export default function RoleSelection() {
         {/* Title */}
         <div className="text-center">
           <h1 className="font-headline font-black text-2xl text-[#171e19] leading-tight mb-1">
-            {t('How will you use MISD DronePilot?')}
+            {t('How will you use Bharat Aero?')}
           </h1>
           <p className="text-[#444844] font-body text-xs">
             {t('Select your primary role to customize your experience.')}
