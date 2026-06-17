@@ -1,9 +1,26 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
 
 const pilotController = require('../controllers/pilotController');
 const bookingController = require('../controllers/bookingController');
+const authController = require('../controllers/authController');
 const validate = require('../middleware/validate');
+
+// Rate limiting: 3 requests per minute per identifier (email/phone/IP)
+const otpLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 3,
+  message: {
+    success: false,
+    error: { message: 'Too many OTP requests. Please wait a minute before requesting another code.' }
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    return (req.body.email || req.body.phone || req.ip).toString().trim().toLowerCase();
+  }
+});
 
 // Schema definitions for route validations
 const bookingSchema = {
@@ -26,5 +43,10 @@ router.get('/pilots/:id', pilotController.getPilotDetails);
 
 router.post('/bookings', validate(bookingSchema), bookingController.createBooking);
 router.get('/bookings', bookingController.listBookings);
+
+// Secure OTP Routes
+router.post('/send-otp', otpLimiter, authController.requestOtp);
+router.post('/request-otp', otpLimiter, authController.requestOtp);
+router.post('/verify-otp', authController.verifyOtp);
 
 module.exports = router;

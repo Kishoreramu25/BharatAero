@@ -1,3 +1,9 @@
+if (import.meta.env.PROD) {
+  window.console.log = () => {};
+  window.console.info = () => {};
+  window.console.debug = () => {};
+}
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'

@@ -194,8 +194,6 @@ export default function SettingsScreen() {
 
     }
 
-
-
     setSelectedCountryCode(matchedCode);
 
     setEditPhoneBody(phoneBody);
@@ -215,273 +213,116 @@ export default function SettingsScreen() {
 
 
   const handleSaveProfile = async (e) => {
-
     if (e && e.preventDefault) e.preventDefault();
-
     setOtpErrorMsg('');
-
     setOtpSuccessMsg('');
 
-
-
     const originalEmail = registeredUser?.email || (userRole === 'pilot' ? 'pilot@misd-automation.com' : 'client@misd-automation.com');
-
     const originalPhone = registeredUser?.phone || (userRole === 'pilot' ? '+91 98765 43210' : '+91 87654 32109');
-
-    
-
     const editPhone = (selectedCountryCode + ' ' + editPhoneBody.trim()).trim();
-
-    
-
     const emailChanged = editEmail.trim().toLowerCase() !== originalEmail.toLowerCase();
-
     const phoneChanged = editPhone !== originalPhone;
 
-
-
     if (emailChanged || phoneChanged) {
-
-      // Generate secure 6-digit OTP
-
-      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-      setGeneratedOtp(otpCode);
-
       setIsSendingOtp(true);
-
       setIsVerifyingOtp(true);
-
       setEnteredOtp('');
 
-
-
       if (phoneChanged) {
-
-        // Phone number changed -> Send code to Phone number via Twilio SMS API
-
         const targetPhone = editPhone;
-
-        const accountSid = import.meta.env.VITE_TWILIO_ACCOUNT_SID;
-
-        const authToken = import.meta.env.VITE_TWILIO_AUTH_TOKEN;
-
-        const twilioPhone = import.meta.env.VITE_TWILIO_PHONE_NUMBER;
-
-
-
         try {
+          const isWeb = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+          const url = isWeb ? '/api/send-otp' : 'http://localhost:5000/api/send-otp';
 
-          console.log(`%c[MISD SMS GATEWAY] Dispatching OTP code to ${targetPhone} via Twilio SMS...`, "color: #0284c7; font-weight: bold;");
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: targetPhone })
+          });
 
-          
-
-          if (accountSid && authToken && twilioPhone) {
-
-            // Format phone number to E.164 (ensure it starts with country code prefix, e.g. +91)
-
-            let formattedPhone = targetPhone;
-
-            if (!formattedPhone.startsWith('+')) {
-
-              if (formattedPhone.startsWith('0')) {
-
-                formattedPhone = formattedPhone.substring(1);
-
-              }
-
-              if (formattedPhone.length === 10) {
-
-                formattedPhone = '+91' + formattedPhone;
-
-              } else {
-
-                formattedPhone = '+' + formattedPhone;
-
-              }
-
-            }
-
-
-
-            const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
-
-            const headers = new Headers();
-
-            headers.set('Authorization', 'Basic ' + btoa(accountSid + ":" + authToken));
-
-            headers.set('Content-Type', 'application/x-www-form-urlencoded');
-
-
-
-            const body = new URLSearchParams({
-
-              To: formattedPhone,
-
-              From: twilioPhone,
-
-              Body: `Your Bharat Aero verification code is: ${otpCode}`
-
-            });
-
-
-
-            const response = await fetch(url, {
-
-              method: 'POST',
-
-              headers: headers,
-
-              body: body
-
-            });
-
-
-
-            if (response.ok) {
-
-              const resData = await response.json();
-
-              console.log(`%c[MISD SMS GATEWAY] SMS successfully sent via Twilio! (OTP: ${otpCode})`, "color: #0284c7; font-weight: bold;", resData);
-
-              setOtpSuccessMsg(`OTP sent to your phone number ${formattedPhone} via Twilio SMS!`);
-
-              setShowOtpHint(false);
-
-            } else {
-
-              const errText = await response.text();
-
-              throw new Error(errText || "Twilio request failed");
-
-            }
-
+          if (response.ok) {
+            setOtpSuccessMsg(`OTP sent to ${targetPhone}.`);
           } else {
-
-            // No credentials, run simulator
-
-            console.log(`%c[MISD SMS GATEWAY (Twilio)] OTP Verification code: ${otpCode}`, "background: #121316; color: #0284c7; font-size: 14px; font-weight: bold; padding: 4px 8px; border-radius: 4px;");
-
-            setOtpSuccessMsg(`Twilio credentials missing in .env. Simulated OTP sent! (Look at F12 console or use code below)`);
-
-            setShowOtpHint(true);
-
+            throw new Error("Twilio request failed");
           }
-
         } catch (err) {
-
-          console.warn("Failed to dispatch SMS via Twilio API:", err);
-
-          console.log(`%c[MISD SMS GATEWAY BACKUP] OTP Verification code: ${otpCode}`, "background: #222; color: #ca0013; font-size: 14px; font-weight: bold; padding: 4px 8px; border-radius: 4px;");
-
-          setOtpSuccessMsg(`Failed to send Twilio SMS. (Note: Trial accounts can only send to verified caller IDs). Simulated OTP sent!`);
-
+          console.warn("Failed to send Twilio SMS:", err);
+          setOtpSuccessMsg('Failed to send verification SMS. Simulated OTP sent!');
           setShowOtpHint(true);
-
         } finally {
-
           setIsSendingOtp(false);
-
         }
-
       } else {
-
-        // Only Email changed -> Send to Email address
-
         const targetEmail = editEmail.trim();
-
         try {
-
-          console.log(`%c[MISD PROFILE UPDATE SECURITY] OTP Verification code for ${targetEmail} is: ${otpCode}`, "background: #222; color: #ca0013; font-size: 14px; font-weight: bold; padding: 4px 8px; border-radius: 4px;");
-
-
-
-          await sendResendEmail(targetEmail, otpCode, editName || 'User');
-
+          await sendResendEmail(targetEmail, null, editName || 'User');
           setOtpSuccessMsg('A 6-digit verification code has been sent to your email.');
-
           setShowOtpHint(false);
-
         } catch (err) {
-
           console.warn("Failed to send profile update OTP via Resend:", err);
-
-          setOtpSuccessMsg('Simulated OTP sent! Look at the F12 developer console for the 6-digit code.');
-
+          setOtpSuccessMsg('Failed to send verification email. Simulated OTP sent!');
           setShowOtpHint(true);
-
         } finally {
-
           setIsSendingOtp(false);
-
         }
-
       }
-
     } else {
-
-      // No email/phone changes, save directly
-
       setRegisteredUser({
-
         ...registeredUser,
-
         name: editName,
-
         email: editEmail,
-
         phone: editPhone,
-
         id: editId
-
       });
-
       setIsEditingProfile(false);
-
     }
-
   };
 
 
 
-  const handleVerifyOtpAndSave = (e) => {
-
+  const handleVerifyOtpAndSave = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
-
     setOtpErrorMsg('');
 
-
-
+    const originalEmail = registeredUser?.email || (userRole === 'pilot' ? 'pilot@misd-automation.com' : 'client@misd-automation.com');
+    const originalPhone = registeredUser?.phone || (userRole === 'pilot' ? '+91 98765 43210' : '+91 87654 32109');
     const editPhone = (selectedCountryCode + ' ' + editPhoneBody.trim()).trim();
+    const emailChanged = editEmail.trim().toLowerCase() !== originalEmail.toLowerCase();
+    const phoneChanged = editPhone !== originalPhone;
 
+    try {
+      const isWeb = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+      const url = isWeb ? '/api/verify-otp' : 'http://localhost:5000/api/verify-otp';
 
-
-    if (enteredOtp === generatedOtp) {
-
-      setRegisteredUser({
-
-        ...registeredUser,
-
-        name: editName,
-
-        email: editEmail,
-
-        phone: editPhone,
-
-        id: editId
-
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: emailChanged ? editEmail.trim() : undefined,
+          phone: phoneChanged ? editPhone : undefined,
+          code: enteredOtp
+        })
       });
 
+      const resData = await response.json();
+      if (!response.ok) {
+        throw new Error((resData.error && resData.error.message) || resData.message || 'Incorrect verification code. Please check and try again.');
+      }
+
+      setRegisteredUser({
+        ...registeredUser,
+        name: editName,
+        email: editEmail,
+        phone: editPhone,
+        id: editId
+      });
       setIsVerifyingOtp(false);
-
       setIsEditingProfile(false);
-
-    } else {
-
-      setOtpErrorMsg('Incorrect verification code. Please check and try again.');
-
+    } catch (err) {
+      setOtpErrorMsg(err.message || 'Incorrect verification code. Please check and try again.');
     }
-
   };
 
 

@@ -5,7 +5,7 @@ import { visualizer } from 'rollup-plugin-visualizer'
 import viteCompression from 'vite-plugin-compression'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     tailwindcss(),
@@ -25,6 +25,9 @@ export default defineConfig({
       gzipSize: true,
     })
   ],
+  esbuild: {
+    drop: mode === 'production' ? ['console', 'debugger'] : []
+  },
   build: {
     target: 'esnext',
     minify: 'esbuild', // Faster & highly optimized minification
@@ -53,7 +56,11 @@ export default defineConfig({
         target: 'https://api.resend.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api-resend/, '')
+      },
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true
       }
     }
   }
-})
+}))

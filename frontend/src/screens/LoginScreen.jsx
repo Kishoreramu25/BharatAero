@@ -4,122 +4,6 @@ import { ArrowLeft, Lock, CheckCircle, AlertTriangle, Mail, Eye, EyeOff, Key, Us
 import { GoogleSignIn } from '@capawesome/capacitor-google-sign-in';
 import { Capacitor } from '@capacitor/core';
 
-const sendResendEmail = async (toEmail, otpCode, recipientName) => {
-  const apiKey = import.meta.env.VITE_RESEND_API_KEY;
-  if (!apiKey) {
-    throw new Error("Resend API key is missing");
-  }
-
-  const payload = {
-    from: 'onboarding@resend.dev',
-    to: toEmail,
-    subject: 'Your Bharat Aero OTP Verification Code',
-    html: `
-      <div style="font-family: 'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f3f4f6; padding: 40px 10px; margin: 0; min-height: 100%;">
-        <div style="max-width: 500px; margin: 0 auto; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;">
-          
-          <!-- Premium Dark Banner Header -->
-          <div style="background: linear-gradient(135deg, #121316 0%, #0a0a0b 100%); padding: 35px 20px; text-align: center; border-bottom: 3px solid #ca0013;">
-            <!-- Logo Container -->
-            <div style="display: inline-block; margin-bottom: 15px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none" style="display: block; margin: 0 auto;">
-                <path d="M12 28C12 16.9543 20.9543 8 32 8C43.0457 8 52 16.9543 52 28" stroke="#FF9933" stroke-width="4" stroke-linecap="round"/>
-                <path d="M56 28C56 41.2548 45.2548 52 32 52C18.7452 52 8 41.2548 8 28" stroke="#128807" stroke-width="4" stroke-linecap="round"/>
-                <circle cx="32" cy="28" r="8" stroke="#000080" stroke-width="1.5"/>
-                <circle cx="32" cy="28" r="2" fill="#000080"/>
-                <line x1="32" y1="20" x2="32" y2="36" stroke="#000080" stroke-width="0.75"/>
-                <line x1="24" y1="28" x2="40" y2="28" stroke="#000080" stroke-width="0.75"/>
-                <line x1="26.34" y1="22.34" x2="37.66" y2="33.66" stroke="#000080" stroke-width="0.75"/>
-                <line x1="26.34" y1="33.66" x2="37.66" y2="22.34" stroke="#000080" stroke-width="0.75"/>
-                <path d="M18 38H46" stroke="#FF9933" stroke-width="3" stroke-linecap="round"/>
-                <path d="M22 42H42" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
-                <path d="M26 46H38" stroke="#128807" stroke-width="3" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <!-- Logo Typography -->
-            <div style="font-size: 20px; font-weight: 900; letter-spacing: 2px; color: #ffffff; text-transform: uppercase; margin: 0; font-family: sans-serif;">
-              <span style="color: #ffffff;">Bharat</span> <span style="color: #128807;">Aero</span>
-            </div>
-            <div style="font-size: 10px; font-weight: 700; color: #9ca3af; letter-spacing: 3px; text-transform: uppercase; margin-top: 4px;">
-              Drone Flight Operations
-            </div>
-          </div>
-
-          <!-- Email Content Body -->
-          <div style="padding: 40px 30px; background-color: #ffffff; text-align: left;">
-            <h3 style="font-size: 15px; color: #1f2937; margin-top: 0; margin-bottom: 12px; font-weight: 700; font-family: sans-serif;">
-              Hello ${recipientName},
-            </h3>
-            <p style="font-size: 13px; color: #4b5563; line-height: 1.6; margin-bottom: 25px;">
-              Welcome to the secure flight portal of <strong>Bharat Aero</strong>. Please verify your identity using the verification code below to gain access to your drone operations dashboard:
-            </p>
-
-            <!-- OTP Card Pamphlet Style -->
-            <div style="background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border: 1px solid #e5e7eb; border-left: 5px solid #ca0013; border-radius: 16px; padding: 25px; text-align: center; margin-bottom: 30px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
-              <span style="font-size: 10px; font-weight: 800; color: #ca0013; text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 12px;">Security Passcode</span>
-              <div style="font-size: 36px; font-weight: 900; letter-spacing: 8px; color: #111827; font-family: 'Courier New', Courier, monospace; text-shadow: 1px 1px 1px rgba(0,0,0,0.05); display: inline-block; padding-left: 8px;">
-                ${otpCode}
-              </div>
-              <span style="font-size: 11px; color: #6b7280; display: block; margin-top: 12px; font-weight: 500;">Valid for 10 minutes only</span>
-            </div>
-
-            <p style="font-size: 12px; color: #9ca3af; line-height: 1.5; margin-bottom: 0; border-top: 1px solid #f3f4f6; padding-top: 20px;">
-              If you did not request this OTP, please disregard this transmission or contact Bharat Aero support immediately.
-            </p>
-          </div>
-
-          <!-- Pamphlet Footer -->
-          <div style="background-color: #f9fafb; padding: 20px 30px; text-align: center; border-top: 1px solid #f3f4f6;">
-            <div style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 1.5px;">
-              <span>Safe & Secure</span>
-              <span style="color: #ca0013; font-size: 12px; margin: 0 4px;">•</span>
-              <span>Proudly Made in India</span>
-            </div>
-            <p style="font-size: 9px; color: #d1d5db; margin: 8px 0 0 0;">
-              © 2026 Bharat Aero Autonomous Systems. All rights reserved.
-            </p>
-          </div>
-
-        </div>
-      </div>
-    `
-  };
-
-  // 1. Try local Vite dev proxy first (handles CORS bypass automatically)
-  try {
-    const response = await fetch('/api-resend/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
-    if (response.ok) return true;
-    
-    // If not 2xx, log error
-    const errText = await response.text();
-    console.warn("Dev proxy returned error status, checking fallback...", errText);
-  } catch (e) {
-    console.warn("Dev proxy connection failed, trying direct API call...", e);
-  }
-
-  // 2. Direct API call fallback
-  const directResponse = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(payload)
-  });
-  
-  if (!directResponse.ok) {
-    const errorData = await directResponse.json();
-    throw new Error(errorData.message || `Resend Error Status: ${directResponse.status}`);
-  }
-  return true;
-};
 
 export default function LoginScreen() {
   const { setCurrentScreen, userRole, setIsLoggedIn, registeredUser, setRegisteredUser, t } = useApp();
@@ -201,9 +85,6 @@ export default function LoginScreen() {
       
       if (regEmail && cleanEmail === regEmail && password === registeredUser.password) {
         // Valid registered credentials, proceed
-      } else if (!regEmail && cleanEmail === 'pilot@misd-automation.com' && password === 'password123') {
-        // Fallback default credentials if app context has not registered any user
-        setRegisteredUser({ email: 'pilot@misd-automation.com', password: 'password123' });
       } else {
         setErrorMsg('Invalid email or password credentials. (Note: If this is a clean start, please Create Account first.)');
         return;
@@ -223,37 +104,68 @@ export default function LoginScreen() {
       }
     }
 
-    // Generate a secure 6-digit OTP
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedOtp(otpCode);
     setOtpLoading(true);
 
     try {
-      console.log(`%c[MISD SECURITY SERVICE] OTP Verification code for ${email} is: ${otpCode}`, "background: #222; color: #ca0013; font-size: 14px; font-weight: bold; padding: 4px 8px; border-radius: 4px;");
-
       const recipientName = authMode === 'signup' ? name.trim() : (registeredUser.name || 'User');
-      await sendResendEmail(email, otpCode, recipientName);
+      const isWeb = Capacitor.getPlatform() === 'web';
+      const url = isWeb ? '/api/send-otp' : 'http://localhost:5000/api/send-otp';
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          name: recipientName
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error((data.error && data.error.message) || data.message || 'Failed to send verification code.');
+      }
       
       setSuccessMsg('A 6-digit verification code has been sent to your email.');
       setIsOtpSent(true);
       setShowOtpHint(false);
     } catch (err) {
-      console.warn("Failed to send real email via Resend:", err);
-      setSuccessMsg('Simulated OTP sent! Look at the F12 developer console for the 6-digit code.');
-      setIsOtpSent(true);
-      setShowOtpHint(true);
+      console.warn("Failed to request OTP:", err);
+      setErrorMsg(err.message || 'Failed to request OTP. Please try again.');
     } finally {
       setOtpLoading(false);
     }
   };
 
-  const handleOtpVerify = (e) => {
+  const handleOtpVerify = async (e) => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
 
-    // Verify entered OTP
-    if (enteredOtp === generatedOtp) {
+    setOtpLoading(true);
+    try {
+      const isWeb = Capacitor.getPlatform() === 'web';
+      const url = isWeb ? '/api/verify-otp' : 'http://localhost:5000/api/verify-otp';
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          code: enteredOtp
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error((data.error && data.error.message) || data.message || 'Verification failed');
+      }
+
       setIsLoggedIn(true);
       
       if (authMode === 'signup') {
@@ -269,8 +181,11 @@ export default function LoginScreen() {
       } else {
         setCurrentScreen('client_dashboard');
       }
-    } else {
-      setErrorMsg('Incorrect verification code. Please check and try again.');
+    } catch (err) {
+      console.warn("OTP verification error:", err);
+      setErrorMsg(err.message || 'Incorrect verification code. Please check and try again.');
+    } finally {
+      setOtpLoading(false);
     }
   };
 
