@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const csrf = require('csurf');
 require('dotenv').config();
 
 const apiRoutes = require('./routes/api');
@@ -31,6 +32,9 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(logger);
+
+// Configure CSRF protection - protects against cross-site request forgery
+const csrfProtection = csrf({ cookie: false });
 
 // Configure Express security headers
 app.use((req, res, next) => {

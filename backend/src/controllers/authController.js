@@ -10,10 +10,23 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 // In-memory user store fallback
 const memoryUserStore = new Map();
 
-// Helper to generate secure salted password hash via PBKDF2
+// Helper to generate secure salted password hash via PBKDF2 with random salt
 const hashPassword = (password) => {
-  const salt = 'bharataero_secure_salt_98765';
-  return crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+  const salt = crypto.randomBytes(32);
+  const hash = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512');
+  return {
+    salt: salt.toString('hex'),
+    hash: hash.toString('hex')
+  };
+};
+
+// Helper to verify password against stored hash
+const verifyPassword = (password, storedSalt, storedHash) => {
+  const hash = crypto.pbkdf2Sync(password, Buffer.from(storedSalt, 'hex'), 100000, 64, 'sha512');
+  return crypto.timingSafeEqual(
+    Buffer.from(hash.toString('hex')),
+    Buffer.from(storedHash)
+  );
 };
 
 // Helper to format phone number to E.164
@@ -47,13 +60,13 @@ const findUserByEmail = async (email) => {
 
 // Save user helper
 const saveUser = async (name, email, password, phone) => {
-  const passwordHash = hashPassword(password);
+  const { salt, hash } = hashPassword(password);
   const cleanEmail = email.trim().toLowerCase();
   
   try {
     const result = await db.query(
-      'INSERT INTO users (name, email, password_hash, phone) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, cleanEmail, passwordHash, phone || null]
+      'INSERT INTO users (name, email, password_salt, password_hash, phone) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [name, cleanEmail, salt, hash, phone || null]
     );
     return result.rows[0];
   } catch (err) {
@@ -62,7 +75,8 @@ const saveUser = async (name, email, password, phone) => {
       id: Math.floor(1000 + Math.random() * 9000),
       name,
       email: cleanEmail,
-      password_hash: passwordHash,
+      password_salt: salt,
+      password_hash: hash,
       phone: phone || null
     };
     memoryUserStore.set(cleanEmail, mockUser);
@@ -118,7 +132,9 @@ exports.register = async (req, res, next) => {
 exports.requestOtp = async (req, res, next) => {
   try {
     const { email, phone, name, password, isSignup } = req.body;
-    const recipientName = name || 'User';
+    // Sanitize name to prevent email injection - remove HTML/special chars
+    const sanitizedName = (name || 'User').replace(/[<>\"'&]/g, '');
+    const recipientName = sanitizedName || 'User';
 
     if (!email && !phone) {
       return res.status(400).json({
@@ -144,8 +160,17 @@ exports.requestOtp = async (req, res, next) => {
         });
       }
 
-      const hash = hashPassword(password);
-      if (user.password_hash !== hash) {
+      // Use timing-safe comparison to prevent timing attacks
+      try {
+        const passwordMatch = verifyPassword(password, user.password_salt, user.password_hash);
+        if (!passwordMatch) {
+          return res.status(400).json({
+            success: false,
+            error: { message: 'Invalid email or password credentials.' }
+          });
+        }
+      } catch (err) {
+        // Comparison failed - not valid password
         return res.status(400).json({
           success: false,
           error: { message: 'Invalid email or password credentials.' }
@@ -153,7 +178,8 @@ exports.requestOtp = async (req, res, next) => {
       }
     }
 
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    // Use crypto-secure random instead of Math.random()
+    const otpCode = crypto.randomInt(100000, 1000000).toString();
 
     if (email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -236,10 +262,12 @@ exports.requestOtp = async (req, res, next) => {
           });
         } catch (resendErr) {
           console.warn('[Resend] Direct Resend dispatch failed:', resendErr.message);
-          console.log(`\n========================================\n[SIMULATION] OTP Verification code for ${email} is: ${otpCode}\n========================================\n`);
+          // NEVER log OTP in production
+          console.warn(`[WARNING] Email delivery failed for ${email}. User should check spam folder or request new OTP.`);
         }
       } else {
-        console.log(`\n========================================\n[SIMULATION] OTP Verification code for ${email} is: ${otpCode}\n========================================\n`);
+        // NEVER log OTP - only indicate it was sent
+        console.warn('[Email Service] No Resend API key configured. User verification email could not be sent.');
       }
 
       return res.status(200).json({
@@ -283,10 +311,12 @@ exports.requestOtp = async (req, res, next) => {
           }
         } catch (twilioErr) {
           console.warn('[Twilio] SMS dispatch failed:', twilioErr.message);
-          console.log(`\n========================================\n[SIMULATION BACKUP] OTP Verification code for ${formattedPhone} is: ${otpCode}\n========================================\n`);
+          // NEVER log OTP
+          console.warn(`[WARNING] SMS delivery failed for ${formattedPhone}. User should request new OTP.`);
         }
       } else {
-        console.log(`\n========================================\n[SIMULATION] SMS OTP Verification code for ${formattedPhone} is: ${otpCode}\n========================================\n`);
+        // NEVER log OTP
+        console.warn('[SMS Service] No Twilio credentials configured. User verification SMS could not be sent.');
       }
 
       return res.status(200).json({
@@ -330,11 +360,32 @@ exports.verifyOtp = async (req, res, next) => {
       });
     }
 
-    if (cachedCode === code.trim()) {
+    // Use timing-safe comparison to prevent timing attacks
+    let codeMatches = false;
+    try {
+      codeMatches = crypto.timingSafeEqual(
+        Buffer.from(cachedCode),
+        Buffer.from(code.trim())
+      );
+    } catch (err) {
+      // Buffers have different lengths - not a match
+      codeMatches = false;
+    }
+
+    if (codeMatches) {
       await redisClient.del(redisKey);
       
+      // MUST use environment variable - no fallback to hardcoded secret
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        console.error('[SECURITY] JWT_SECRET environment variable is not set. Cannot issue authentication token.');
+        return res.status(500).json({
+          success: false,
+          error: { message: 'Server configuration error. Please contact support.' }
+        });
+      }
+      
       // Generate a signed JWT token
-      const jwtSecret = process.env.JWT_SECRET || 'bharataero-default-jwt-secret-key-123456';
       const token = jwt.sign(
         { email: email ? email.trim().toLowerCase() : undefined, phone: phone ? formatPhoneNumber(phone) : undefined },
         jwtSecret,
