@@ -49,6 +49,35 @@ CREATE INDEX IF NOT EXISTS idx_pilots_specialty ON pilots(specialty) WHERE delet
 CREATE INDEX IF NOT EXISTS idx_pilots_rating ON pilots(rating DESC) WHERE deleted_at IS NULL;
 
 ---------------------------------------------------------
+-- TABLE: users (Authentication & User Management)
+---------------------------------------------------------
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    email VARCHAR(255) UNIQUE,
+    phone VARCHAR(20) UNIQUE,
+    password_salt VARCHAR(64),
+    password_hash VARCHAR(128),
+    google_id VARCHAR(255) UNIQUE,
+    google_email VARCHAR(255),
+    is_verified BOOLEAN DEFAULT FALSE,
+    last_login TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    deleted_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TRIGGER update_users_modtime 
+    BEFORE UPDATE ON users 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_modified_column();
+
+-- Performance indexes for user lookups
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id) WHERE deleted_at IS NULL;
+
+---------------------------------------------------------
 -- TABLE: bookings
 ---------------------------------------------------------
 CREATE TABLE IF NOT EXISTS bookings (
