@@ -1,0 +1,8 @@
+{
+  "pages": {
+    "source": {
+      "branch": "main",
+      "path": "/docs"
+    }
+  }
+}
