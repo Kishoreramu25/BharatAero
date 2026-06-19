@@ -167,7 +167,7 @@ export default function SettingsScreen() {
 
     setEditName(registeredUser?.name || (userRole === 'pilot' ? 'Alex Mercer' : 'Sarah Jenkins'));
 
-    setEditEmail(registeredUser?.email || (userRole === 'pilot' ? 'pilot@misd-automation.com' : 'client@misd-automation.com'));
+    setEditEmail(registeredUser?.email || '');
 
     
 
@@ -218,7 +218,7 @@ export default function SettingsScreen() {
     setOtpErrorMsg('');
     setOtpSuccessMsg('');
 
-    const originalEmail = registeredUser?.email || (userRole === 'pilot' ? 'pilot@misd-automation.com' : 'client@misd-automation.com');
+    const originalEmail = registeredUser?.email || '';
     const originalPhone = registeredUser?.phone || (userRole === 'pilot' ? '+91 98765 43210' : '+91 87654 32109');
     const editPhone = (selectedCountryCode + ' ' + editPhoneBody.trim()).trim();
     const emailChanged = editEmail.trim().toLowerCase() !== originalEmail.toLowerCase();
@@ -285,7 +285,7 @@ export default function SettingsScreen() {
     if (e && e.preventDefault) e.preventDefault();
     setOtpErrorMsg('');
 
-    const originalEmail = registeredUser?.email || (userRole === 'pilot' ? 'pilot@misd-automation.com' : 'client@misd-automation.com');
+    const originalEmail = registeredUser?.email || '';
     const originalPhone = registeredUser?.phone || (userRole === 'pilot' ? '+91 98765 43210' : '+91 87654 32109');
     const editPhone = (selectedCountryCode + ' ' + editPhoneBody.trim()).trim();
     const emailChanged = editEmail.trim().toLowerCase() !== originalEmail.toLowerCase();

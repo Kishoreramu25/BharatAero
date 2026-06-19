@@ -1,0 +1,62 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+.DS_Store
+*.iml
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Capacitor
+android/
+ios/
+capacitor.config.ts
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+.cache/
+*.pem
+private_key*
+*.key
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+dump.sql
+
+# Secrets
+secrets.json
+config.json
+credentials.*
+

@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const csrf = require('csurf');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const apiRoutes = require('./routes/api');
@@ -8,6 +9,23 @@ const logger = require('./middleware/logger');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Global rate limiter (10 requests per 15 minutes)
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: 'Too many requests from this IP, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// API-specific rate limiter (50 requests per 15 minutes)
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 50,
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 // Standard Middlewares
 const allowedOrigins = [
@@ -32,6 +50,10 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(logger);
+
+// Apply rate limiting
+app.use(globalLimiter);
+app.use('/api', apiLimiter);
 
 // Configure CSRF protection - protects against cross-site request forgery
 const csrfProtection = csrf({ cookie: false });

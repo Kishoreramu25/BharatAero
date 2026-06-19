@@ -39,8 +39,8 @@ const pilotQuerySchema = {
 };
 
 // Route definitions mapped to controllers
-router.get('/pilots', validate(pilotQuerySchema), pilotController.listPilots);
-router.get('/pilots/:id', pilotController.getPilotDetails);
+router.get('/pilots', auth, validate(pilotQuerySchema), pilotController.listPilots);
+router.get('/pilots/:id', auth, pilotController.getPilotDetails);
 
 router.post('/bookings', auth, validate(bookingSchema), bookingController.createBooking);
 router.get('/bookings', auth, bookingController.listBookings);

@@ -18,7 +18,7 @@ export default function MyBookings() {
       return {
         name: bkg.pilotName,
         phone: bkg.pilotPhone || '+91 98765 43210',
-        email: 'pilot@misd-automation.com',
+        email: registeredUser?.email || '',
         bio: 'Professional Drone Pilot and UAV Specialist.',
         profilePic: bkg.pilotImage || 'https://lh3.googleusercontent.com/aida-public/AB6AXuCV47DaBxqfxLcnTdUs7O5G3JIsjwPauCvXb65mPkf4w3sSOMK7Mfswubt2peFwRUMXRVl07aCOLepPbM9ushB06_TJ5uPbDBsFUwlNT1lYkE9jGHGAHwk2jH4uAMz6E7G5dj6tFhl6hXdDBxLcTGO-pSjbL6CvN4q5FhRXUkyVWXWpnFXbUlH2P4GLVzV9kTDTFeWcNJsMNL6qquQ2AG7Oycppt7oubV1ijhJwK45HmpNE8LwCj2Tu38x-q0t8w2LixMRMl9mfH-I'
       };

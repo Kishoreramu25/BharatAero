@@ -20,7 +20,8 @@
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.11.5",
     "redis": "^6.0.0",
-    "resend": "^6.12.4"
+    "resend": "^6.12.4",
+    "twilio": "^6.0.2"
   },
   "devDependencies": {
     "eslint": "^9.2.0",

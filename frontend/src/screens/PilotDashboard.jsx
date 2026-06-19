@@ -323,7 +323,7 @@ export default function PilotDashboard() {
                       acceptBooking(selectedReq.id, pilotNameInput.trim(), pilotPhoneInput.trim(), {
                         name: pilotNameInput.trim(),
                         phone: pilotPhoneInput.trim(),
-                        email: registeredUser?.email || 'pilot@misd-automation.com',
+                        email: registeredUser?.email || '',
                         bio: registeredUser?.bio || 'Professional Drone Pilot and UAV Specialist.',
                         dob: registeredUser?.dob || '',
                         instagramUrl: registeredUser?.instagramUrl || '',
