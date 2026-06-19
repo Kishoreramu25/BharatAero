@@ -1,0 +1,8 @@
+{
+  "buildCommand": "npm run frontend:install && npm run build --prefix frontend",
+  "outputDirectory": "frontend/dist",
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "installCommand": "npm install --prefer-offline"
+}
