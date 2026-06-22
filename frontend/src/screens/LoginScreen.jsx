@@ -174,7 +174,8 @@ export default function LoginScreen() {
           email: email.trim(),
           otp: enteredOtp,
           name: name.trim(),
-          password: password
+          password: password,
+          role: userRole
         })
       });
 

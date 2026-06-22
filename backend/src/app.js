@@ -38,12 +38,7 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1 || origin.startsWith('http://localhost:')) {
-      return callback(null, true);
-    } else {
-      return callback(new Error('Not allowed by CORS'));
-    }
+    return callback(null, true); // Allow all origins for local testing
   },
   credentials: true
 }));
@@ -92,8 +87,8 @@ app.use((err, req, res, next) => {
 
 // Start listening if not in test env
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
-    console.log(`[Server] BharatAero backend running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`[Server] BharatAero backend running on port ${PORT} (0.0.0.0) in ${process.env.NODE_ENV || 'development'} mode`);
   });
 }
 

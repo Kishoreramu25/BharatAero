@@ -120,20 +120,21 @@ exports.registerInit = async (req, res) => {
 
 exports.registerVerify = async (req, res) => {
   try {
-    const { email, otp, name, password } = req.body;
+    const { email, otp, name, password, role } = req.body;
 
     const isValid = await verifyAndMarkOTP(email, otp, 'signup');
     if (!isValid) return res.status(400).json({ success: false, error: { message: 'Invalid or expired OTP.' } });
 
     const hashedPassword = hashPassword(password);
+    const dbRole = role === 'pilot' ? 'pilot' : 'client';
 
     const result = await db.query(
-      'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, name, email',
-      [name, email, hashedPassword]
+      'INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
+      [name, email, hashedPassword, dbRole]
     );
 
     const user = result.rows[0];
-    const token = generateToken({ userId: user.id, email: user.email, role: 'client' });
+    const token = generateToken({ userId: user.id, email: user.email, role: user.role });
 
     res.json({ success: true, user, token, message: 'Account created successfully.' });
   } catch (error) {

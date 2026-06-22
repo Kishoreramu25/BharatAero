@@ -2,6 +2,9 @@
   "appId": "com.bharataero.app",
   "appName": "Bharat Aero",
   "webDir": "dist",
+  "server": {
+    "cleartext": true
+  },
   "plugins": {
     "GoogleSignIn": {
       "clientId": "585485498597-229j0qeck6c4m7bdv43cr5pdq117cr7e.apps.googleusercontent.com",
