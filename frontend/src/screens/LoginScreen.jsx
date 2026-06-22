@@ -32,6 +32,17 @@ export default function LoginScreen() {
   const [enteredOtp, setEnteredOtp] = useState('');
   const [otpLoading, setOtpLoading] = useState(false);
   const [showOtpHint, setShowOtpHint] = useState(false);
+  const [otpTimer, setOtpTimer] = useState(0);
+  const [otpError, setOtpError] = useState(false); // shake animation trigger
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (otpTimer <= 0) return;
+    const timerId = setTimeout(() => {
+      setOtpTimer(otpTimer - 1);
+    }, 1000);
+    return () => clearTimeout(timerId);
+  }, [otpTimer]);
 
   const handleGoogleClick = async () => {
     setErrorMsg('');
@@ -74,6 +85,17 @@ export default function LoginScreen() {
         setErrorMsg('Passwords do not match.');
         return;
       }
+
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasLowercase = /[a-z]/.test(password);
+      const hasNumbers = /[0-9]/.test(password);
+      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};:'",.<>?/\\|`~]/.test(password);
+      
+      if (password.length < 12 || !hasUppercase || !hasLowercase || !hasNumbers || !hasSpecial) {
+        setErrorMsg('Password must be at least 12 characters long and include uppercase, lowercase, numbers, and special characters.');
+        return;
+      }
+
       if (!iAgree) {
         setErrorMsg('You must agree to the Terms, Privacy Policy, and data processing consent.');
         return;
@@ -91,41 +113,21 @@ export default function LoginScreen() {
       const isWeb = Capacitor.getPlatform() === 'web';
       const baseUrl = isWeb ? '' : 'http://localhost:5000';
 
-      // Step 1: If signup and OTP not yet sent, register first
-      if (authMode === 'signup' && !isOtpSent) {
-        const registerUrl = `${baseUrl}/api/register`;
-        const regResponse = await fetch(registerUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            name: name.trim(),
-            email: email.trim(),
-            password: password
-          })
-        });
-
-        const regData = await regResponse.json();
-        if (!regResponse.ok) {
-          throw new Error((regData.error && regData.error.message) || regData.message || 'Registration failed.');
-        }
-      }
-
-      // Step 2: Request OTP
-      const otpUrl = `${baseUrl}/api/send-otp`;
+      const initUrl = authMode === 'signup' 
+        ? `${baseUrl}/api/auth/register/init` 
+        : `${baseUrl}/api/auth/login/init`;
+        
       const recipientName = authMode === 'signup' ? name.trim() : 'User';
 
-      const response = await fetch(otpUrl, {
+      const response = await fetch(initUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           email: email.trim(),
-          name: recipientName,
           password: password,
-          isSignup: authMode === 'signup'
+          name: recipientName
         })
       });
 
@@ -138,6 +140,9 @@ export default function LoginScreen() {
       setSuccessMsg('A 6-digit verification code has been sent to your email.');
       setIsOtpSent(true);
       setShowOtpHint(false);
+      setEnteredOtp('');
+      setOtpError(false);
+      setOtpTimer(300); // start 5-minute countdown
     } catch (err) {
       console.warn("Failed to request OTP:", err);
       setErrorMsg(err.message || 'Failed to request OTP. Please try again.');
@@ -154,16 +159,22 @@ export default function LoginScreen() {
     setOtpLoading(true);
     try {
       const isWeb = Capacitor.getPlatform() === 'web';
-      const url = isWeb ? '/api/verify-otp' : 'http://localhost:5000/api/verify-otp';
+      const baseUrl = isWeb ? '' : 'http://localhost:5000';
+      
+      const verifyUrl = authMode === 'signup' 
+        ? `${baseUrl}/api/auth/register/verify` 
+        : `${baseUrl}/api/auth/login/verify`;
 
-      const response = await fetch(url, {
+      const response = await fetch(verifyUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           email: email.trim(),
-          code: enteredOtp
+          otp: enteredOtp,
+          name: name.trim(),
+          password: password
         })
       });
 
@@ -173,19 +184,10 @@ export default function LoginScreen() {
         throw new Error((data.error && data.error.message) || data.message || 'Verification failed');
       }
 
-      // Save returned secure JWT token in SecureStorage
       if (data.token) {
         await SecureStorage.set({ key: 'bharataero_auth_token', value: data.token });
       }
-
-      // Save user details (excluding password)
-      const userProfile = data.user || {
-        name: authMode === 'signup' ? name.trim() : 'User',
-        email: email.trim()
-      };
-      delete userProfile.password;
-      setRegisteredUser(userProfile);
-
+      setRegisteredUser(data.user || { name: name.trim(), email: email.trim() });
       setIsLoggedIn(true);
 
       if (userRole === 'pilot') {
@@ -196,6 +198,9 @@ export default function LoginScreen() {
     } catch (err) {
       console.warn("OTP verification error:", err);
       setErrorMsg(err.message || 'Incorrect verification code. Please check and try again.');
+      // Trigger shake animation on wrong OTP
+      setOtpError(true);
+      setTimeout(() => setOtpError(false), 600);
     } finally {
       setOtpLoading(false);
     }
@@ -267,7 +272,7 @@ export default function LoginScreen() {
           {otpLoading ? (
             <div className="flex flex-col items-center justify-center py-10 space-y-3">
               <div className="w-10 h-10 border-4 border-[#ca0013] border-t-transparent rounded-full animate-spin"></div>
-              <p className="text-xs font-headline font-bold text-[#747874] uppercase tracking-wider">Sending OTP Email...</p>
+              <p className="text-xs font-headline font-bold text-[#747874] uppercase tracking-wider">{isOtpSent ? t('Verifying OTP...') : t('Sending OTP Email...')}</p>
             </div>
           ) : isOtpSent ? (
             /* OTP verification form */
@@ -294,17 +299,44 @@ export default function LoginScreen() {
               )}
 
               {/* OTP Input Field */}
-              <div className="flex items-center gap-3 border border-neutral-200/60 bg-neutral-50/35 rounded-2xl px-4 py-3 focus-within:border-[#ca0013] focus-within:bg-white focus-within:ring-2 focus-within:ring-red-50 transition-all duration-300">
-                <Key size={16} className="text-neutral-400 shrink-0" />
+              <div
+                style={otpError ? { animation: 'otp-shake 0.5s ease' } : {}}
+                className={`flex items-center gap-3 border rounded-2xl px-4 py-3 transition-all duration-300 ${
+                  otpError
+                    ? 'border-red-500 bg-red-50 ring-2 ring-red-100'
+                    : 'border-neutral-200/60 bg-neutral-50/35 focus-within:border-[#ca0013] focus-within:bg-white focus-within:ring-2 focus-within:ring-red-50'
+                }`}
+              >
+                <Key size={16} className={`shrink-0 ${otpError ? 'text-red-400' : 'text-neutral-400'}`} />
                 <input
                   type="text"
+                  inputMode="numeric"
                   maxLength={6}
                   value={enteredOtp}
-                  onChange={(e) => setEnteredOtp(e.target.value.replace(/\D/g, ''))}
+                  onChange={(e) => { setEnteredOtp(e.target.value.replace(/\D/g, '')); setOtpError(false); setErrorMsg(''); }}
                   placeholder="6-Digit OTP"
                   required
+                  autoFocus
                   className="flex-grow bg-transparent border-0 text-center text-lg font-black tracking-[0.4em] text-[#1b1c1b] focus:outline-none placeholder-neutral-400 placeholder:tracking-normal p-0 pl-[0.4em]"
                 />
+              </div>
+
+              {/* OTP Timer */}
+              <div className="flex items-center justify-center gap-1.5">
+                {otpTimer > 0 ? (
+                  <>
+                    <svg className="w-3.5 h-3.5 text-[#ca0013] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <p className="text-[11px] text-[#747874]">
+                      Resend available in{' '}
+                      <span className="font-black text-[#ca0013]">{otpTimer}s</span>
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-[11px] text-emerald-600 font-bold">✓ You can now request a new code</p>
+                )}
               </div>
 
               {showOtpHint && (
@@ -339,10 +371,15 @@ export default function LoginScreen() {
                 <div className="flex gap-3">
                   <button 
                     type="button"
-                    onClick={handleAuthSubmit}
-                    className="flex-1 py-3 px-4 border border-neutral-200 hover:bg-neutral-50 rounded-xl text-[10px] font-headline font-bold uppercase tracking-wider text-[#747874] cursor-pointer"
+                    onClick={otpTimer === 0 ? handleAuthSubmit : undefined}
+                    disabled={otpTimer > 0}
+                    className={`flex-1 py-3 px-4 border rounded-xl text-[10px] font-headline font-bold uppercase tracking-wider transition-all duration-300 ${
+                      otpTimer > 0
+                        ? 'border-neutral-100 bg-neutral-50 text-neutral-300 cursor-not-allowed'
+                        : 'border-[#ca0013]/30 hover:bg-red-50 text-[#ca0013] cursor-pointer'
+                    }`}
                   >
-                    {t('Resend Code')}
+                    {otpTimer > 0 ? `Resend (${Math.floor(otpTimer / 60)}:${(otpTimer % 60).toString().padStart(2, '0')})` : t('Resend Code')}
                   </button>
                   <button 
                     type="button"
@@ -536,7 +573,7 @@ export default function LoginScreen() {
 
         {/* Bottom Toggle Link */}
         {!isOtpSent && !otpLoading && (
-          <div className="mt-4 text-center">
+          <div className="mt-4 text-center space-y-3">
             <button 
               type="button"
               onClick={() => {
@@ -544,9 +581,26 @@ export default function LoginScreen() {
                 setErrorMsg('');
                 setSuccessMsg('');
               }}
-              className="inline-block text-xs font-body text-neutral-500 hover:text-neutral-900 hover:underline cursor-pointer bg-transparent border-0 font-bold transition-colors duration-200"
+              className="block w-full text-xs font-body text-neutral-500 hover:text-neutral-900 hover:underline cursor-pointer bg-transparent border-0 font-bold transition-colors duration-200"
             >
               {authMode === 'signin' ? t('New here? Create New Account') : t('Already have an account? Sign in')}
+            </button>
+
+            {/* Dev Bypass Button */}
+            <button 
+              type="button"
+              onClick={() => {
+                setIsLoggedIn(true);
+                setRegisteredUser({ name: 'Dev User', email: 'dev@example.com' });
+                if (userRole === 'pilot') {
+                  setCurrentScreen('pilot_dashboard');
+                } else {
+                  setCurrentScreen('client_dashboard');
+                }
+              }}
+              className="inline-block text-[10px] font-body text-neutral-300 hover:text-[#ca0013] cursor-pointer bg-transparent border-0 transition-colors duration-200"
+            >
+              [Dev Bypass]
             </button>
           </div>
         )}

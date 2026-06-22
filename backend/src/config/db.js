@@ -1,11 +1,13 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-// Pool configuration parsing environment variables
+const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/bharataero';
+const isSupabase = connectionString.includes('supabase');
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/bharataero',
-  ssl: process.env.NODE_ENV === 'production' ? {
-    rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false'
+  connectionString,
+  ssl: (process.env.NODE_ENV === 'production' || isSupabase) ? {
+    rejectUnauthorized: false
   } : false
 });
 

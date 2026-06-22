@@ -29,6 +29,44 @@ const initRedis = async () => {
 initRedis();
 
 module.exports = {
+  incr: async (key) => {
+    if (useMemoryFallback || !client) {
+      const item = memoryCache.get(key) || { value: 0, expiry: Date.now() + 60000 };
+      item.value = Number(item.value) + 1;
+      memoryCache.set(key, item);
+      return item.value;
+    }
+    try {
+      return await client.incr(key);
+    } catch (err) {
+      const item = memoryCache.get(key) || { value: 0, expiry: Date.now() + 60000 };
+      item.value = Number(item.value) + 1;
+      memoryCache.set(key, item);
+      return item.value;
+    }
+  },
+
+  expire: async (key, seconds) => {
+    if (useMemoryFallback || !client) {
+      const item = memoryCache.get(key);
+      if (item) {
+        item.expiry = Date.now() + (seconds * 1000);
+        memoryCache.set(key, item);
+      }
+      return 1;
+    }
+    try {
+      return await client.expire(key, seconds);
+    } catch (err) {
+      const item = memoryCache.get(key);
+      if (item) {
+        item.expiry = Date.now() + (seconds * 1000);
+        memoryCache.set(key, item);
+      }
+      return 1;
+    }
+  },
+
   setex: async (key, seconds, value) => {
     if (useMemoryFallback || !client) {
       memoryCache.set(key, {
