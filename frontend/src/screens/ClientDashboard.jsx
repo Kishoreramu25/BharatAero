@@ -1,202 +1,163 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useApp } from '../context/AppContext';
 import { 
-  Bell, Play, Map, Timer, ShieldCheck, 
-  Compass, Plus, ClipboardList, User, ArrowRight
+  Bell, Plus, Calendar, Search, User, 
+  ArrowRight, MessageSquare, Clock, Star, Phone
 } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 
 export default function ClientDashboard() {
-  const { setCurrentScreen, activeTab, navigate, bookings, pilotsList, setSelectedPilot, registeredUser, setAutoOpenProfileModal, t } = useApp();
-  const [selectedCategory, setSelectedCategory] = useState('All');
-
-  const categories = ['All', 'Agriculture', 'Surveillance', 'Cinema', 'Logistics'];
+  const { navigate, registeredUser, setAutoOpenProfileModal, bookings } = useApp();
   
-  // Calculate active bookings count dynamically without demo offset
-  const activeMissionsCount = bookings.filter(b => b.status === 'Confirmed' || b.status === 'Pending').length;
-  const completedCount = bookings.filter(b => b.status === 'Completed').length;
-  const flightHours = completedCount > 0 ? (completedCount * 3).toLocaleString() : '0';
-  const fleetStatus = bookings.length > 0 ? "Optimal" : "Standby";
+  const activeBookings = bookings?.filter(b => b.status === 'Confirmed' || b.status === 'Pending').slice(0, 3) || [];
 
-  const handleLaunch = () => {
-    navigate('browse_pilots', 'explore');
-  };
+  const quickLinks = [
+    { name: 'Updates', icon: <Bell size={20} />, action: () => navigate('notifications') },
+    { name: 'New Booking', icon: <Plus size={20} />, action: () => navigate('book_pilot') },
+    { name: 'My Bookings', icon: <Calendar size={20} />, action: () => navigate('my_bookings', 'bookings') },
+    { name: 'Browse Pilots', icon: <Search size={20} />, action: () => navigate('browse_pilots', 'explore') },
+    { name: 'Profile', icon: <User size={20} />, action: () => { setAutoOpenProfileModal(true); navigate('settings', 'settings'); } },
+  ];
 
   return (
-    <div className="flex-1 flex flex-col justify-between bg-white text-[#1b1c1b] h-full pb-[60px] relative select-none">
+    <div className="flex-1 flex flex-col bg-white text-[#000201] h-full pb-[80px] overflow-hidden select-none font-body">
       
-      {/* Top App Bar */}
-      <header className="sticky top-0 bg-white/85 backdrop-blur-md flex justify-between items-center px-5 h-[72px] border-b border-[#b7c6c2]/15 z-40">
+      {/* MINIMAL HEADER - No borders or shadows */}
+      <header className="flex justify-between items-center px-6 pt-10 pb-4 bg-white sticky top-0 z-40">
+        <div>
+          <p className="text-xs text-[#747874] font-bold uppercase tracking-wider mb-1">Welcome back,</p>
+          <h1 className="text-3xl font-black font-headline tracking-tight text-[#000201] truncate max-w-[200px]">
+            {registeredUser?.name || 'Commander'}
+          </h1>
+        </div>
         <div 
+          className="w-14 h-14 overflow-hidden cursor-pointer"
           onClick={() => {
             setAutoOpenProfileModal(true);
             navigate('settings', 'settings');
           }}
-          className="flex items-center gap-3 cursor-pointer hover:opacity-85"
-          title="Click to edit profile bio, photo and links"
         >
-          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#ca0013] shrink-0">
-            <img 
-              alt="Commander Profile" 
-              className="w-full h-full object-cover" 
-              src={registeredUser?.profilePic || "https://lh3.googleusercontent.com/aida-public/AB6AXuDGrwU0dTkzQisGLCQ3Z3mps07VaFQJKjagxF4FcDioG-eju5wXCHSsa_pGmDiFpofHEfWoN-nQk-ICp7MsX9ZoQ3_o2RFgBa9Cho1JEefTaxQcMOCyn9Vk2fY0jj5-iUlld6EMuBuT8R2Uc-7cTMaMd5kjV8YbWblNVAmBrx-APuvW1_rOm9AbAB4a-n1nAcDTmXh7nTuroxKoZpqFJoaCI72CuCKhMPo1a0wBO4I1r0apSp4EPzn-40NI1kgkEESaJOT4fufcyJk"}
-            />
-          </div>
-          <span className="text-xl font-headline font-black text-[#000201] tracking-tight">{registeredUser?.name || 'MISD Automation'}</span>
+          <img 
+            alt="Profile" 
+            className="w-full h-full object-cover rounded-full" 
+            src={registeredUser?.profilePic || "https://lh3.googleusercontent.com/aida-public/AB6AXuDGrwU0dTkzQisGLCQ3Z3mps07VaFQJKjagxF4FcDioG-eju5wXCHSsa_pGmDiFpofHEfWoN-nQk-ICp7MsX9ZoQ3_o2RFgBa9Cho1JEefTaxQcMOCyn9Vk2fY0jj5-iUlld6EMuBuT8R2Uc-7cTMaMd5kjV8YbWblNVAmBrx-APuvW1_rOm9AbAB4a-n1nAcDTmXh7nTuroxKoZpqFJoaCI72CuCKhMPo1a0wBO4I1r0apSp4EPzn-40NI1kgkEESaJOT4fufcyJk"}
+          />
         </div>
-        <button 
-          onClick={() => navigate('notifications')}
-          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors relative"
-        >
-          <Bell size={18} className="text-[#000201]" />
-          {bookings.length > 0 && (
-            <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#ca0013]"></span>
-          )}
-        </button>
       </header>
  
-       {/* Main Content Dashboard */}
-       <main className="flex-1 px-5 pt-4 space-y-6 overflow-y-auto no-scrollbar">
-         {/* Greetings */}
-         <section 
-           onClick={() => {
-             setAutoOpenProfileModal(true);
-             navigate('settings', 'settings');
-           }}
-           className="animate-fade-in cursor-pointer hover:opacity-85"
-           title="Click to edit profile"
-         >
-           <p className="text-[10px] font-headline font-bold uppercase tracking-widest text-[#ca0013] mb-1">{t('Client Dashboard')}</p>
-           <h1 className="text-2xl font-headline font-black text-[#000201]">{t('Welcome back')}, <span className="underline decoration-dotted decoration-[#ca0013]">{registeredUser?.name || 'Commander'}</span></h1>
-         </section>
+      <main className="flex-1 overflow-y-auto no-scrollbar px-6 pt-4 pb-6">
+        
+        <h2 className="text-xl font-black font-headline text-[#000201] mb-6 tracking-tight">Ready for your next project?</h2>
 
-        {/* Category Pills Selector */}
-        <section className="flex gap-2.5 overflow-x-auto no-scrollbar py-1 -mx-5 px-5">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`flex-shrink-0 px-5 py-2.5 rounded-full font-headline font-bold text-xs tracking-wider transition-all ${
-                selectedCategory === cat 
-                ? 'bg-[#000201] text-white' 
-                : 'bg-white border border-[#b7c6c2]/25 text-[#444844] hover:bg-neutral-50'
-              }`}
-            >
-              {cat === 'All' ? 'All Operations' : cat}
-            </button>
-          ))}
-        </section>
-
-        {/* Bento Dashboard Grid */}
-        <section className="grid grid-cols-1 gap-4">
-          
-          {/* Active Missions Card */}
-          <div className="bg-white rounded-2xl border border-[#b7c6c2]/25 p-5 flex flex-col justify-between shadow-[0_12px_24px_rgba(23,30,25,0.04)] min-h-[220px] relative overflow-hidden">
-            <div className="relative z-10">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-[#ca0013] rounded-full text-[9px] font-bold uppercase tracking-wider mb-3">
-                <span className="w-1.5 h-1.5 bg-[#ca0013] rounded-full animate-pulse"></span>
-                Live Operations
-              </span>
-              <h2 className="text-5xl font-headline font-black text-[#000201] leading-none mb-1">{activeMissionsCount}</h2>
-              <p className="text-xs font-bold text-[#444844]">Active Missions & Surveillance</p>
-            </div>
-            
-            <div className="mt-4 relative z-10 flex gap-2">
-              <button 
-                onClick={handleLaunch}
-                className="flex-1 bg-[#ca0013] text-white py-3 px-4 rounded-xl font-headline font-bold text-xs hover:opacity-95 active:scale-95 transition-all text-center uppercase tracking-wider shadow-sm"
-              >
-                Launch Mission
-              </button>
-              <button 
-                onClick={() => navigate('about')}
-                className="bg-white border border-[#b7c6c2]/25 text-[#000201] py-3 px-4 rounded-xl font-headline font-bold text-xs hover:bg-neutral-50 transition-all uppercase tracking-wider"
-              >
-                View Status
-              </button>
-            </div>
-            
-            <span className="material-symbols-outlined text-[120px] text-neutral-100 absolute -right-6 -bottom-6 opacity-30 select-none">rocket_launch</span>
-          </div>
-
-          {/* Metric Columns */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* Flight Hours Card */}
-            <div className="bg-white rounded-2xl border border-[#b7c6c2]/25 p-4 flex flex-col justify-between min-h-[120px] shadow-[0_12px_24px_rgba(23,30,25,0.03)]">
-              <div className="flex justify-between items-start">
-                <div className="p-2 rounded-lg bg-red-50 text-[#ca0013]">
-                  <Timer size={18} />
-                </div>
-                {completedCount > 0 && (
-                  <span className="text-[9px] font-bold text-emerald-600 uppercase">+12%</span>
-                )}
-              </div>
-              <div>
-                <h3 className="text-lg font-headline font-black text-[#000201]">{flightHours}</h3>
-                <p className="text-[10px] font-headline font-bold text-[#444844] uppercase tracking-wider">Flight Hours</p>
-              </div>
-            </div>
-
-            {/* Fleet Status Card */}
-            <div className="bg-[#171e19] rounded-2xl p-4 flex flex-col justify-between min-h-[120px] text-white shadow-[0_12px_24px_rgba(23,30,25,0.06)]">
-              <div className="flex justify-between items-start">
-                <div className="p-2 rounded-lg bg-neutral-800 text-primary">
-                  <ShieldCheck size={18} />
-                </div>
-                <span className="text-[9px] font-bold text-primary uppercase tracking-wider">Secure</span>
-              </div>
-              <div>
-                <h3 className="text-lg font-headline font-black text-white">{fleetStatus}</h3>
-                <p className="text-[10px] font-headline font-bold text-neutral-400 uppercase tracking-wider">Fleet Quality</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Nearby Pilots Section */}
-        <section className="space-y-3">
-          <div className="flex justify-between items-end">
-            <div>
-              <h2 className="text-sm font-headline font-black text-[#000201] uppercase tracking-wider">Nearby Pilots</h2>
-              <p className="text-xs text-[#747874]">Available for collaborative swarm missions</p>
-            </div>
-            <button 
-              onClick={() => navigate('browse_pilots', 'explore')}
-              className="text-[#ca0013] font-headline font-bold text-xs flex items-center gap-1 hover:underline"
-            >
-              <span>View All</span>
-              <ArrowRight size={12} />
-            </button>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            {pilotsList.slice(0, 2).map((pilot) => (
+        {/* QUICK LINKS - Single Overall Sharp Box */}
+        <section className="mb-8 mt-2">
+          <div className="flex justify-between items-center bg-white border border-gray-200 p-4 rounded-none shadow-[2px_2px_0px_0px_rgba(202,0,19,0.1)] overflow-x-auto no-scrollbar gap-4">
+            {quickLinks.map((link, i) => (
               <div 
-                key={pilot.id}
-                className="bg-white rounded-xl border border-[#b7c6c2]/25 p-3.5 flex items-center gap-3 shadow-sm hover:translate-y-[-2px] transition-transform cursor-pointer" 
-                onClick={() => {
-                  setSelectedPilot(pilot);
-                  navigate('pilot_profile');
-                }}
+                key={i}
+                onClick={link?.action}
+                className="flex flex-col items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity min-w-[60px]"
               >
-                <img 
-                  alt={pilot.name} 
-                  className="w-12 h-12 rounded-lg object-cover" 
-                  src={pilot.image}
-                />
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-headline font-bold text-sm text-[#000201] truncate">{pilot.name}</h4>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="px-1.5 py-0.5 bg-neutral-100 rounded text-[9px] font-bold text-[#444844] uppercase">{pilot.role}</span>
-                    <span className="text-[9px] font-bold text-[#ca0013] uppercase flex items-center gap-0.5">
-                      <span className="material-symbols-outlined text-[10px]">location_on</span> {pilot.location.split(' ')[0]}
-                    </span>
-                  </div>
+                <div className="text-[#ca0013] mb-1">
+                  {link.icon}
                 </div>
+                <span className="text-[11px] font-bold text-[#000201] text-center whitespace-nowrap">{link.name}</span>
               </div>
             ))}
           </div>
         </section>
+
+        {/* STATS - Single Overall Sharp Box with Cross Grid */}
+        <section className="mb-12">
+          <div className="bg-white border border-gray-200 rounded-none shadow-[2px_2px_0px_0px_rgba(202,0,19,0.1)]">
+            <div className="grid grid-cols-2">
+              <div className="flex flex-col p-6 border-r border-b border-gray-100">
+                <p className="text-[11px] text-[#ca0013] font-bold uppercase tracking-widest mb-1">Active Bookings</p>
+                <p className="text-4xl font-black font-headline text-[#000201] mb-1">3</p>
+                <p className="text-[11px] text-[#747874] font-medium">All on schedule</p>
+              </div>
+              
+              <div className="flex flex-col p-6 border-b border-gray-100">
+                <p className="text-[11px] text-[#747874] font-bold uppercase tracking-widest mb-1">Total Spent</p>
+                <p className="text-3xl font-black font-headline text-[#000201] mb-1 mt-1">₹48k</p>
+                <p className="text-[11px] text-[#747874] font-medium">Last 90 days</p>
+              </div>
+
+              <div className="flex flex-col p-6 border-r border-gray-100">
+                <p className="text-[11px] text-[#747874] font-bold uppercase tracking-widest mb-1">Pilots Booked</p>
+                <p className="text-4xl font-black font-headline text-[#000201] mb-1">12</p>
+                <p className="text-[11px] text-[#747874] font-medium">Trusted partners</p>
+              </div>
+
+              <div className="flex flex-col p-6">
+                <p className="text-[11px] text-[#747874] font-bold uppercase tracking-widest mb-1">Avg Rating</p>
+                <p className="text-4xl font-black font-headline text-[#000201] mb-1">4.8<span className="text-2xl text-yellow-400 ml-1">★</span></p>
+                <p className="text-[11px] text-[#747874] font-medium">Your reviews</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* UPCOMING BOOKINGS - Single Overall Sharp Box */}
+        <section>
+          <div className="flex justify-between items-baseline mb-4">
+            <h3 className="text-xl font-black font-headline text-[#000201] tracking-tight">Upcoming Bookings</h3>
+            <button 
+              onClick={() => navigate('my_bookings', 'bookings')}
+              className="text-[13px] font-bold text-[#ca0013] flex items-center gap-1 hover:underline uppercase tracking-wider"
+            >
+              View all
+            </button>
+          </div>
+
+          <div className="bg-white border border-gray-200 p-5 rounded-none shadow-[2px_2px_0px_0px_rgba(202,0,19,0.1)] flex flex-col">
+            
+            {activeBookings.length > 0 ? (
+              activeBookings.map((bkg, index) => (
+                <div key={bkg.id} className={index !== activeBookings.length - 1 ? "pb-5 border-b border-gray-100 mb-5" : ""}>
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <p className="text-xs text-[#ca0013] font-bold uppercase tracking-wider mb-1">
+                        {bkg.date} • {bkg.timeSlot.split(' ')[0]}
+                      </p>
+                      <h4 className="font-black font-headline text-[#000201] text-lg truncate max-w-[200px]">
+                        {bkg.type || 'Mission'}
+                      </h4>
+                    </div>
+                  </div>
+                  
+                  <p className="text-sm text-[#747874] font-medium mb-5 truncate max-w-[250px]">
+                    {bkg.location} • with {bkg.pilotName !== 'Unassigned' ? bkg.pilotName : 'Pending Pilot'}
+                  </p>
+
+                  <div className="flex gap-3">
+                    <button 
+                      onClick={() => navigate('my_bookings', 'bookings')}
+                      className="flex-1 bg-transparent border border-[#000201] text-[#000201] py-3 text-[13px] font-bold active:scale-95 transition-transform hover:bg-gray-50"
+                    >
+                      Details
+                    </button>
+                    {bkg.status === 'Confirmed' ? (
+                      <button className="flex-1 bg-[#ca0013] text-white py-3 text-[13px] font-bold active:scale-95 transition-transform flex justify-center items-center gap-2 shadow-sm hover:bg-red-700">
+                        <Phone size={16} /> Call
+                      </button>
+                    ) : (
+                      <button disabled className="flex-1 bg-neutral-50 border border-neutral-200 text-neutral-400 py-3 text-[13px] font-bold flex justify-center items-center gap-2 shadow-sm cursor-not-allowed">
+                        <Clock size={16} /> Awaiting Pilot
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-6 text-[#747874] text-sm font-medium">
+                No upcoming bookings right now.
+              </div>
+            )}
+
+          </div>
+        </section>
+
       </main>
 
       {/* Bottom Navigation Bar */}

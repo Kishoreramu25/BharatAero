@@ -121,13 +121,18 @@ exports.registerInit = async (req, res) => {
 exports.registerVerify = async (req, res) => {
   try {
     const { email, otp, name, password, role } = req.body;
+    const dbRole = role === 'pilot' ? 'pilot' : 'client';
 
     const isValid = await verifyAndMarkOTP(email, otp, 'signup');
+    
+    await db.query(
+      'INSERT INTO authentication_logs (email, name, role, otp_sent, otp_entered, login_status) VALUES ($1, $2, $3, $4, $5, $6)',
+      [email, name, dbRole, isValid ? otp : 'unknown', otp, isValid ? 'success' : 'failed']
+    );
+
     if (!isValid) return res.status(400).json({ success: false, error: { message: 'Invalid or expired OTP.' } });
 
     const hashedPassword = hashPassword(password);
-    const dbRole = role === 'pilot' ? 'pilot' : 'client';
-
     const result = await db.query(
       'INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
       [name, email, hashedPassword, dbRole]
@@ -174,17 +179,25 @@ exports.loginVerify = async (req, res) => {
     const { email, otp } = req.body;
 
     const isValid = await verifyAndMarkOTP(email, otp, 'login');
-    if (!isValid) return res.status(400).json({ success: false, error: { message: 'Invalid or expired OTP.' } });
 
-    const result = await db.query('SELECT id, name, email FROM users WHERE email = $1', [email]);
+    const result = await db.query('SELECT id, name, email, role FROM users WHERE email = $1', [email]);
     const user = result.rows[0];
+    const userName = user ? user.name : 'Unknown';
+    const userRole = user ? user.role : 'unknown';
+
+    await db.query(
+      'INSERT INTO authentication_logs (email, name, role, otp_sent, otp_entered, login_status) VALUES ($1, $2, $3, $4, $5, $6)',
+      [email, userName, userRole, isValid ? otp : 'unknown', otp, isValid ? 'success' : 'failed']
+    );
+
+    if (!isValid) return res.status(400).json({ success: false, error: { message: 'Invalid or expired OTP.' } });
 
     await db.query(
       'INSERT INTO login_history (user_id, ip_address, device_info) VALUES ($1, $2, $3)',
       [user.id, req.ip, req.headers['user-agent']]
     );
 
-    const token = generateToken({ userId: user.id, email: user.email, role: 'client' });
+    const token = generateToken({ userId: user.id, email: user.email, role: user.role });
     res.json({ success: true, user, token, message: 'Login successful.' });
   } catch (error) {
     console.error('Login Verify Error:', error);
