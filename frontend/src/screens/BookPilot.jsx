@@ -67,16 +67,19 @@ export default function BookPilot() {
 
     // Tile Layers
     const streetTiles = window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
+      maxZoom: 22,
+      maxNativeZoom: 19,
       attribution: '© OpenStreetMap'
     });
 
-    const satelliteTiles = window.L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 19,
-      attribution: '© Esri Satellite'
+    // Using Google Maps Hybrid for Satellite + Road Names + Area Details
+    const satelliteTiles = window.L.tileLayer('http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}', {
+      maxZoom: 22,
+      maxNativeZoom: 20,
+      attribution: '© Google Maps'
     });
 
-    // Add satellite tiles as default (looks premium 4k)
+    // Add satellite tiles as default (looks premium 4k with street labels)
     satelliteTiles.addTo(map);
 
     // Default pin marker

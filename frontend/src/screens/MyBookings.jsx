@@ -4,7 +4,23 @@ import { useApp } from '../context/AppContext';
 import { ClipboardList, Calendar, MapPin, CheckCircle, Clock, X } from 'lucide-react';
 
 export default function MyBookings() {
-  const { bookings, navigate, activeTab, userRole, completeBookingWithReview, theme } = useApp();
+  const { 
+    bookings, 
+    setBookings,
+    navigate, 
+    activeTab, 
+    userRole, 
+    completeBookingWithReview, 
+    theme, 
+    registeredUser 
+  } = useApp();
+
+  const handleDeleteBooking = (id) => {
+    if (window.confirm("Are you sure you want to cancel this mission request?")) {
+      setBookings(prev => prev.filter(b => b.id !== id));
+    }
+  };
+
   const [activeSubTab, setActiveSubTab] = useState('active'); // 'active' or 'past'
 
   const [selectedReviewBkg, setSelectedReviewBkg] = useState(null);
@@ -30,8 +46,13 @@ export default function MyBookings() {
     return bookings.filter(b => b.pilotName === pilotName && b.status === 'Completed' && b.rating);
   };
 
-  const activeBookings = bookings.filter(b => b.status === 'Confirmed' || b.status === 'Pending');
-  const pastBookings = bookings.filter(b => b.status === 'Completed' || b.status === 'Declined');
+  const activeBookings = userRole === 'pilot'
+    ? bookings.filter(b => b.status === 'Confirmed' && b.pilotName === (registeredUser?.name || 'New Operator'))
+    : bookings.filter(b => b.status === 'Confirmed' || b.status === 'Pending');
+
+  const pastBookings = userRole === 'pilot'
+    ? bookings.filter(b => (b.status === 'Completed' || b.status === 'Declined') && b.pilotName === (registeredUser?.name || 'New Operator'))
+    : bookings.filter(b => b.status === 'Completed' || b.status === 'Declined');
 
   const displayBookings = activeSubTab === 'active' ? activeBookings : pastBookings;
 
@@ -168,6 +189,18 @@ export default function MyBookings() {
                     className="w-full bg-[#ca0013] text-white py-2.5 rounded-none font-headline font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-opacity cursor-pointer text-center"
                   >
                     Complete & Review Service
+                  </button>
+                </div>
+              )}
+
+              {/* Client Cancel Pending Action */}
+              {userRole === 'client' && bkg.status === 'Pending' && (
+                <div className="pt-3 border-t border-[#b7c6c2]/10">
+                  <button
+                    onClick={() => handleDeleteBooking(bkg.id)}
+                    className="w-full bg-red-50 border border-red-200 text-[#ca0013] py-2.5 rounded-none font-headline font-bold text-[10px] uppercase tracking-wider hover:bg-red-100 transition-colors cursor-pointer text-center"
+                  >
+                    Cancel Request
                   </button>
                 </div>
               )}

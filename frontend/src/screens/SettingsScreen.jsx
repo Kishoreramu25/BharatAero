@@ -340,6 +340,8 @@ export default function SettingsScreen() {
 
 
 
+
+
   const handleBack = () => {
 
     if (userRole === 'pilot') {
@@ -1009,6 +1011,8 @@ export default function SettingsScreen() {
             <span>{t('End Flight Session')}</span>
 
           </button>
+
+
 
           <p className="text-center text-[#747874] text-[9px] font-bold uppercase tracking-widest mt-4">
 

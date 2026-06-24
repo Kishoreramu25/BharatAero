@@ -40,7 +40,7 @@ export const AppProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState('home'); // 'home', 'explore', 'bookings', 'settings' etc.
   const [theme, setTheme] = useState('light');
-  const [registeredUser, setRegisteredUser] = useState({ name: '', email: '', password: '', phone: '', id: '' });
+  const [registeredUser, setRegisteredUser] = useState({ name: '', email: '', password: '', phone: '', id: '', credits: 500 });
   const [autoOpenProfileModal, setAutoOpenProfileModal] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('English');
   const [selectedPilot, setSelectedPilot] = useState(null);
@@ -64,25 +64,25 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     const loadStorage = async () => {
       try {
-        const savedUser = await SecureStorage.get({ key: 'bharataero_registered_user' });
+        const savedUser = await SecureStorage.get({ key: 'bharataero_v2_registered_user' });
         if (savedUser) {
           const parsedUser = JSON.parse(savedUser);
           if (parsedUser.password) delete parsedUser.password;
           setRegisteredUser(parsedUser);
         }
 
-        const savedLang = await SecureStorage.get({ key: 'bharataero_selected_language' });
+        const savedLang = await SecureStorage.get({ key: 'bharataero_v2_selected_language' });
         if (savedLang) setSelectedLanguage(savedLang);
 
-        const savedBookings = await SecureStorage.get({ key: 'bharataero_bookings' });
+        const savedBookings = await SecureStorage.get({ key: 'bharataero_v2_bookings' });
         if (savedBookings) setBookings(JSON.parse(savedBookings));
 
-        const savedNotifications = await SecureStorage.get({ key: 'bharataero_notifications' });
+        const savedNotifications = await SecureStorage.get({ key: 'bharataero_v2_notifications' });
         if (savedNotifications) setNotifications(JSON.parse(savedNotifications));
 
-        const savedToken = await SecureStorage.get({ key: 'bharataero_auth_token' });
-        const savedLoggedIn = await SecureStorage.get({ key: 'bharataero_is_logged_in' });
-        const savedRole = await SecureStorage.get({ key: 'bharataero_user_role' });
+        const savedToken = await SecureStorage.get({ key: 'bharataero_v2_auth_token' });
+        const savedLoggedIn = await SecureStorage.get({ key: 'bharataero_v2_is_logged_in' });
+        const savedRole = await SecureStorage.get({ key: 'bharataero_v2_user_role' });
 
         if (savedToken && savedLoggedIn === 'true' && savedRole) {
           setIsLoggedIn(true);
@@ -101,13 +101,13 @@ export const AppProvider = ({ children }) => {
   // Save to SecureStorage when states change, but ONLY after initial load is complete!
   useEffect(() => {
     if (!isStorageLoaded) return;
-    SecureStorage.set({ key: 'bharataero_bookings', value: JSON.stringify(bookings) })
+    SecureStorage.set({ key: 'bharataero_v2_bookings', value: JSON.stringify(bookings) })
       .catch(e => console.warn("Failed to save bookings to SecureStorage:", e));
   }, [bookings, isStorageLoaded]);
 
   useEffect(() => {
     if (!isStorageLoaded) return;
-    SecureStorage.set({ key: 'bharataero_notifications', value: JSON.stringify(notifications) })
+    SecureStorage.set({ key: 'bharataero_v2_notifications', value: JSON.stringify(notifications) })
       .catch(e => console.warn("Failed to save notifications to SecureStorage:", e));
   }, [notifications, isStorageLoaded]);
 
@@ -115,77 +115,61 @@ export const AppProvider = ({ children }) => {
     if (!isStorageLoaded) return;
     const userToSave = { ...registeredUser };
     if (userToSave.password) delete userToSave.password;
-    SecureStorage.set({ key: 'bharataero_registered_user', value: JSON.stringify(userToSave) })
+    SecureStorage.set({ key: 'bharataero_v2_registered_user', value: JSON.stringify(userToSave) })
       .catch(e => console.warn("Failed to save registeredUser to SecureStorage:", e));
   }, [registeredUser, isStorageLoaded]);
 
   useEffect(() => {
     if (!isStorageLoaded) return;
-    SecureStorage.set({ key: 'bharataero_selected_language', value: selectedLanguage })
+    SecureStorage.set({ key: 'bharataero_v2_selected_language', value: selectedLanguage })
       .catch(e => console.warn("Failed to save selectedLanguage to SecureStorage:", e));
   }, [selectedLanguage, isStorageLoaded]);
 
   useEffect(() => {
     if (!isStorageLoaded) return;
-    SecureStorage.set({ key: 'bharataero_is_logged_in', value: String(isLoggedIn) })
+    SecureStorage.set({ key: 'bharataero_v2_is_logged_in', value: String(isLoggedIn) })
       .catch(e => console.warn("Failed to save isLoggedIn to SecureStorage:", e));
   }, [isLoggedIn, isStorageLoaded]);
 
   useEffect(() => {
     if (!isStorageLoaded) return;
     if (userRole) {
-      SecureStorage.set({ key: 'bharataero_user_role', value: userRole })
+      SecureStorage.set({ key: 'bharataero_v2_user_role', value: userRole })
         .catch(e => console.warn("Failed to save userRole to SecureStorage:", e));
     } else {
-      SecureStorage.remove({ key: 'bharataero_user_role' }).catch(() => {});
+      SecureStorage.remove({ key: 'bharataero_v2_user_role' }).catch(() => {});
     }
   }, [userRole, isStorageLoaded]);
 
 
   // Pilots Data (Static references with rating and prices)
-  const pilotsList = [
-    {
-      id: 'p1',
-      name: 'Alex Mercer',
-      role: 'UAV Survey specialist',
-      rating: 4.9,
-      reviews: 142,
-      price: 650,
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCV47DaBxqfxLcnTdUs7O5G3JIsjwPauCvXb65mPkf4w3sSOMK7Mfswubt2peFwRUMXRVl07aCOLepPbM9ushB06_TJ5uPbDBsFUwlNT1lYkE9jGHGAHwk2jH4uAMz6E7G5dj6tFhl6hXdDBxLcTGO-pSjbL6CvN4q5FhRXUkyVWXWpnFXbUlH2P4GLVzV9kTDTFeWcNJsMNL6qquQ2AG7Oycppt7oubV1ijhJwK45HmpNE8LwCj2Tu38x-q0t8w2LixMRMl9mfH-I',
-      bannerImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBXjE2_9Uj6PCnGnvdW5Q8zY9BV0Qxwf7QmWw-aGYicheZpA2m_pa3f3Q65QmAoF5gpxZym31kIU2G86FlrBzfPr_juQAMN7eC3fePY2WmPZC2pUBa0jX7gEh32mqyOSUo5U8ltGykRtIJZEBuLrozJcgJDaa_2NUOklTBnM4QxzLotyYT2qGZfG8ZjCQ1IS8Cjw3JRcSdDX805l3QqgyPizHnn7NdkyOo1PRgXNHuFfTIyPbrTLlU4njxjVTYdrZ-b9p9H18RAgUw',
-      specialty: 'Precision Agriculture, Orthomosaic Mapping',
-      drone: 'DJI Agras T40 / Phantom 4 RTK',
-      experience: '5+ Years Enterprise Flight Operations',
-      badges: ['FAA Part 107', 'Top Rated', 'Thermal Cert'],
-      location: 'Midwest Agriculture Belt'
-    },
-    {
-      id: 'p2',
-      name: 'Sarah Jenkins',
-      role: 'Industrial Inspector',
-      rating: 4.8,
-      reviews: 98,
-      price: 890,
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCSxb1o191CQhouUKX0ug1lyvA_JO6PmmHOQUN03n13IfRLG4_kjk3p_Ak76_oxirai8RCafODohv7tqhmLMa_n5_5RHe0PKjXafnHoK9i48_y1SHsw_6SF71RIgYQPzJ27w2eHp0-ydAre_bAWOjFbJymtZz0kCNS5400OX6p9cZl8-A6DPwCKzEJd5FZMAR9hQUAqbeFgQCCQwx0SrJq3sRx5wXFyK-SjhC9Dm1JRJdRferfYftQDnKDCI8UiSUJ55Ri8tlGTxeg',
-      bannerImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCSxb1o191CQhouUKX0ug1lyvA_JO6PmmHOQUN03n13IfRLG4_kjk3p_Ak76_oxirai8RCafODohv7tqhmLMa_n5_5RHe0PKjXafnHoK9i48_y1SHsw_6SF71RIgYQPzJ27w2eHp0-ydAre_bAWOjFbJymtZz0kCNS5400OX6p9cZl8-A6DPwCKzEJd5FZMAR9hQUAqbeFgQCCQwx0SrJq3sRx5wXFyK-SjhC9Dm1JRJdRferfYftQDnKDCI8UiSUJ55Ri8tlGTxeg',
-      specialty: 'Infrastructure, Wind Turbines, Solar Farms',
-      drone: 'DJI Matrice 300 RTK / DJI Inspire 3',
-      experience: '4 Years Structural Engineering UAVs',
-      badges: ['FAA Part 107', 'Infrared Level II'],
-      location: 'Texas Energy Sector'
-    }
-  ];
+  const pilotsList = [];
 
   // Helper function to add a booking
   const addBooking = (newBkg) => {
-    const bookingId = `BKG-${Math.floor(1000 + Math.random() * 9000)}`;
-    const freshBkg = {
-      id: bookingId,
-      status: 'Pending',
-      signalStrength: 'Excellent',
-      ...newBkg
-    };
-    setBookings(prev => [freshBkg, ...prev]);
+    setBookings(prev => {
+      let nextIdNumber = 2000;
+      if (prev && prev.length > 0) {
+        const existingIds = prev
+          .map(b => {
+            if (!b.id) return 0;
+            const numMatch = b.id.match(/\d+/);
+            return numMatch ? parseInt(numMatch[0], 10) : 0;
+          });
+        if (existingIds.length > 0) {
+          nextIdNumber = Math.max(...existingIds, 1999) + 1;
+        }
+      }
+      const bookingId = `BKG-${nextIdNumber}`;
+      
+      const freshBkg = {
+        id: bookingId,
+        status: 'Pending',
+        signalStrength: 'Excellent',
+        ...newBkg
+      };
+      return [freshBkg, ...prev];
+    });
 
     // Send automated notification
     addNotification({
@@ -240,6 +224,26 @@ export const AppProvider = ({ children }) => {
   };
 
   // Helper to add notifications
+  const toggleAvailability = (dayIndex) => {
+    setAvailability(prev => {
+      const newAvail = [...prev];
+      newAvail[dayIndex].checked = !newAvail[dayIndex].checked;
+      newAvail[dayIndex].status = newAvail[dayIndex].checked ? 'Active' : 'Unavailable';
+      return newAvail;
+    });
+  };
+
+  const deductCredits = (amount) => {
+    if ((registeredUser.credits || 0) >= amount) {
+      setRegisteredUser(prev => ({
+        ...prev,
+        credits: (prev.credits || 0) - amount
+      }));
+      return true;
+    }
+    return false;
+  };
+
   const addNotification = ({ title, desc, time }) => {
     setNotifications(prev => [
       { id: Date.now(), title, desc, time, read: false },
@@ -425,7 +429,9 @@ export const AppProvider = ({ children }) => {
         setSelectedPilot,
         sendResendEmail,
         logout,
-        transitionTimerRef
+        transitionTimerRef,
+        toggleAvailability,
+        deductCredits
       }}
     >
       {children}

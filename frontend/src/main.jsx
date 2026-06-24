@@ -15,15 +15,12 @@ createRoot(document.getElementById('root')).render(
   </StrictMode>,
 )
 
-// Register Service Worker for caching and offline support
+// Unregister Service Workers during development to prevent Vite caching errors
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then((reg) => {
-        console.log('[ServiceWorker] Registration successful with scope: ', reg.scope);
-      })
-      .catch((err) => {
-        console.warn('[ServiceWorker] Registration failed: ', err);
-      });
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    for (let registration of registrations) {
+      registration.unregister();
+      console.log('[ServiceWorker] Unregistered existing service worker to fix white screen bug.');
+    }
   });
 }

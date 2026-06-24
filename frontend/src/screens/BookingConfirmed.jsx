@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Check, ClipboardCheck, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Check, ClipboardCheck, ArrowRight, ShieldCheck, Download } from 'lucide-react';
 
 export default function BookingConfirmed() {
   const { navigate, bookings } = useApp();
@@ -14,6 +14,98 @@ export default function BookingConfirmed() {
     type: 'Agricultural Survey',
     price: 650,
     location: 'Sector-4 Agritech Fields'
+  };
+
+  const handleDownloadInvoice = () => {
+    const applicantNumber = latestBooking.id || `APP-${Math.floor(1000 + Math.random() * 9000)}`;
+    const invoiceHTML = `
+      <html>
+        <head>
+          <title>Mission Invoice - ${applicantNumber}</title>
+          <style>
+            body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1b1c1b; margin: 0; padding: 40px; }
+            .header { text-align: center; border-bottom: 2px solid #ca0013; padding-bottom: 20px; margin-bottom: 30px; }
+            .logo { font-size: 24px; font-weight: 900; letter-spacing: -1px; margin: 0; color: #ca0013; text-transform: uppercase; }
+            .sub-logo { font-size: 10px; font-weight: bold; letter-spacing: 2px; color: #747874; text-transform: uppercase; }
+            .invoice-title { text-align: center; font-size: 18px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 30px; }
+            .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px; }
+            .detail-box { border: 1px solid #e5e7eb; padding: 15px; }
+            .label { font-size: 10px; font-weight: bold; color: #747874; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+            .value { font-size: 14px; font-weight: bold; margin: 0; }
+            .full-width { grid-column: 1 / -1; }
+            .footer { text-align: center; font-size: 10px; color: #747874; margin-top: 50px; border-top: 1px solid #e5e7eb; padding-top: 20px; }
+            .price-box { background-color: #f9fafb; padding: 20px; text-align: right; border: 1px solid #e5e7eb; border-left: 4px solid #ca0013; }
+            .price-label { font-size: 12px; font-weight: bold; color: #747874; text-transform: uppercase; letter-spacing: 1px; }
+            .price-value { font-size: 24px; font-weight: 900; color: #ca0013; margin-top: 5px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1 class="logo">BHARATAERO</h1>
+            <p class="sub-logo">UAV Mission Dispatch & Escrow</p>
+          </div>
+          
+          <div class="invoice-title">Official Mission Receipt</div>
+          
+          <div class="details-grid">
+            <div class="detail-box">
+              <div class="label">Applicant / Broadcast Number</div>
+              <p class="value">${applicantNumber}</p>
+            </div>
+            <div class="detail-box">
+              <div class="label">Mission Date</div>
+              <p class="value">${latestBooking.date || 'TBD'}</p>
+            </div>
+            
+            <div class="detail-box full-width">
+              <div class="label">Mission Title</div>
+              <p class="value">${latestBooking.title || latestBooking.type || 'Custom Flight Mission'}</p>
+            </div>
+            
+            <div class="detail-box">
+              <div class="label">Category / Type</div>
+              <p class="value">${latestBooking.type || 'N/A'}</p>
+            </div>
+            <div class="detail-box">
+              <div class="label">Time Schedule</div>
+              <p class="value">${latestBooking.timeSlot || 'N/A'}</p>
+            </div>
+            
+            <div class="detail-box full-width">
+              <div class="label">Location Zone</div>
+              <p class="value">${latestBooking.location || 'N/A'}</p>
+            </div>
+
+            <div class="detail-box full-width">
+              <div class="label">Equipment Requested</div>
+              <p class="value">${latestBooking.droneModel || 'Any capable UAV'}</p>
+            </div>
+          </div>
+          
+          <div class="price-box">
+            <div class="price-label">Total Estimated Budget (INR)</div>
+            <div class="price-value">₹${latestBooking.price || 0}</div>
+          </div>
+          
+          <div class="footer">
+            <p>This is a system-generated document and does not require a physical signature.</p>
+            <p>For support, contact dispatch@bharataero.in</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(invoiceHTML);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+      }, 250);
+    } else {
+      alert("Please allow popups to download the invoice.");
+    }
   };
 
   return (
@@ -87,6 +179,14 @@ export default function BookingConfirmed() {
 
       {/* Action Buttons Footer */}
       <footer className="w-full flex flex-col gap-3 mt-6">
+        <button 
+          onClick={handleDownloadInvoice}
+          className="w-full bg-neutral-900 text-white py-4 rounded-none font-headline font-bold text-xs hover:bg-neutral-800 transition-colors uppercase tracking-wider flex items-center justify-center gap-1.5"
+        >
+          <span>Download PDF Receipt</span>
+          <Download size={14} />
+        </button>
+
         <button 
           onClick={() => navigate('my_bookings', 'bookings')}
           className="w-full bg-[#ca0013] text-white py-4 rounded-none font-headline font-bold text-xs hover:opacity-95 tracking-wider uppercase flex items-center justify-center gap-1.5"

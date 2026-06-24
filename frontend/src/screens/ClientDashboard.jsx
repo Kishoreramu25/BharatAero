@@ -5,11 +5,46 @@ import {
   ArrowRight, MessageSquare, Clock, Star, Phone
 } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
+import { SecureStorage } from '../utils/SecureStorage';
 
 export default function ClientDashboard() {
-  const { navigate, registeredUser, setAutoOpenProfileModal, bookings } = useApp();
+  const { navigate, registeredUser, setAutoOpenProfileModal, bookings, setBookings } = useApp();
+
+  const handleDeleteBooking = (id) => {
+    if (window.confirm("Are you sure you want to cancel this mission request?")) {
+      setBookings(prev => prev.filter(b => b.id !== id));
+    }
+  };
+
+  const handleDevReset = async () => {
+    if (window.confirm("DEV ALERT: Wipe all local storage data and reset app?")) {
+      try {
+        await SecureStorage.remove({ key: 'bharataero_v2_registered_user' });
+        await SecureStorage.remove({ key: 'bharataero_v2_selected_language' });
+        await SecureStorage.remove({ key: 'bharataero_v2_bookings' });
+        await SecureStorage.remove({ key: 'bharataero_v2_notifications' });
+        await SecureStorage.remove({ key: 'bharataero_v2_auth_token' });
+        await SecureStorage.remove({ key: 'bharataero_v2_is_logged_in' });
+        await SecureStorage.remove({ key: 'bharataero_v2_user_role' });
+        window.location.reload();
+      } catch (e) {
+        console.warn("Failed to reset:", e);
+      }
+    }
+  };
   
-  const activeBookings = bookings?.filter(b => b.status === 'Confirmed' || b.status === 'Pending').slice(0, 3) || [];
+  const allActiveBookings = bookings?.filter(b => b.status === 'Confirmed' || b.status === 'Pending') || [];
+  const activeBookings = allActiveBookings.slice(0, 3);
+  
+  const completedBookings = bookings?.filter(b => b.status === 'Completed') || [];
+  const totalSpent = completedBookings.reduce((sum, b) => sum + (Number(b.price) || 0), 0);
+  const formattedSpent = totalSpent >= 1000 ? `₹${(totalSpent/1000).toFixed(1)}k` : `₹${totalSpent}`;
+  const uniquePilots = new Set(completedBookings.filter(b => b.pilotName && b.pilotName !== 'Unassigned').map(b => b.pilotName)).size;
+  
+  const reviews = completedBookings.filter(b => b.rating);
+  const avgRating = reviews.length > 0 
+    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+    : '0.0';
 
   const quickLinks = [
     { name: 'Updates', icon: <Bell size={20} />, action: () => navigate('notifications') },
@@ -73,25 +108,25 @@ export default function ClientDashboard() {
             <div className="grid grid-cols-2">
               <div className="flex flex-col p-6 border-r border-b border-gray-100">
                 <p className="text-[11px] text-[#ca0013] font-bold uppercase tracking-widest mb-1">Active Bookings</p>
-                <p className="text-4xl font-black font-headline text-[#000201] mb-1">3</p>
+                <p className="text-4xl font-black font-headline text-[#000201] mb-1">{allActiveBookings.length}</p>
                 <p className="text-[11px] text-[#747874] font-medium">All on schedule</p>
               </div>
               
               <div className="flex flex-col p-6 border-b border-gray-100">
                 <p className="text-[11px] text-[#747874] font-bold uppercase tracking-widest mb-1">Total Spent</p>
-                <p className="text-3xl font-black font-headline text-[#000201] mb-1 mt-1">₹48k</p>
+                <p className="text-3xl font-black font-headline text-[#000201] mb-1 mt-1">{formattedSpent}</p>
                 <p className="text-[11px] text-[#747874] font-medium">Last 90 days</p>
               </div>
 
               <div className="flex flex-col p-6 border-r border-gray-100">
                 <p className="text-[11px] text-[#747874] font-bold uppercase tracking-widest mb-1">Pilots Booked</p>
-                <p className="text-4xl font-black font-headline text-[#000201] mb-1">12</p>
+                <p className="text-4xl font-black font-headline text-[#000201] mb-1">{uniquePilots}</p>
                 <p className="text-[11px] text-[#747874] font-medium">Trusted partners</p>
               </div>
 
               <div className="flex flex-col p-6">
                 <p className="text-[11px] text-[#747874] font-bold uppercase tracking-widest mb-1">Avg Rating</p>
-                <p className="text-4xl font-black font-headline text-[#000201] mb-1">4.8<span className="text-2xl text-yellow-400 ml-1">★</span></p>
+                <p className="text-4xl font-black font-headline text-[#000201] mb-1">{avgRating}<span className="text-2xl text-yellow-400 ml-1">★</span></p>
                 <p className="text-[11px] text-[#747874] font-medium">Your reviews</p>
               </div>
             </div>
@@ -142,8 +177,11 @@ export default function ClientDashboard() {
                         <Phone size={16} /> Call
                       </button>
                     ) : (
-                      <button disabled className="flex-1 bg-neutral-50 border border-neutral-200 text-neutral-400 py-3 text-[13px] font-bold flex justify-center items-center gap-2 shadow-sm cursor-not-allowed">
-                        <Clock size={16} /> Awaiting Pilot
+                      <button 
+                        onClick={() => handleDeleteBooking(bkg.id)}
+                        className="flex-1 bg-red-50 border border-red-200 text-[#ca0013] py-3 text-[13px] font-bold active:scale-95 transition-transform flex justify-center items-center gap-2 shadow-sm hover:bg-red-100"
+                      >
+                        <Clock size={16} /> Cancel Request
                       </button>
                     )}
                   </div>
@@ -156,6 +194,17 @@ export default function ClientDashboard() {
             )}
 
           </div>
+        </section>
+
+        {/* Dev Options */}
+        <section className="mt-8 mb-4">
+          <button 
+            type="button"
+            onClick={handleDevReset}
+            className="w-full bg-neutral-900 border border-neutral-900 text-white font-headline font-bold text-xs py-4 rounded-none hover:bg-neutral-800 uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm"
+          >
+            <span>Dev: Hard Reset Database</span>
+          </button>
         </section>
 
       </main>

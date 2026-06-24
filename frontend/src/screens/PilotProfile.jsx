@@ -3,7 +3,16 @@ import { useApp } from '../context/AppContext';
 import { ArrowLeft, Star, MapPin, Shield, CheckCircle, Mail } from 'lucide-react';
 
 export default function PilotProfile() {
-  const { navigate, pilotsList, selectedPilot } = useApp();
+  const { navigate, pilotsList, selectedPilot, deductCredits, registeredUser } = useApp();
+  const [isContactUnlocked, setIsContactUnlocked] = React.useState(false);
+  
+  const handleUnlockContact = () => {
+    if (deductCredits(100)) {
+      setIsContactUnlocked(true);
+    } else {
+      alert("Insufficient Credits. You need 100 Credits to unlock this contact.");
+    }
+  };
   
   // Use selectedPilot, fallback to first pilot
   const pilot = selectedPilot || pilotsList[0];
@@ -111,14 +120,49 @@ export default function PilotProfile() {
               </div>
             </div>
           </div>
+
+          {/* Contact Details (Locked / Unlocked) */}
+          <div className="space-y-2">
+            <h3 className="text-xs font-headline font-bold uppercase tracking-wider text-[#000201]">Direct Contact</h3>
+            <div className="bg-white rounded-none border border-[#b7c6c2]/20 p-4 shadow-sm flex flex-col items-center justify-center py-6 text-center">
+              {isContactUnlocked ? (
+                <div className="space-y-3 w-full">
+                  <div className="bg-emerald-50 text-emerald-700 py-3 font-headline font-bold text-sm tracking-wider w-full border border-emerald-100">
+                    +91 98765 43210
+                  </div>
+                  <div className="text-xs text-[#747874] font-bold">
+                    {pilot.name.toLowerCase().replace(' ', '.')}@bharataero.com
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center mb-3">
+                    <span className="material-symbols-outlined text-[#747874]">lock</span>
+                  </div>
+                  <h4 className="text-sm font-headline font-black text-[#000201] uppercase tracking-wider">Contact Hidden</h4>
+                  <p className="text-[10px] text-[#747874] mt-1 mb-4 px-4">Pay 100 Credits to unlock direct phone and email access for offline negotiations.</p>
+                  <button 
+                    onClick={handleUnlockContact}
+                    className="bg-[#000201] text-white py-2 px-6 rounded-none font-headline font-bold text-[10px] uppercase tracking-wider hover:bg-[#ca0013] transition-colors"
+                  >
+                    Unlock Contact (100 Credits)
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </main>
 
       {/* Floating CTA Footer Actions */}
-      <footer className="absolute bottom-0 left-0 right-0 bg-white border-t border-[#b7c6c2]/25 py-3 px-4 flex shadow-lg z-30 select-none items-center justify-between h-[72px]">
+      <footer className="absolute bottom-0 left-0 right-0 bg-white border-t border-[#b7c6c2]/25 py-3 px-4 flex gap-3 shadow-lg z-30 select-none items-center justify-between h-[72px]">
+        <div className="flex flex-col text-left mr-auto">
+          <span className="text-[10px] font-bold text-[#747874] uppercase tracking-wider">Your Balance</span>
+          <span className="text-sm font-black font-headline text-[#ca0013]">{registeredUser?.credits || 0} CR</span>
+        </div>
         <button 
           onClick={() => navigate('book_pilot', 'book')}
-          className="w-full bg-[#ca0013] text-white py-3.5 px-6 rounded-none font-headline font-bold text-xs uppercase tracking-wider text-center"
+          className="flex-grow max-w-[200px] bg-[#ca0013] text-white py-3.5 px-4 rounded-none font-headline font-bold text-[11px] uppercase tracking-wider text-center hover:opacity-90 transition-opacity"
         >
           Book Flight Mission
         </button>
