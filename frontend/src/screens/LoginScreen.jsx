@@ -7,8 +7,11 @@ import {
   createUserWithEmailAndPassword, 
   GoogleAuthProvider, 
   signInWithPopup,
-  sendEmailVerification
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  updateProfile
 } from 'firebase/auth';
+import { supabase } from '../supabase';
 
 export default function LoginScreen() {
   const { setCurrentScreen, userRole, setIsLoggedIn, registeredUser, setRegisteredUser, t } = useApp();
@@ -35,6 +38,27 @@ export default function LoginScreen() {
   const [showResendVerification, setShowResendVerification] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
 
+  const validateEmail = (emailStr) => {
+    // ONLY accept exactly @gmail.com
+    const lowerEmail = emailStr.trim().toLowerCase();
+    const re = /^[a-z0-9._%+-]+@gmail\.com$/;
+    return re.test(lowerEmail);
+  };
+
+  const getPasswordStrength = (pass) => {
+    let score = 0;
+    if (pass.length > 5) score++;
+    if (pass.length > 8) score++;
+    if (/[A-Z]/.test(pass)) score++;
+    if (/[0-9]/.test(pass)) score++;
+    if (/[^A-Za-z0-9]/.test(pass)) score++;
+    return score;
+  };
+  
+  const strengthScore = getPasswordStrength(password);
+  const strengthLabels = ['Weak', 'Weak', 'Fair', 'Good', 'Strong', 'Excellent'];
+  const strengthColors = ['bg-red-400', 'bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-green-400', 'bg-green-500'];
+
   useEffect(() => {
     if (resendTimer <= 0) return;
     const timerId = setTimeout(() => {
@@ -50,6 +74,14 @@ export default function LoginScreen() {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
+      
+      // Upsert into Supabase (if they don't exist yet)
+      await supabase.from('users').upsert([{
+        id: user.uid,
+        email: user.email,
+        name: user.displayName || 'Google User',
+        role: userRole || 'client'
+      }], { onConflict: 'id' });
       
       // Google accounts are inherently verified
       handleSuccessfulLogin({
@@ -91,20 +123,55 @@ export default function LoginScreen() {
     setSuccessMsg('');
     setShowResendVerification(false);
 
+    if (!validateEmail(email.trim())) {
+      return setErrorMsg('Only @gmail.com email addresses are accepted.');
+    }
+
+    if (authMode === 'forgot_password') {
+      setLoading(true);
+      try {
+        await sendPasswordResetEmail(auth, email.trim());
+        setSuccessMsg(`A password reset link has been sent to ${email.trim()}.`);
+      } catch (err) {
+        setErrorMsg(err.message || 'Failed to send reset email. Ensure the email is correct.');
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     if (authMode === 'signup') {
       if (!name.trim()) return setErrorMsg('Please enter your full name.');
       if (password !== confirmPassword) return setErrorMsg('Passwords do not match.');
+      if (getPasswordStrength(password) < 4) return setErrorMsg('Your password is not strong enough. Please add numbers and special characters.');
       if (!iAgree) return setErrorMsg('You must agree to the Terms.');
       
       setLoading(true);
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
         
+        // Update user profile with their name so it appears in the email template
+        await updateProfile(userCredential.user, {
+          displayName: name.trim()
+        });
+
+        // Add user to Supabase Database
+        const { error: dbError } = await supabase.from('users').insert([{
+          id: userCredential.user.uid,
+          email: userCredential.user.email,
+          name: name.trim(),
+          role: userRole || 'client'
+        }]);
+        
+        if (dbError) {
+          console.error("Supabase insert error:", dbError);
+        }
+        
         // Send the verification email immediately
         await sendEmailVerification(userCredential.user);
         
         // Do NOT log them in. Tell them to check email.
-        setSuccessMsg(`Account created successfully! A verification link has been sent to ${email.trim()}. Please verify your email before signing in.`);
+        setSuccessMsg(`Registration successful. A verification link has been sent to ${email.trim()}. Please check your Inbox and Spam folder to verify your identity before signing in.`);
         setAuthMode('signin');
         setPassword('');
         setConfirmPassword('');
@@ -169,7 +236,7 @@ export default function LoginScreen() {
                 type="button"
                 onClick={() => { setAuthMode('signin'); setErrorMsg(''); setSuccessMsg(''); setShowResendVerification(false); }}
                 className={`flex-grow py-3 px-4 rounded-full text-[10px] font-headline font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
-                  authMode === 'signin' ? 'bg-[#ca0013] text-white shadow-md font-black transform scale-[1.01]' : 'text-neutral-500 bg-transparent hover:bg-neutral-100'
+                  (authMode === 'signin' || authMode === 'forgot_password') ? 'bg-[#ca0013] text-white shadow-md font-black transform scale-[1.01]' : 'text-neutral-500 bg-transparent hover:bg-neutral-100'
                 }`}
               >
                 Sign In
@@ -256,20 +323,49 @@ export default function LoginScreen() {
                 />
               </div>
 
-              <div className="flex items-center gap-3 border border-neutral-200/60 bg-neutral-50/35 rounded-2xl px-4 py-3 focus-within:border-[#ca0013]">
-                <Lock size={16} className="text-neutral-400 shrink-0" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
-                  required
-                  className="flex-grow bg-transparent border-0 text-xs text-[#1b1c1b] focus:outline-none"
-                />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-neutral-400">
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
+              {authMode !== 'forgot_password' && (
+                <>
+                  <div className="flex items-center gap-3 border border-neutral-200/60 bg-neutral-50/35 rounded-2xl px-4 py-3 focus-within:border-[#ca0013]">
+                    <Lock size={16} className="text-neutral-400 shrink-0" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Password"
+                      required
+                      className="flex-grow bg-transparent border-0 text-xs text-[#1b1c1b] focus:outline-none"
+                    />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-neutral-400">
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                  
+                  {authMode === 'signup' && password.length > 0 && (
+                    <div className="flex flex-col gap-1.5 px-2 pt-1 pb-1">
+                      <div className="flex gap-1 h-1.5">
+                        {[1,2,3,4,5].map((level) => (
+                          <div key={level} className={`flex-1 rounded-full ${strengthScore >= level ? strengthColors[strengthScore] : 'bg-neutral-200'}`} />
+                        ))}
+                      </div>
+                      <p className={`text-[10px] font-bold ${strengthScore >= 3 ? 'text-green-600' : 'text-orange-500'}`}>
+                        Strength: {strengthLabels[strengthScore]}
+                      </p>
+                    </div>
+                  )}
+
+                  {authMode === 'signin' && (
+                    <div className="flex justify-end pt-0.5 pb-1 pr-2">
+                      <button 
+                        type="button" 
+                        onClick={() => { setAuthMode('forgot_password'); setErrorMsg(''); setSuccessMsg(''); }}
+                        className="text-[10px] font-bold text-[#ca0013] hover:underline"
+                      >
+                        Forgot Password?
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
 
               {authMode === 'signup' && (
                 <div className="flex items-center gap-3 border border-neutral-200/60 bg-neutral-50/35 rounded-2xl px-4 py-3 focus-within:border-[#ca0013]">
@@ -306,7 +402,7 @@ export default function LoginScreen() {
                   className="uiverse-btn bg-gradient-to-r from-[#ca0013] to-[#a3000b] text-white shadow-md active:scale-[0.99] border-0"
                 >
                   <span className="btn-text">
-                    {authMode === 'signin' ? 'Sign In' : 'Create Account'}
+                    {authMode === 'signin' ? 'Sign In' : authMode === 'signup' ? 'Create Account' : 'Send Reset Link'}
                   </span>
                 </button>
               </div>

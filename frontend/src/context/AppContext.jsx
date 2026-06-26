@@ -64,25 +64,25 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     const loadStorage = async () => {
       try {
-        const savedUser = await SecureStorage.get({ key: 'bharataero_v2_registered_user' });
+        const savedUser = await SecureStorage.get({ key: 'bharataero_v3_registered_user' });
         if (savedUser) {
           const parsedUser = JSON.parse(savedUser);
           if (parsedUser.password) delete parsedUser.password;
           setRegisteredUser(parsedUser);
         }
 
-        const savedLang = await SecureStorage.get({ key: 'bharataero_v2_selected_language' });
+        const savedLang = await SecureStorage.get({ key: 'bharataero_v3_selected_language' });
         if (savedLang) setSelectedLanguage(savedLang);
 
-        const savedBookings = await SecureStorage.get({ key: 'bharataero_v2_bookings' });
+        const savedBookings = await SecureStorage.get({ key: 'bharataero_v3_bookings' });
         if (savedBookings) setBookings(JSON.parse(savedBookings));
 
-        const savedNotifications = await SecureStorage.get({ key: 'bharataero_v2_notifications' });
+        const savedNotifications = await SecureStorage.get({ key: 'bharataero_v3_notifications' });
         if (savedNotifications) setNotifications(JSON.parse(savedNotifications));
 
-        const savedToken = await SecureStorage.get({ key: 'bharataero_v2_auth_token' });
-        const savedLoggedIn = await SecureStorage.get({ key: 'bharataero_v2_is_logged_in' });
-        const savedRole = await SecureStorage.get({ key: 'bharataero_v2_user_role' });
+        const savedToken = await SecureStorage.get({ key: 'bharataero_v3_auth_token' });
+        const savedLoggedIn = await SecureStorage.get({ key: 'bharataero_v3_is_logged_in' });
+        const savedRole = await SecureStorage.get({ key: 'bharataero_v3_user_role' });
 
         if (savedToken && savedLoggedIn === 'true' && savedRole) {
           setIsLoggedIn(true);
@@ -101,13 +101,13 @@ export const AppProvider = ({ children }) => {
   // Save to SecureStorage when states change, but ONLY after initial load is complete!
   useEffect(() => {
     if (!isStorageLoaded) return;
-    SecureStorage.set({ key: 'bharataero_v2_bookings', value: JSON.stringify(bookings) })
+    SecureStorage.set({ key: 'bharataero_v3_bookings', value: JSON.stringify(bookings) })
       .catch(e => console.warn("Failed to save bookings to SecureStorage:", e));
   }, [bookings, isStorageLoaded]);
 
   useEffect(() => {
     if (!isStorageLoaded) return;
-    SecureStorage.set({ key: 'bharataero_v2_notifications', value: JSON.stringify(notifications) })
+    SecureStorage.set({ key: 'bharataero_v3_notifications', value: JSON.stringify(notifications) })
       .catch(e => console.warn("Failed to save notifications to SecureStorage:", e));
   }, [notifications, isStorageLoaded]);
 
@@ -115,29 +115,29 @@ export const AppProvider = ({ children }) => {
     if (!isStorageLoaded) return;
     const userToSave = { ...registeredUser };
     if (userToSave.password) delete userToSave.password;
-    SecureStorage.set({ key: 'bharataero_v2_registered_user', value: JSON.stringify(userToSave) })
+    SecureStorage.set({ key: 'bharataero_v3_registered_user', value: JSON.stringify(userToSave) })
       .catch(e => console.warn("Failed to save registeredUser to SecureStorage:", e));
   }, [registeredUser, isStorageLoaded]);
 
   useEffect(() => {
     if (!isStorageLoaded) return;
-    SecureStorage.set({ key: 'bharataero_v2_selected_language', value: selectedLanguage })
+    SecureStorage.set({ key: 'bharataero_v3_selected_language', value: selectedLanguage })
       .catch(e => console.warn("Failed to save selectedLanguage to SecureStorage:", e));
   }, [selectedLanguage, isStorageLoaded]);
 
   useEffect(() => {
     if (!isStorageLoaded) return;
-    SecureStorage.set({ key: 'bharataero_v2_is_logged_in', value: String(isLoggedIn) })
+    SecureStorage.set({ key: 'bharataero_v3_is_logged_in', value: String(isLoggedIn) })
       .catch(e => console.warn("Failed to save isLoggedIn to SecureStorage:", e));
   }, [isLoggedIn, isStorageLoaded]);
 
   useEffect(() => {
     if (!isStorageLoaded) return;
     if (userRole) {
-      SecureStorage.set({ key: 'bharataero_v2_user_role', value: userRole })
+      SecureStorage.set({ key: 'bharataero_v3_user_role', value: userRole })
         .catch(e => console.warn("Failed to save userRole to SecureStorage:", e));
     } else {
-      SecureStorage.remove({ key: 'bharataero_v2_user_role' }).catch(() => {});
+      SecureStorage.remove({ key: 'bharataero_v3_user_role' }).catch(() => {});
     }
   }, [userRole, isStorageLoaded]);
 

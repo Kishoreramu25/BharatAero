@@ -20,6 +20,7 @@
     "@capacitor/splash-screen": "^8.0.1",
     "@capawesome/capacitor-google-sign-in": "^0.1.2",
     "@emailjs/browser": "^4.4.1",
+    "@supabase/supabase-js": "^2.108.2",
     "bharataero-workspace": "file:..",
     "capacitor-secure-storage-plugin": "^0.13.0",
     "firebase": "^12.15.0",
