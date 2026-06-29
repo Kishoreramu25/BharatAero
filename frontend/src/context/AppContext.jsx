@@ -2,8 +2,10 @@ import React, { createContext, useContext, useState, useEffect, useRef } from 'r
 import { perfMonitor } from '../utils/perfMonitor';
 import { GoogleSignIn } from '@capawesome/capacitor-google-sign-in';
 import { Capacitor } from '@capacitor/core';
+import { Dialog } from '@capacitor/dialog';
 import { getTranslation } from '../utils/translations';
 import { SecureStorage } from '../utils/SecureStorage';
+import { getAllPilots } from '../supabaseQueries';
 
 const AppContext = createContext();
 
@@ -35,7 +37,7 @@ const sendResendEmail = async (toEmail, otpCode, recipientName) => {
 
 export const AppProvider = ({ children }) => {
   // Navigation & Auth State
-  const [currentScreen, setCurrentScreen] = useState('onboarding');
+  const [currentScreen, setCurrentScreen] = useState('loading'); // Start in loading state
   const [userRole, setUserRole] = useState(null); // 'client' or 'pilot'
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState('home'); // 'home', 'explore', 'bookings', 'settings' etc.
@@ -44,6 +46,7 @@ export const AppProvider = ({ children }) => {
   const [autoOpenProfileModal, setAutoOpenProfileModal] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('English');
   const [selectedPilot, setSelectedPilot] = useState(null);
+  const [history, setHistory] = useState([]);
 
   // Shared Data States
   const [bookings, setBookings] = useState([]);
@@ -60,13 +63,14 @@ export const AppProvider = ({ children }) => {
     { day: 'Sunday', status: 'Unavailable', hours: 'Rest Day', checked: false }
   ]);
 
-  // Load from SecureStorage on mount
+  // Load from SecureStorage and sync with Supabase on mount
   useEffect(() => {
     const loadStorage = async () => {
       try {
+        let parsedUser = null;
         const savedUser = await SecureStorage.get({ key: 'bharataero_v3_registered_user' });
         if (savedUser) {
-          const parsedUser = JSON.parse(savedUser);
+          parsedUser = JSON.parse(savedUser);
           if (parsedUser.password) delete parsedUser.password;
           setRegisteredUser(parsedUser);
         }
@@ -80,21 +84,46 @@ export const AppProvider = ({ children }) => {
         const savedNotifications = await SecureStorage.get({ key: 'bharataero_v3_notifications' });
         if (savedNotifications) setNotifications(JSON.parse(savedNotifications));
 
-        const savedToken = await SecureStorage.get({ key: 'bharataero_v3_auth_token' });
-        const savedLoggedIn = await SecureStorage.get({ key: 'bharataero_v3_is_logged_in' });
         const savedRole = await SecureStorage.get({ key: 'bharataero_v3_user_role' });
+        if (savedRole) setUserRole(savedRole);
 
-        if (savedToken && savedLoggedIn === 'true' && savedRole) {
-          setIsLoggedIn(true);
-          setUserRole(savedRole);
-          setCurrentScreen(savedRole === 'pilot' ? 'pilot_dashboard' : 'client_dashboard');
+        const savedLoggedIn = await SecureStorage.get({ key: 'bharataero_v3_is_logged_in' });
+
+        // Prioritize Supabase: Verify user still exists in the database
+        if (savedLoggedIn === 'true' && savedRole && parsedUser?.email) {
+          try {
+            const { getUserByEmail } = await import('../supabaseQueries');
+            const dbUser = await getUserByEmail(parsedUser.email);
+            if (dbUser) {
+              setIsLoggedIn(true);
+              setRegisteredUser(dbUser); // Refresh state with latest DB data!
+              setCurrentScreen(savedRole === 'pilot' ? 'pilot_dashboard' : 'client_dashboard');
+            } else {
+              // User truly doesn't exist in the database anymore (deleted)
+              setIsLoggedIn(false);
+              setCurrentScreen('role_selection');
+            }
+          } catch (err) {
+            console.warn("Supabase auth check failed (network/server error):", err);
+            // Fallback to cached session if network fails! Don't log them out offline.
+            setIsLoggedIn(true);
+            setRegisteredUser(parsedUser);
+            setCurrentScreen(savedRole === 'pilot' ? 'pilot_dashboard' : 'client_dashboard');
+          }
+        } else {
+          // Not logged in or missing credentials
+          setIsLoggedIn(false);
+          // Always show onboarding screen on fresh open if not logged in
+          setCurrentScreen('onboarding');
         }
       } catch (e) {
         console.warn("Failed to load from SecureStorage:", e);
+        setCurrentScreen('onboarding');
       } finally {
         setIsStorageLoaded(true);
       }
     };
+    
     loadStorage();
   }, []);
 
@@ -142,41 +171,90 @@ export const AppProvider = ({ children }) => {
   }, [userRole, isStorageLoaded]);
 
 
-  // Pilots Data (Static references with rating and prices)
-  const pilotsList = [];
+  // Pilots Data
+  const [pilotsList, setPilotsList] = useState([]);
+
+  // Fetch pilots when the app loads or user logs in
+  useEffect(() => {
+    const fetchPilots = async () => {
+      try {
+        const pilots = await getAllPilots();
+        // Map Supabase User data to match the UI format expected by BrowsePilots
+        const formattedPilots = pilots.map(p => ({
+          id: p.id,
+          name: p.name || 'Unknown Pilot',
+          email: p.email,
+          phone: p.phone || 'N/A',
+          specialty: p.bio ? 'Specialized Pilot' : 'Certified Drone Operator',
+          location: 'Available Nationwide',
+          price: 150, // Default price since it's not in the DB yet
+          rating: 4.8, // Default rating
+          completedMissions: 0,
+          image: p.profile_pic_url || 'https://lh3.googleusercontent.com/aida-public/AB6AXuCV47DaBxqfxLcnTdUs7O5G3JIsjwPauCvXb65mPkf4w3sSOMK7Mfswubt2peFwRUMXRVl07aCOLepPbM9ushB06_TJ5uPbDBsFUwlNT1lYkE9jGHGAHwk2jH4uAMz6E7G5dj6tFhl6hXdDBxLcTGO-pSjbL6CvN4q5FhRXUkyVWXWpnFXbUlH2P4GLVzV9kTDTFeWcNJsMNL6qquQ2AG7Oycppt7oubV1ijhJwK45HmpNE8LwCj2Tu38x-q0t8w2LixMRMl9mfH-I',
+          bannerImage: 'https://images.unsplash.com/photo-1579829366248-204fe8413f31?auto=format&fit=crop&q=80',
+          bio: p.bio || 'Professional drone operator.',
+          equipment: ['DJI Mavic 3 Enterprise', 'DJI Inspire 3'],
+          badges: ['Night Ops', 'Thermals']
+        }));
+        setPilotsList(formattedPilots);
+      } catch (err) {
+        console.error("Failed to fetch pilots from Supabase:", err);
+      }
+    };
+    
+    // Only fetch if they are a client to save bandwidth, or just fetch always
+    if (isLoggedIn) {
+      fetchPilots();
+    }
+  }, [isLoggedIn]);
 
   // Helper function to add a booking
-  const addBooking = (newBkg) => {
-    setBookings(prev => {
-      let nextIdNumber = 2000;
-      if (prev && prev.length > 0) {
-        const existingIds = prev
-          .map(b => {
-            if (!b.id) return 0;
-            const numMatch = b.id.match(/\d+/);
-            return numMatch ? parseInt(numMatch[0], 10) : 0;
-          });
-        if (existingIds.length > 0) {
-          nextIdNumber = Math.max(...existingIds, 1999) + 1;
-        }
-      }
-      const bookingId = `BKG-${nextIdNumber}`;
+  const addBooking = async (newBkg) => {
+    try {
+      // Import this dynamically or ensure it's imported at top
+      const { createBooking } = await import('../supabaseQueries');
       
-      const freshBkg = {
-        id: bookingId,
+      const payload = {
+        client_id: registeredUser?.uid || registeredUser?.id || 'anonymous-client',
+        pilot_id: null,
+        type: newBkg.type || 'Custom Flight Mission',
+        location: newBkg.location,
+        date: newBkg.date,
+        time_slot: newBkg.timeSlot,
         status: 'Pending',
-        signalStrength: 'Excellent',
-        ...newBkg
+        price: newBkg.price,
+        title: newBkg.title,
+        duration: newBkg.duration,
+        drone_model: newBkg.droneModel,
+        hazards: newBkg.hazards,
+        description: newBkg.description,
+        certifications: newBkg.certifications
       };
-      return [freshBkg, ...prev];
-    });
+      
+      const savedBooking = await createBooking(payload);
+      
+      // Update local state for immediate UI feedback
+      setBookings(prev => {
+        // Map back to frontend camelCase expected by some legacy components
+        const freshBkg = {
+          id: savedBooking.id,
+          status: savedBooking.status,
+          signalStrength: 'Excellent',
+          ...newBkg
+        };
+        return [freshBkg, ...prev];
+      });
 
-    // Send automated notification
-    addNotification({
-      title: 'Booking Requested',
-      desc: `A new ${newBkg.type} has been requested with ${newBkg.pilotName}.`,
-      time: 'Just now'
-    });
+      // Send automated notification
+      addNotification({
+        title: 'Booking Requested',
+        desc: `A new ${newBkg.type} has been requested and is awaiting a pilot.`,
+        time: 'Just now'
+      });
+    } catch (error) {
+      console.error("Failed to create booking in Supabase:", error);
+      alert("Failed to submit mission: " + error.message);
+    }
   };
 
   // Helper function to accept a booking
@@ -371,21 +449,122 @@ export const AppProvider = ({ children }) => {
   const transitionTimerRef = useRef(null);
 
   // Navigate utility
-  const navigate = (screen, tab = 'home') => {
+  const navigate = (screen, tab = 'home', isBack = false) => {
     if (currentScreen !== screen) {
       transitionTimerRef.current = perfMonitor.startRouteTransition(currentScreen, screen);
+      if (!isBack) {
+        setHistory(prev => [...prev, currentScreen]);
+      }
     }
     setCurrentScreen(screen);
     setActiveTab(tab);
   };
 
+  // Hardware Back Button Logic (Android)
+  const historyRef = useRef(history);
+  const currentScreenRef = useRef(currentScreen);
+  
+  useEffect(() => {
+    historyRef.current = history;
+    currentScreenRef.current = currentScreen;
+  }, [history, currentScreen]);
+
+  useEffect(() => {
+    let listener = null;
+    const setupBackButton = async () => {
+      try {
+        const { App: CapacitorApp } = await import('@capacitor/app');
+        
+        // Remove any existing back listeners to ensure we override the default behavior
+        await CapacitorApp.removeAllListeners();
+
+        listener = await CapacitorApp.addListener('backButton', async () => {
+          const currentHistory = historyRef.current;
+          const currentScr = currentScreenRef.current;
+
+          // If we have history, go back to previous screen
+          if (currentHistory.length > 0) {
+            const newHistory = [...currentHistory];
+            const prevScreen = newHistory.pop();
+            setHistory(newHistory);
+            
+            if (currentScr !== prevScreen) {
+              transitionTimerRef.current = perfMonitor.startRouteTransition(currentScr, prevScreen);
+            }
+            setCurrentScreen(prevScreen);
+          } else {
+            // At root, ask to exit using native capacitor dialog
+            const { value } = await Dialog.confirm({
+              title: 'Exit App',
+              message: 'Are you sure you want to close the app?',
+              okButtonTitle: 'Exit',
+              cancelButtonTitle: 'Stay'
+            });
+
+            if (value) {
+              CapacitorApp.exitApp();
+            }
+          }
+        });
+      } catch (e) {
+        console.warn('Capacitor App plugin not available', e);
+      }
+    };
+    setupBackButton();
+
+    return () => {
+      if (listener) listener.remove();
+    };
+  }, []);
+
+  // Session Timeout Logic (30 minutes)
+  useEffect(() => {
+    let timeoutId;
+    const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
+
+    const resetTimer = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      if (isLoggedIn) {
+        timeoutId = setTimeout(() => {
+          console.log('Session expired due to inactivity');
+          logout();
+          alert('Your session has expired due to 30 minutes of inactivity. Please log in again.');
+        }, SESSION_TIMEOUT_MS);
+      }
+    };
+
+    const handleUserActivity = () => {
+      resetTimer();
+    };
+
+    if (isLoggedIn) {
+      resetTimer();
+      window.addEventListener('mousemove', handleUserActivity);
+      window.addEventListener('keydown', handleUserActivity);
+      window.addEventListener('touchstart', handleUserActivity);
+      window.addEventListener('scroll', handleUserActivity);
+    }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      window.removeEventListener('mousemove', handleUserActivity);
+      window.removeEventListener('keydown', handleUserActivity);
+      window.removeEventListener('touchstart', handleUserActivity);
+      window.removeEventListener('scroll', handleUserActivity);
+    };
+  }, [isLoggedIn]);
+
   const logout = async () => {
     setIsLoggedIn(false);
     setUserRole(null);
     try {
-      await SecureStorage.remove({ key: 'bharataero_auth_token' });
-      await SecureStorage.remove({ key: 'bharataero_is_logged_in' });
-      await SecureStorage.remove({ key: 'bharataero_user_role' });
+      await SecureStorage.remove({ key: 'bharataero_v3_auth_token' });
+      await SecureStorage.remove({ key: 'bharataero_v3_is_logged_in' });
+      await SecureStorage.remove({ key: 'bharataero_v3_user_role' });
+      
+      // Clear Supabase Auth session
+      const { supabase } = await import('../supabase');
+      await supabase.auth.signOut();
     } catch (e) {
       console.warn("Failed to clean SecureStorage on logout:", e);
     }

@@ -1,45 +1,36 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { 
-  Bell, Plus, Calendar, Search, User, 
-  ArrowRight, MessageSquare, Clock, Star, Phone
-} from 'lucide-react';
+import { Bell, Plus, Calendar, Search, User, ArrowRight, MessageSquare, Clock, Star, Phone } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
-import { SecureStorage } from '../utils/SecureStorage';
+import { useClientDashboard } from '../useBharatAero';
+
+import { cancelBooking } from '../supabaseQueries';
 
 export default function ClientDashboard() {
-  const { navigate, registeredUser, setAutoOpenProfileModal, bookings, setBookings } = useApp();
+  const { navigate, setAutoOpenProfileModal, registeredUser } = useApp();
+  
+  // Use the new Supabase hook to fetch live data
+  const { user, bookings, unreadCount, loading, error } = useClientDashboard(registeredUser?.uid || registeredUser?.id);
 
-  const handleDeleteBooking = (id) => {
+  const handleDeleteBooking = async (id) => {
     if (window.confirm("Are you sure you want to cancel this mission request?")) {
-      setBookings(prev => prev.filter(b => b.id !== id));
-    }
-  };
-
-  const handleDevReset = async () => {
-    if (window.confirm("DEV ALERT: Wipe all local storage data and reset app?")) {
       try {
-        await SecureStorage.remove({ key: 'bharataero_v2_registered_user' });
-        await SecureStorage.remove({ key: 'bharataero_v2_selected_language' });
-        await SecureStorage.remove({ key: 'bharataero_v2_bookings' });
-        await SecureStorage.remove({ key: 'bharataero_v2_notifications' });
-        await SecureStorage.remove({ key: 'bharataero_v2_auth_token' });
-        await SecureStorage.remove({ key: 'bharataero_v2_is_logged_in' });
-        await SecureStorage.remove({ key: 'bharataero_v2_user_role' });
-        window.location.reload();
-      } catch (e) {
-        console.warn("Failed to reset:", e);
+        await cancelBooking(id);
+        // Assuming the hook's real-time subscription or a refetch handles the UI update
+      } catch (err) {
+        alert("Failed to cancel booking: " + err.message);
       }
     }
   };
-  
+
+
   const allActiveBookings = bookings?.filter(b => b.status === 'Confirmed' || b.status === 'Pending') || [];
   const activeBookings = allActiveBookings.slice(0, 3);
   
   const completedBookings = bookings?.filter(b => b.status === 'Completed') || [];
   const totalSpent = completedBookings.reduce((sum, b) => sum + (Number(b.price) || 0), 0);
   const formattedSpent = totalSpent >= 1000 ? `₹${(totalSpent/1000).toFixed(1)}k` : `₹${totalSpent}`;
-  const uniquePilots = new Set(completedBookings.filter(b => b.pilotName && b.pilotName !== 'Unassigned').map(b => b.pilotName)).size;
+  const uniquePilots = new Set(completedBookings.filter(b => b.pilot_id).map(b => b.pilot_id)).size;
   
   const reviews = completedBookings.filter(b => b.rating);
   const avgRating = reviews.length > 0 
@@ -54,6 +45,15 @@ export default function ClientDashboard() {
     { name: 'Profile', icon: <User size={20} />, action: () => { setAutoOpenProfileModal(true); navigate('settings', 'settings'); } },
   ];
 
+  if (loading) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center bg-white h-full">
+        <div className="w-10 h-10 border-4 border-[#ca0013] border-t-transparent rounded-full animate-spin"></div>
+        <p className="mt-4 text-sm font-bold text-[#747874] uppercase tracking-wider">Syncing Dashboard...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex-1 flex flex-col bg-white text-[#000201] h-full pb-[80px] overflow-hidden select-none font-body">
       
@@ -62,21 +62,31 @@ export default function ClientDashboard() {
         <div>
           <p className="text-xs text-[#747874] font-bold uppercase tracking-wider mb-1">Welcome back,</p>
           <h1 className="text-3xl font-black font-headline tracking-tight text-[#000201] truncate max-w-[200px]">
-            {registeredUser?.name || 'Commander'}
+            {user?.name || 'Commander'}
           </h1>
         </div>
-        <div 
-          className="w-14 h-14 overflow-hidden cursor-pointer"
-          onClick={() => {
-            setAutoOpenProfileModal(true);
-            navigate('settings', 'settings');
-          }}
-        >
-          <img 
-            alt="Profile" 
-            className="w-full h-full object-cover rounded-full" 
-            src={registeredUser?.profilePic || "https://lh3.googleusercontent.com/aida-public/AB6AXuDGrwU0dTkzQisGLCQ3Z3mps07VaFQJKjagxF4FcDioG-eju5wXCHSsa_pGmDiFpofHEfWoN-nQk-ICp7MsX9ZoQ3_o2RFgBa9Cho1JEefTaxQcMOCyn9Vk2fY0jj5-iUlld6EMuBuT8R2Uc-7cTMaMd5kjV8YbWblNVAmBrx-APuvW1_rOm9AbAB4a-n1nAcDTmXh7nTuroxKoZpqFJoaCI72CuCKhMPo1a0wBO4I1r0apSp4EPzn-40NI1kgkEESaJOT4fufcyJk"}
-          />
+        <div className="flex items-center gap-4">
+          <div className="relative cursor-pointer" onClick={() => navigate('notifications')}>
+            <Bell size={24} className="text-[#000201]" />
+            {unreadCount > 0 && (
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#ca0013] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                {unreadCount}
+              </div>
+            )}
+          </div>
+          <div 
+            className="w-14 h-14 overflow-hidden cursor-pointer"
+            onClick={() => {
+              setAutoOpenProfileModal(true);
+              navigate('settings', 'settings');
+            }}
+          >
+            <img 
+              alt="Profile" 
+              className="w-full h-full object-cover rounded-full" 
+              src={user?.profile_pic_url || "https://lh3.googleusercontent.com/aida-public/AB6AXuDGrwU0dTkzQisGLCQ3Z3mps07VaFQJKjagxF4FcDioG-eju5wXCHSsa_pGmDiFpofHEfWoN-nQk-ICp7MsX9ZoQ3_o2RFgBa9Cho1JEefTaxQcMOCyn9Vk2fY0jj5-iUlld6EMuBuT8R2Uc-7cTMaMd5kjV8YbWblNVAmBrx-APuvW1_rOm9AbAB4a-n1nAcDTmXh7nTuroxKoZpqFJoaCI72CuCKhMPo1a0wBO4I1r0apSp4EPzn-40NI1kgkEESaJOT4fufcyJk"}
+            />
+          </div>
         </div>
       </header>
  
@@ -153,7 +163,7 @@ export default function ClientDashboard() {
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <p className="text-xs text-[#ca0013] font-bold uppercase tracking-wider mb-1">
-                        {bkg.date} • {bkg.timeSlot.split(' ')[0]}
+                        {bkg.date} • {bkg.time_slot ? bkg.time_slot.split(' ')[0] : ''}
                       </p>
                       <h4 className="font-black font-headline text-[#000201] text-lg truncate max-w-[200px]">
                         {bkg.type || 'Mission'}
@@ -162,7 +172,7 @@ export default function ClientDashboard() {
                   </div>
                   
                   <p className="text-sm text-[#747874] font-medium mb-5 truncate max-w-[250px]">
-                    {bkg.location} • with {bkg.pilotName !== 'Unassigned' ? bkg.pilotName : 'Pending Pilot'}
+                    {bkg.location} • with {bkg.pilot_id ? 'Assigned Pilot' : 'Pending Pilot'}
                   </p>
 
                   <div className="flex gap-3">
@@ -196,16 +206,6 @@ export default function ClientDashboard() {
           </div>
         </section>
 
-        {/* Dev Options */}
-        <section className="mt-8 mb-4">
-          <button 
-            type="button"
-            onClick={handleDevReset}
-            className="w-full bg-neutral-900 border border-neutral-900 text-white font-headline font-bold text-xs py-4 rounded-none hover:bg-neutral-800 uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm"
-          >
-            <span>Dev: Hard Reset Database</span>
-          </button>
-        </section>
 
       </main>
 

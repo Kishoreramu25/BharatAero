@@ -18,6 +18,8 @@ const AvailabilityManagement = lazy(() => import('../screens/AvailabilityManagem
 const SettingsScreen = lazy(() => import('../screens/SettingsScreen'));
 const NotificationsScreen = lazy(() => import('../screens/NotificationsScreen'));
 const AboutScreen = lazy(() => import('../screens/AboutScreen'));
+const PrivacyPolicy = lazy(() => import('../screens/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('../screens/TermsOfService'));
 
 // Loading spinner fallback component
 const ScreenLoader = () => (
@@ -45,6 +47,7 @@ export default function SimulatorFrame() {
 
   const renderScreen = () => {
     switch (currentScreen) {
+      case 'loading': return <ScreenLoader />;
       case 'onboarding': return <OnboardingCarousel />;
       case 'role_selection': return <RoleSelection />;
       case 'login': return <LoginScreen />;
@@ -60,6 +63,8 @@ export default function SimulatorFrame() {
       case 'settings': return <SettingsScreen />;
       case 'notifications': return <NotificationsScreen />;
       case 'about': return <AboutScreen />;
+      case 'privacy': return <PrivacyPolicy />;
+      case 'terms': return <TermsOfService />;
       default: return <OnboardingCarousel />;
     }
   };

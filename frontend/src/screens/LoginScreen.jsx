@@ -1,29 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { ArrowLeft, Lock, CheckCircle, AlertTriangle, Mail, Eye, EyeOff, User } from 'lucide-react';
-import { auth } from '../firebase';
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  GoogleAuthProvider, 
-  signInWithPopup,
-  sendEmailVerification,
-  sendPasswordResetEmail,
-  updateProfile
-} from 'firebase/auth';
 import { supabase } from '../supabase';
+import { Capacitor } from '@capacitor/core';
+import { GoogleSignIn } from '@capawesome/capacitor-google-sign-in';
+import { 
+  upsertUser, 
+  getUserByEmail, 
+  getSafeErrorMessage, 
+  sendEmailOtp,
+  verifyEmailOtp,
+  sendPhoneChangeOtp,
+  verifyPhoneChangeOtp
+} from '../supabaseQueries';
 
 export default function LoginScreen() {
-  const { setCurrentScreen, userRole, setIsLoggedIn, registeredUser, setRegisteredUser, t } = useApp();
+  const { setCurrentScreen, userRole, setIsLoggedIn, setRegisteredUser, t } = useApp();
   
-  const [authMode, setAuthMode] = useState('signin'); // 'signin' or 'signup'
+  const [authMode, setAuthMode] = useState('signin'); // 'signin' or 'signup' or 'forgot_password'
   
   // Form fields
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [iAgree, setIAgree] = useState(true);
+  const [phone, setPhone] = useState('');
+  const [countryCode, setCountryCode] = useState('+91');
+  const [iAgreeTerms, setIAgreeTerms] = useState(false);
+  const [iAgreePrivacy, setIAgreePrivacy] = useState(false);
+
+  // Inline Verification States
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  
+  const [showEmailOtpInput, setShowEmailOtpInput] = useState(false);
+  const [showPhoneOtpInput, setShowPhoneOtpInput] = useState(false);
+  
+  const [emailOtpCode, setEmailOtpCode] = useState('');
+  const [phoneOtpCode, setPhoneOtpCode] = useState('');
+
+  // Password Reset States
+  const [resetStep, setResetStep] = useState(1); // 1: Email, 2: OTP, 3: New Password
+  const [resetOtpCode, setResetOtpCode] = useState('');
+  const [resetResendTimer, setResetResendTimer] = useState(0);
+
+  // Timers
+  const [emailResendTimer, setEmailResendTimer] = useState(0);
+  const [phoneResendTimer, setPhoneResendTimer] = useState(0);
 
   // Status feedback
   const [errorMsg, setErrorMsg] = useState('');
@@ -34,12 +57,28 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Unverified Email State
-  const [showResendVerification, setShowResendVerification] = useState(false);
-  const [resendTimer, setResendTimer] = useState(0);
+  useEffect(() => {
+    if (emailResendTimer > 0) {
+      const timer = setTimeout(() => setEmailResendTimer(emailResendTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [emailResendTimer]);
+
+  useEffect(() => {
+    if (phoneResendTimer > 0) {
+      const timer = setTimeout(() => setPhoneResendTimer(phoneResendTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [phoneResendTimer]);
+
+  useEffect(() => {
+    if (resetResendTimer > 0) {
+      const timer = setTimeout(() => setResetResendTimer(resetResendTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resetResendTimer]);
 
   const validateEmail = (emailStr) => {
-    // ONLY accept exactly @gmail.com
     const lowerEmail = emailStr.trim().toLowerCase();
     const re = /^[a-z0-9._%+-]+@gmail\.com$/;
     return re.test(lowerEmail);
@@ -59,153 +98,335 @@ export default function LoginScreen() {
   const strengthLabels = ['Weak', 'Weak', 'Fair', 'Good', 'Strong', 'Excellent'];
   const strengthColors = ['bg-red-400', 'bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-green-400', 'bg-green-500'];
 
-  useEffect(() => {
-    if (resendTimer <= 0) return;
-    const timerId = setTimeout(() => {
-      setResendTimer(resendTimer - 1);
-    }, 1000);
-    return () => clearTimeout(timerId);
-  }, [resendTimer]);
-
   const handleGoogleClick = async () => {
     setErrorMsg('');
     setSuccessMsg('');
     try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
+      let uid, userName, userEmail;
       
-      // Upsert into Supabase (if they don't exist yet)
-      await supabase.from('users').upsert([{
-        id: user.uid,
-        email: user.email,
-        name: user.displayName || 'Google User',
-        role: userRole || 'client'
-      }], { onConflict: 'id' });
+      if (Capacitor.isNativePlatform()) {
+        await GoogleSignIn.initialize({
+          clientId: '585485498597-229j0qeck6c4m7bdv43cr5pdq117cr7e.apps.googleusercontent.com'
+        });
+        const result = await GoogleSignIn.signIn();
+        
+        userName = result.displayName || result.givenName || 'Google User';
+        userEmail = result.email;
+        
+        if (result.idToken) {
+          const { data, error } = await supabase.auth.signInWithIdToken({
+            provider: 'google',
+            token: result.idToken
+          });
+          if (error) throw error;
+          uid = data.user.id;
+        } else {
+          throw new Error('No ID token received from Google.');
+        }
+
+      } else {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+        });
+        if (error) throw error;
+        return;
+      }
       
-      // Google accounts are inherently verified
-      handleSuccessfulLogin({
-        name: user.displayName || 'Google User',
-        email: user.email,
-        uid: user.uid
-      });
+      try {
+        const existingUser = await getUserByEmail(userEmail);
+        if (!existingUser) {
+          await upsertUser(uid, userEmail, userName, userRole || 'client');
+        }
+      } catch (dbError) {
+        console.error("Supabase upsert/fetch error:", dbError);
+      }
+      
+      await handleSuccessfulLogin({ name: userName, email: userEmail, uid });
     } catch (err) {
       console.error('Google Sign-In failed:', err);
-      setErrorMsg(err.message || 'Google Sign-In failed. Please try again.');
+      setErrorMsg(getSafeErrorMessage(err));
     }
   };
 
-  const handleSuccessfulLogin = (userData) => {
-    setIsLoggedIn(true);
-    setRegisteredUser(userData);
-    
-    if (userRole === 'pilot') {
-      setCurrentScreen('pilot_dashboard');
-    } else {
-      setCurrentScreen('client_dashboard');
-    }
-  };
-
-  const handleResendVerification = async () => {
+  const handleSuccessfulLogin = async (userData) => {
     try {
-      if (!auth.currentUser) return;
-      await sendEmailVerification(auth.currentUser);
-      setSuccessMsg('Verification email resent! Please check your inbox (and spam folder).');
-      setResendTimer(60);
+      const dbUser = await getUserByEmail(userData.email);
+      const fullUser = dbUser || { ...userData, id: userData.uid || userData.id };
+      
+      setRegisteredUser(fullUser);
+      setIsLoggedIn(true);
+      
+      if (userRole === 'pilot' || (fullUser && fullUser.role === 'pilot')) {
+        setCurrentScreen('pilot_dashboard');
+      } else {
+        setCurrentScreen('client_dashboard');
+      }
     } catch (err) {
-      setErrorMsg(err.message || 'Failed to resend verification email.');
+      console.error("Failed to fetch full profile on login", err);
+      setRegisteredUser({ ...userData, id: userData.uid || userData.id });
+      setIsLoggedIn(true);
+      setCurrentScreen(userRole === 'pilot' ? 'pilot_dashboard' : 'client_dashboard');
     }
   };
+
+  // ------------------------------------------------------------------
+  // INLINE VERIFICATION LOGIC
+  // ------------------------------------------------------------------
+
+  const handleSendEmailOtp = async () => {
+    setErrorMsg('');
+    setSuccessMsg('');
+    if (!validateEmail(email)) {
+      return setErrorMsg('Please enter a valid @gmail.com address before verifying.');
+    }
+    setLoading(true);
+    try {
+      await sendEmailOtp(email.trim());
+      setSuccessMsg(`Email OTP sent to ${email.trim()}.`);
+      setShowEmailOtpInput(true);
+      setEmailResendTimer(60);
+    } catch (err) {
+      setErrorMsg(getSafeErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyEmailOtp = async () => {
+    setErrorMsg('');
+    setSuccessMsg('');
+    if (!emailOtpCode.trim()) return setErrorMsg('Enter the email OTP.');
+    
+    setLoading(true);
+    try {
+      const { data } = await verifyEmailOtp(email.trim(), emailOtpCode.trim(), 'email');
+      if (data?.user) {
+        setEmailVerified(true);
+        setShowEmailOtpInput(false);
+        setSuccessMsg('Email verified successfully!');
+      }
+    } catch (err) {
+      setErrorMsg(getSafeErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSendPhoneOtp = async () => {
+    setErrorMsg('');
+    setSuccessMsg('');
+    if (!emailVerified) {
+      return setErrorMsg('Please verify your email first before verifying your phone.');
+    }
+    if (!phone.trim()) {
+      return setErrorMsg('Please enter your phone number.');
+    }
+    setLoading(true);
+    try {
+      const fullPhone = `${countryCode}${phone.trim()}`;
+      await sendPhoneChangeOtp(fullPhone);
+      setSuccessMsg(`Phone OTP sent to ${fullPhone}.`);
+      setShowPhoneOtpInput(true);
+      setPhoneResendTimer(60);
+    } catch (err) {
+      setErrorMsg(getSafeErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyPhoneOtp = async () => {
+    setErrorMsg('');
+    setSuccessMsg('');
+    if (!phoneOtpCode.trim()) return setErrorMsg('Enter the phone OTP.');
+    
+    setLoading(true);
+    try {
+      const fullPhone = `${countryCode}${phone.trim()}`;
+      const { data } = await verifyPhoneChangeOtp(fullPhone, phoneOtpCode.trim());
+      if (data?.user) {
+        setPhoneVerified(true);
+        setShowPhoneOtpInput(false);
+        setSuccessMsg('Phone verified successfully!');
+      }
+    } catch (err) {
+      setErrorMsg(getSafeErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ------------------------------------------------------------------
+  // PASSWORD RESET LOGIC
+  // ------------------------------------------------------------------
+
+  const handleSendResetOtp = async () => {
+    setErrorMsg('');
+    setSuccessMsg('');
+    if (!validateEmail(email)) return setErrorMsg('Enter a valid @gmail.com address.');
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
+      if (error) throw error;
+      setSuccessMsg(`Reset OTP sent to ${email.trim()}.`);
+      setResetStep(2);
+      setResetResendTimer(60);
+    } catch (err) {
+      setErrorMsg(getSafeErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyResetOtp = async () => {
+    setErrorMsg('');
+    setSuccessMsg('');
+    if (!resetOtpCode.trim()) return setErrorMsg('Enter the reset OTP.');
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email: email.trim(),
+        token: resetOtpCode.trim(),
+        type: 'recovery'
+      });
+      if (error) throw error;
+      setSuccessMsg('OTP verified! Enter your new password.');
+      setResetStep(3);
+    } catch (err) {
+      setErrorMsg(getSafeErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdatePassword = async () => {
+    setErrorMsg('');
+    setSuccessMsg('');
+    if (!password) return setErrorMsg('Please enter a new password.');
+    if (password !== confirmPassword) return setErrorMsg('Passwords do not match.');
+    if (getPasswordStrength(password) < 4) return setErrorMsg('Your password is not strong enough.');
+    
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: password
+      });
+      if (error) throw error;
+      
+      setSuccessMsg('Password updated successfully! You can now log in.');
+      setTimeout(() => switchMode('signin'), 2000);
+    } catch (err) {
+      setErrorMsg(getSafeErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ------------------------------------------------------------------
+  // MAIN SUBMIT LOGIC
+  // ------------------------------------------------------------------
 
   const handleAuthSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
-    setShowResendVerification(false);
-
-    if (!validateEmail(email.trim())) {
-      return setErrorMsg('Only @gmail.com email addresses are accepted.');
-    }
 
     if (authMode === 'forgot_password') {
-      setLoading(true);
-      try {
-        await sendPasswordResetEmail(auth, email.trim());
-        setSuccessMsg(`A password reset link has been sent to ${email.trim()}.`);
-      } catch (err) {
-        setErrorMsg(err.message || 'Failed to send reset email. Ensure the email is correct.');
-      } finally {
-        setLoading(false);
-      }
+      if (resetStep === 1) await handleSendResetOtp();
+      else if (resetStep === 2) await handleVerifyResetOtp();
+      else if (resetStep === 3) await handleUpdatePassword();
       return;
     }
 
     if (authMode === 'signup') {
       if (!name.trim()) return setErrorMsg('Please enter your full name.');
+      if (!emailVerified) return setErrorMsg('Please verify your email address.');
+      if (!phoneVerified) return setErrorMsg('Please verify your phone number.');
       if (password !== confirmPassword) return setErrorMsg('Passwords do not match.');
-      if (getPasswordStrength(password) < 4) return setErrorMsg('Your password is not strong enough. Please add numbers and special characters.');
-      if (!iAgree) return setErrorMsg('You must agree to the Terms.');
+      if (getPasswordStrength(password) < 4) return setErrorMsg('Your password is not strong enough.');
+      if (!iAgreeTerms || !iAgreePrivacy) return setErrorMsg('You must agree to the Terms and Privacy Policy.');
       
       setLoading(true);
       try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
-        
-        // Update user profile with their name so it appears in the email template
-        await updateProfile(userCredential.user, {
-          displayName: name.trim()
+        // User is technically already created and logged in via the Email OTP step.
+        // We just need to set their password now.
+        const { data, error } = await supabase.auth.updateUser({
+          password: password,
+          data: {
+            name: name.trim(),
+            role: userRole || 'client'
+          }
         });
+        
+        if (error) throw error;
 
-        // Add user to Supabase Database
-        const { error: dbError } = await supabase.from('users').insert([{
-          id: userCredential.user.uid,
-          email: userCredential.user.email,
-          name: name.trim(),
-          role: userRole || 'client'
-        }]);
-        
-        if (dbError) {
-          console.error("Supabase insert error:", dbError);
+        // Upsert into our custom public.users table
+        if (data?.user) {
+          await upsertUser(
+            data.user.id,
+            data.user.email,
+            name.trim(),
+            userRole || 'client',
+            `${countryCode}${phone.trim()}`
+          );
+          
+          await handleSuccessfulLogin({
+            name: name.trim(),
+            email: data.user.email,
+            uid: data.user.id
+          });
         }
-        
-        // Send the verification email immediately
-        await sendEmailVerification(userCredential.user);
-        
-        // Do NOT log them in. Tell them to check email.
-        setSuccessMsg(`Registration successful. A verification link has been sent to ${email.trim()}. Please check your Inbox and Spam folder to verify your identity before signing in.`);
-        setAuthMode('signin');
-        setPassword('');
-        setConfirmPassword('');
       } catch (err) {
-        setErrorMsg(err.message || 'Failed to create account.');
+        setErrorMsg(getSafeErrorMessage(err));
       } finally {
         setLoading(false);
       }
       
     } else {
-      // For Sign In
+      // SIGN IN
+      if (!validateEmail(email)) return setErrorMsg('Enter a valid @gmail.com address.');
+      if (!password) return setErrorMsg('Please enter your password.');
+      
       setLoading(true);
       try {
-        const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password);
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password: password
+        });
         
-        // Check if their email is verified!
-        if (!userCredential.user.emailVerified) {
-          setErrorMsg('Your email address is not verified yet. Please check your inbox for the verification link.');
-          setShowResendVerification(true);
-          return; // Stop the login process
+        if (error) {
+          throw error;
         }
 
-        // They are verified, let them in!
-        handleSuccessfulLogin({
-          name: userCredential.user.displayName || 'User',
-          email: userCredential.user.email,
-          uid: userCredential.user.uid
+        await handleSuccessfulLogin({
+          name: data.user.user_metadata?.name || 'User',
+          email: data.user.email,
+          uid: data.user.id
         });
       } catch (err) {
-        setErrorMsg(err.message || 'Authentication failed. Please check your credentials.');
+        setErrorMsg(getSafeErrorMessage(err));
       } finally {
         setLoading(false);
       }
     }
+  };
+
+  const switchMode = (mode) => {
+    setAuthMode(mode);
+    setErrorMsg('');
+    setSuccessMsg('');
+    setEmailVerified(false);
+    setPhoneVerified(false);
+    setShowEmailOtpInput(false);
+    setShowPhoneOtpInput(false);
+    setEmailOtpCode('');
+    setPhoneOtpCode('');
+    setEmailResendTimer(0);
+    setPhoneResendTimer(0);
+    
+    setResetStep(1);
+    setResetOtpCode('');
+    setResetResendTimer(0);
   };
 
   return (
@@ -218,9 +439,14 @@ export default function LoginScreen() {
           alt="Bharat Aero Logo Banner" 
           className="h-[135px] w-auto object-contain pointer-events-none -mt-5"
         />
-
         <button 
-          onClick={() => setCurrentScreen('role_selection')}
+          onClick={() => {
+            if (authMode === 'forgot_password') {
+              switchMode('signin');
+            } else {
+              setCurrentScreen('role_selection');
+            }
+          }}
           className="absolute top-5 left-5 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 hover:bg-white border border-neutral-200 text-[#1b1c1b] cursor-pointer transition-all duration-200 hover:-translate-x-0.5 z-10 shadow-sm"
         >
           <ArrowLeft size={18} />
@@ -230,26 +456,39 @@ export default function LoginScreen() {
       <main className="flex-grow px-5 -mt-10 mb-6 z-10 relative">
         <div className="bg-white border border-neutral-100 rounded-3xl shadow-xl shadow-neutral-950/[0.03] p-6 space-y-6 flex flex-col">
 
-          {!loading && (
-            <div className="bg-neutral-50 p-1 rounded-full flex border border-neutral-200/50">
+          {/* TOGGLES (Hidden during forgot_password) */}
+          {!loading && authMode !== 'forgot_password' && (
+            <div className="bg-neutral-50 p-1 rounded-full flex border border-neutral-200/50 mb-3">
               <button 
                 type="button"
-                onClick={() => { setAuthMode('signin'); setErrorMsg(''); setSuccessMsg(''); setShowResendVerification(false); }}
+                onClick={() => switchMode('signin')}
                 className={`flex-grow py-3 px-4 rounded-full text-[10px] font-headline font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
-                  (authMode === 'signin' || authMode === 'forgot_password') ? 'bg-[#ca0013] text-white shadow-md font-black transform scale-[1.01]' : 'text-neutral-500 bg-transparent hover:bg-neutral-100'
+                  authMode === 'signin' ? 'bg-gradient-to-r from-[#ca0013] to-[#a3000b] text-white shadow-md font-black transform scale-[1.01]' : 'text-neutral-500 bg-transparent hover:bg-neutral-100'
                 }`}
               >
                 Sign In
               </button>
               <button 
                 type="button"
-                onClick={() => { setAuthMode('signup'); setErrorMsg(''); setSuccessMsg(''); setShowResendVerification(false); }}
+                onClick={() => switchMode('signup')}
                 className={`flex-grow py-3 px-4 rounded-full text-[10px] font-headline font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
-                  authMode === 'signup' ? 'bg-[#ca0013] text-white shadow-md font-black transform scale-[1.01]' : 'text-neutral-500 bg-transparent hover:bg-neutral-100'
+                  authMode === 'signup' ? 'bg-gradient-to-r from-[#ca0013] to-[#a3000b] text-white shadow-md font-black transform scale-[1.01]' : 'text-neutral-500 bg-transparent hover:bg-neutral-100'
                 }`}
               >
                 Create Account
               </button>
+            </div>
+          )}
+
+          {/* FORGOT PASSWORD HEADER */}
+          {authMode === 'forgot_password' && (
+            <div className="text-center mb-4">
+              <h2 className="text-xl font-headline font-black text-[#ca0013] tracking-wider uppercase mb-1">Reset Password</h2>
+              <p className="text-[11px] text-[#747874]">
+                {resetStep === 1 && "Enter your email to receive a secure OTP code."}
+                {resetStep === 2 && "Enter the 6-digit code sent to your email."}
+                {resetStep === 3 && "Create a new strong password for your account."}
+              </p>
             </div>
           )}
 
@@ -276,27 +515,10 @@ export default function LoginScreen() {
                     <AlertTriangle size={14} className="shrink-0 text-[#ca0013]" />
                     <span className="font-bold">{errorMsg}</span>
                   </div>
-                  {showResendVerification && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const domain = email.split('@')[1];
-                        let mailLink = 'https://mail.google.com/';
-                        if (domain) {
-                          if (domain.includes('yahoo')) mailLink = 'https://mail.yahoo.com/';
-                          else if (domain.includes('outlook') || domain.includes('hotmail')) mailLink = 'https://outlook.live.com/';
-                        }
-                        window.open(mailLink, '_blank');
-                      }}
-                      className="text-[10px] font-bold uppercase tracking-wider py-2 px-3 rounded-lg w-full transition-colors bg-[#ca0013] text-white hover:bg-[#a3000b] active:scale-95 cursor-pointer flex items-center justify-center gap-2"
-                    >
-                      <Mail size={14} />
-                      Open Email App
-                    </button>
-                  )}
                 </div>
               )}
 
+              {/* NAME - Only in Signup */}
               {authMode === 'signup' && (
                 <div className="flex items-center gap-3 border border-neutral-200/60 bg-neutral-50/35 rounded-2xl px-4 py-3 focus-within:border-[#ca0013]">
                   <User size={16} className="text-neutral-400 shrink-0" />
@@ -304,43 +526,178 @@ export default function LoginScreen() {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Full Name"
-                    required={authMode === 'signup'}
-                    className="flex-grow bg-transparent border-0 text-xs text-[#1b1c1b] focus:outline-none"
+                    placeholder="Name"
+                    required
+                    className="flex-grow bg-transparent border-0 text-xs text-[#1b1c1b] focus:outline-none placeholder-neutral-400/70"
                   />
                 </div>
               )}
 
-              <div className="flex items-center gap-3 border border-neutral-200/60 bg-neutral-50/35 rounded-2xl px-4 py-3 focus-within:border-[#ca0013]">
-                <Mail size={16} className="text-neutral-400 shrink-0" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email Address"
-                  required
-                  className="flex-grow bg-transparent border-0 text-xs text-[#1b1c1b] focus:outline-none"
-                />
-              </div>
+              {/* EMAIL - Signup, Signin, and Forgot Password Step 1 & 2 */}
+              {(authMode !== 'forgot_password' || resetStep < 3) && (
+                <div className={`flex items-center gap-3 border rounded-2xl px-4 py-3 transition-colors ${emailVerified && authMode === 'signup' ? 'border-green-400 bg-green-50/30' : 'border-neutral-200/60 bg-neutral-50/35 focus-within:border-[#ca0013]'}`}>
+                  <Mail size={16} className={emailVerified && authMode === 'signup' ? 'text-green-500' : 'text-neutral-400'} shrink-0 />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Email"
+                    required
+                    readOnly={(emailVerified && authMode === 'signup') || (authMode === 'forgot_password' && resetStep === 2)}
+                    className={`flex-grow bg-transparent border-0 text-xs focus:outline-none placeholder-neutral-400/70 ${emailVerified && authMode === 'signup' ? 'text-green-700 font-bold' : 'text-[#1b1c1b]'}`}
+                  />
+                  
+                  {/* Inline Verification inside Signup */}
+                  {authMode === 'signup' && !emailVerified && !showEmailOtpInput && (
+                    <button type="button" onClick={handleSendEmailOtp} className="text-[10px] bg-[#ca0013] hover:bg-[#a3000b] text-white px-3 py-1.5 rounded-full font-bold transition-transform active:scale-95 cursor-pointer">
+                      Verify
+                    </button>
+                  )}
+                  {authMode === 'signup' && !emailVerified && showEmailOtpInput && (
+                    <button 
+                      type="button" 
+                      onClick={emailResendTimer > 0 ? undefined : handleSendEmailOtp} 
+                      className={`text-[10px] px-3 py-1.5 rounded-full font-bold transition-all ${emailResendTimer > 0 ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed' : 'bg-[#ca0013] hover:bg-[#a3000b] text-white active:scale-95 cursor-pointer'}`}
+                    >
+                      {emailResendTimer > 0 ? `Resend (${emailResendTimer}s)` : 'Resend'}
+                    </button>
+                  )}
+                  {authMode === 'signup' && emailVerified && (
+                    <CheckCircle size={16} className="text-green-500 shrink-0" />
+                  )}
 
-              {authMode !== 'forgot_password' && (
+                  {/* Reset Password Step 2 (Resend logic) */}
+                  {authMode === 'forgot_password' && resetStep === 2 && (
+                    <button 
+                      type="button" 
+                      onClick={resetResendTimer > 0 ? undefined : handleSendResetOtp} 
+                      className={`text-[10px] px-3 py-1.5 rounded-full font-bold transition-all ${resetResendTimer > 0 ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed' : 'bg-[#ca0013] hover:bg-[#a3000b] text-white active:scale-95 cursor-pointer'}`}
+                    >
+                      {resetResendTimer > 0 ? `Resend (${resetResendTimer}s)` : 'Resend'}
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* EMAIL OTP INPUT - Signup */}
+              {authMode === 'signup' && showEmailOtpInput && (
+                <div className="flex items-center gap-3 border border-[#ca0013]/40 bg-red-50/20 rounded-2xl px-4 py-3">
+                  <input
+                    type="text"
+                    value={emailOtpCode}
+                    onChange={(e) => setEmailOtpCode(e.target.value)}
+                    placeholder="OTP"
+                    maxLength={6}
+                    className="flex-grow bg-transparent border-0 text-xs text-[#1b1c1b] focus:outline-none tracking-widest font-mono placeholder-neutral-400/70"
+                  />
+                  <button type="button" onClick={handleVerifyEmailOtp} className="text-[10px] bg-[#ca0013] text-white px-3 py-1.5 rounded-full font-bold transition-transform active:scale-95 cursor-pointer hover:bg-[#a3000b]">
+                    Submit
+                  </button>
+                </div>
+              )}
+
+              {/* RESET PASSWORD OTP INPUT - Forgot Password Step 2 */}
+              {authMode === 'forgot_password' && resetStep === 2 && (
+                <div className="flex items-center gap-3 border border-[#ca0013]/40 bg-red-50/20 rounded-2xl px-4 py-3">
+                  <input
+                    type="text"
+                    value={resetOtpCode}
+                    onChange={(e) => setResetOtpCode(e.target.value)}
+                    placeholder="OTP"
+                    maxLength={6}
+                    required
+                    className="flex-grow bg-transparent border-0 text-xs text-[#1b1c1b] focus:outline-none tracking-widest font-mono placeholder-neutral-400/70"
+                  />
+                </div>
+              )}
+
+              {/* PHONE - Only in Signup */}
+              {authMode === 'signup' && (
                 <>
-                  <div className="flex items-center gap-3 border border-neutral-200/60 bg-neutral-50/35 rounded-2xl px-4 py-3 focus-within:border-[#ca0013]">
+                  <div className={`flex items-center gap-2 transition-colors`}>
+                    <select 
+                      value={countryCode} 
+                      onChange={(e) => setCountryCode(e.target.value)}
+                      disabled={phoneVerified || !emailVerified}
+                      className="bg-neutral-50/35 border border-neutral-200/60 rounded-2xl px-2 py-3 text-xs text-[#1b1c1b] focus:outline-none cursor-pointer disabled:opacity-50"
+                    >
+                      <option value="+91">🇮🇳 +91</option>
+                      <option value="+1">🇺🇸 +1</option>
+                      <option value="+44">🇬🇧 +44</option>
+                      <option value="+61">🇦🇺 +61</option>
+                      <option value="+81">🇯🇵 +81</option>
+                      <option value="+49">🇩🇪 +49</option>
+                    </select>
+                    
+                    <div className={`flex-1 flex items-center gap-3 border rounded-2xl px-4 py-3 ${phoneVerified ? 'border-green-400 bg-green-50/30' : 'border-neutral-200/60 bg-neutral-50/35 focus-within:border-[#ca0013]'}`}>
+                      <span className={`material-symbols-outlined shrink-0 text-[16px] ${phoneVerified ? 'text-green-500' : 'text-neutral-400'}`}>call</span>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                        placeholder="Phone"
+                        required
+                        readOnly={phoneVerified || !emailVerified}
+                        className={`flex-grow bg-transparent border-0 text-xs focus:outline-none placeholder-neutral-400/70 ${phoneVerified ? 'text-green-700 font-bold' : 'text-[#1b1c1b]'} ${!emailVerified ? 'opacity-50' : ''}`}
+                      />
+                      {emailVerified && !phoneVerified && !showPhoneOtpInput && (
+                        <button type="button" onClick={handleSendPhoneOtp} className="text-[10px] bg-[#ca0013] hover:bg-[#a3000b] text-white px-3 py-1.5 rounded-full font-bold transition-transform active:scale-95 cursor-pointer">
+                          Verify
+                        </button>
+                      )}
+                      {emailVerified && !phoneVerified && showPhoneOtpInput && (
+                        <button 
+                          type="button" 
+                          onClick={phoneResendTimer > 0 ? undefined : handleSendPhoneOtp} 
+                          className={`text-[10px] px-3 py-1.5 rounded-full font-bold transition-all ${phoneResendTimer > 0 ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed' : 'bg-[#ca0013] hover:bg-[#a3000b] text-white active:scale-95 cursor-pointer'}`}
+                        >
+                          {phoneResendTimer > 0 ? `Resend (${phoneResendTimer}s)` : 'Resend'}
+                        </button>
+                      )}
+                      {phoneVerified && (
+                        <CheckCircle size={16} className="text-green-500 shrink-0" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* PHONE OTP INPUT */}
+                  {showPhoneOtpInput && (
+                    <div className="flex items-center gap-3 border border-[#ca0013]/40 bg-red-50/20 rounded-2xl px-4 py-3">
+                      <input
+                        type="text"
+                        value={phoneOtpCode}
+                        onChange={(e) => setPhoneOtpCode(e.target.value)}
+                        placeholder="OTP"
+                        maxLength={6}
+                        className="flex-grow bg-transparent border-0 text-xs text-[#1b1c1b] focus:outline-none tracking-widest font-mono placeholder-neutral-400/70"
+                      />
+                      <button type="button" onClick={handleVerifyPhoneOtp} className="text-[10px] bg-[#ca0013] text-white px-3 py-1.5 rounded-full font-bold transition-transform active:scale-95 cursor-pointer hover:bg-[#a3000b]">
+                        Submit
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* PASSWORD - Signup, Signin, Reset Step 3 */}
+              {(authMode !== 'forgot_password' || resetStep === 3) && (
+                <>
+                  <div className={`flex items-center gap-3 border border-neutral-200/60 bg-neutral-50/35 rounded-2xl px-4 py-3 focus-within:border-[#ca0013] ${authMode === 'signup' && (!emailVerified || !phoneVerified) ? 'opacity-50 pointer-events-none' : ''}`}>
                     <Lock size={16} className="text-neutral-400 shrink-0" />
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Password"
+                      placeholder={resetStep === 3 ? "New Password" : "Password"}
                       required
-                      className="flex-grow bg-transparent border-0 text-xs text-[#1b1c1b] focus:outline-none"
+                      className="flex-grow bg-transparent border-0 text-xs text-[#1b1c1b] focus:outline-none placeholder-neutral-400/70"
                     />
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-neutral-400">
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                   
-                  {authMode === 'signup' && password.length > 0 && (
+                  {((authMode === 'signup' && password.length > 0 && emailVerified && phoneVerified) || (resetStep === 3 && password.length > 0)) && (
                     <div className="flex flex-col gap-1.5 px-2 pt-1 pb-1">
                       <div className="flex gap-1 h-1.5">
                         {[1,2,3,4,5].map((level) => (
@@ -357,7 +714,7 @@ export default function LoginScreen() {
                     <div className="flex justify-end pt-0.5 pb-1 pr-2">
                       <button 
                         type="button" 
-                        onClick={() => { setAuthMode('forgot_password'); setErrorMsg(''); setSuccessMsg(''); }}
+                        onClick={() => switchMode('forgot_password')}
                         className="text-[10px] font-bold text-[#ca0013] hover:underline"
                       >
                         Forgot Password?
@@ -367,8 +724,9 @@ export default function LoginScreen() {
                 </>
               )}
 
-              {authMode === 'signup' && (
-                <div className="flex items-center gap-3 border border-neutral-200/60 bg-neutral-50/35 rounded-2xl px-4 py-3 focus-within:border-[#ca0013]">
+              {/* CONFIRM PASSWORD - Signup and Reset Step 3 */}
+              {(authMode === 'signup' || (authMode === 'forgot_password' && resetStep === 3)) && (
+                <div className={`flex items-center gap-3 border border-neutral-200/60 bg-neutral-50/35 rounded-2xl px-4 py-3 focus-within:border-[#ca0013] ${(authMode === 'signup' && (!emailVerified || !phoneVerified)) ? 'opacity-50 pointer-events-none' : ''}`}>
                   <Lock size={16} className="text-neutral-400 shrink-0" />
                   <input
                     type={showConfirmPassword ? "text" : "password"}
@@ -376,33 +734,52 @@ export default function LoginScreen() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm Password"
                     required
-                    className="flex-grow bg-transparent border-0 text-xs text-[#1b1c1b] focus:outline-none"
+                    className="flex-grow bg-transparent border-0 text-xs text-[#1b1c1b] focus:outline-none placeholder-neutral-400/70"
                   />
                 </div>
               )}
 
+              {/* CHECKBOXES - Only in Signup */}
               {authMode === 'signup' && (
-                <div className="flex items-start gap-3 pt-1">
-                  <input 
-                    type="checkbox" 
-                    id="agreeProtocols" 
-                    checked={iAgree}
-                    onChange={(e) => setIAgree(e.target.checked)}
-                    className="w-4 h-4 mt-0.5 rounded border-red-200 text-[#ca0013]"
-                  />
-                  <label htmlFor="agreeProtocols" className="text-[10px] text-[#747874] leading-tight">
-                    I agree to the Terms and Conditions and Privacy Policy.
-                  </label>
+                <div className={`flex flex-col gap-2 pt-1 ${(!emailVerified || !phoneVerified) ? 'opacity-50 pointer-events-none' : ''}`}>
+                  <div className="flex items-start gap-3">
+                    <input 
+                      type="checkbox" 
+                      id="agreeTerms" 
+                      checked={iAgreeTerms}
+                      onChange={(e) => setIAgreeTerms(e.target.checked)}
+                      className="w-4 h-4 mt-0.5 rounded border-red-200 text-[#ca0013]"
+                    />
+                    <label htmlFor="agreeTerms" className="text-[10px] text-[#747874] leading-tight">
+                      I agree to the <button type="button" onClick={() => setCurrentScreen('terms')} className="text-[#ca0013] font-bold hover:underline">Terms of Service</button>.
+                    </label>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <input 
+                      type="checkbox" 
+                      id="agreePrivacy" 
+                      checked={iAgreePrivacy}
+                      onChange={(e) => setIAgreePrivacy(e.target.checked)}
+                      className="w-4 h-4 mt-0.5 rounded border-red-200 text-[#ca0013]"
+                    />
+                    <label htmlFor="agreePrivacy" className="text-[10px] text-[#747874] leading-tight">
+                      I agree to the <button type="button" onClick={() => setCurrentScreen('privacy')} className="text-[#ca0013] font-bold hover:underline">Privacy Policy</button>.
+                    </label>
+                  </div>
                 </div>
               )}
 
+              {/* MAIN SUBMIT BUTTON */}
               <div className="space-y-3 pt-2">
                 <button 
                   type="submit"
-                  className="uiverse-btn bg-gradient-to-r from-[#ca0013] to-[#a3000b] text-white shadow-md active:scale-[0.99] border-0"
+                  disabled={authMode === 'signup' && (!emailVerified || !phoneVerified)}
+                  className="uiverse-btn bg-gradient-to-r from-[#ca0013] to-[#a3000b] text-white shadow-md active:scale-[0.99] border-0 disabled:opacity-50 disabled:active:scale-100"
                 >
                   <span className="btn-text">
-                    {authMode === 'signin' ? 'Sign In' : authMode === 'signup' ? 'Create Account' : 'Send Reset Link'}
+                    {authMode === 'signin' ? 'Sign In' : 
+                     authMode === 'signup' ? 'Create Account' : 
+                     (resetStep === 1 ? 'Send OTP' : resetStep === 2 ? 'Verify OTP' : 'Update Password')}
                   </span>
                 </button>
               </div>
@@ -410,7 +787,7 @@ export default function LoginScreen() {
             </form>
           )}
 
-          {!loading && (
+          {!loading && authMode !== 'forgot_password' && (
             <div className="pt-3 border-t border-red-100/50 space-y-4">
               <p className="text-[10px] font-headline font-bold text-[#ca0013]/60 uppercase tracking-wider text-center">
                 Or continue with
@@ -437,23 +814,6 @@ export default function LoginScreen() {
           )}
 
         </div>
-
-        {!loading && (
-          <div className="mt-4 text-center space-y-3">
-            <button 
-              type="button"
-              onClick={() => {
-                setIsLoggedIn(true);
-                setRegisteredUser({ name: 'Dev User', email: 'dev@example.com' });
-                setCurrentScreen(userRole === 'pilot' ? 'pilot_dashboard' : 'client_dashboard');
-              }}
-              className="inline-block text-[10px] font-body text-neutral-300 hover:text-[#ca0013] bg-transparent border-0"
-            >
-              [Dev Bypass]
-            </button>
-          </div>
-        )}
-
       </main>
 
       <footer className="w-full py-5 border-t border-neutral-100 flex justify-center items-center gap-6 bg-white text-[#747874] z-10 shrink-0">

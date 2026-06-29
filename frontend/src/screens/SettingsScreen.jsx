@@ -4,13 +4,14 @@ import BottomNav from '../components/BottomNav';
 
 import { useApp } from '../context/AppContext';
 import { SecureStorage } from '../utils/SecureStorage';
+import { deleteUserAccount, getSafeErrorMessage, updateUserProfile, uploadProfilePicture } from '../supabaseQueries';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 
 import { 
 
   ArrowLeft, ShieldAlert, User, Lock, Key, Bell, 
 
-  Globe, Sun, Moon, Shield, FileText, LifeBuoy, LogOut, X, Search
-
+  Globe, Sun, Moon, Shield, FileText, LifeBuoy, LogOut, X, Search, Camera as CameraIcon
 } from 'lucide-react';
 
 
@@ -132,6 +133,42 @@ export default function SettingsScreen() {
   const [editAdvOther, setEditAdvOther] = React.useState('');
 
   const [editAdvProfilePic, setEditAdvProfilePic] = React.useState('');
+  const [isUploadingPic, setIsUploadingPic] = React.useState(false);
+
+  const handlePickProfileImage = async () => {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 80,
+        allowEditing: true,
+        resultType: CameraResultType.Base64,
+        source: CameraSource.Prompt, // Prompts user to pick from Gallery or take Photo
+      });
+
+      if (image.base64String) {
+        setIsUploadingPic(true);
+        // Defaulting to jpeg if format is not available
+        const extension = image.format || 'jpeg';
+        
+        // Upload to Supabase bucket
+        const publicUrl = await uploadProfilePicture(registeredUser.id, image.base64String, extension);
+        
+        // Update local state instantly so UI shows new image
+        setEditAdvProfilePic(publicUrl);
+        setToastTitle('Upload Successful');
+        setToastMessage('Profile picture uploaded!');
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
+      }
+    } catch (err) {
+      console.error("Failed to pick/upload image:", err);
+      // Capacitor throws an error if user cancels the picker, so we can ignore it or show alert if it's a real error
+      if (err.message && !err.message.includes('User cancelled')) {
+        alert("Failed to upload image. Please try again.");
+      }
+    } finally {
+      setIsUploadingPic(false);
+    }
+  };
 
   const [editName, setEditName] = React.useState('');
 
@@ -160,6 +197,41 @@ export default function SettingsScreen() {
   const [isSendingOtp, setIsSendingOtp] = React.useState(false);
 
   const [showOtpHint, setShowOtpHint] = React.useState(false);
+
+  const [isDeleting, setIsDeleting] = React.useState(false);
+  const [mfaEnabled, setMfaEnabled] = React.useState(false);
+
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("WARNING: This will permanently delete your account, bookings, and all associated data under GDPR Right to be Forgotten. This action cannot be undone. Are you absolutely sure?")) {
+      return;
+    }
+    
+    setIsDeleting(true);
+    try {
+      // Delete from Supabase
+      if (registeredUser?.id) {
+        await deleteUserAccount(registeredUser.id);
+      }
+      
+      const { supabase } = await import('../supabase');
+      await supabase.auth.signOut();
+      
+      alert("Your account and all associated data have been permanently deleted.");
+      logout();
+    } catch (err) {
+      console.error("GDPR Deletion Error:", err);
+      alert(err.message || "Failed to delete account.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleMfaToggle = () => {
+    if (!mfaEnabled) {
+      alert("Multi-Factor Authentication (SMS) requires Supabase Twilio integration. This will be implemented in a future update.");
+    }
+    setMfaEnabled(!mfaEnabled);
+  };
 
 
 
@@ -436,48 +508,48 @@ export default function SettingsScreen() {
 
 
 
-  const handleSaveAdvancedProfile = (e) => {
-
+  const handleSaveAdvancedProfile = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
 
-    setRegisteredUser({
+    try {
+      // 1. Update in Supabase
+      if (registeredUser?.id) {
+        await updateUserProfile(registeredUser.id, {
+          name: editAdvName,
+          bio: editAdvBio,
+          dob: editAdvDob,
+          instagram_url: editAdvInsta,
+          linkedin_url: editAdvLinkedin,
+          other_url: editAdvOther,
+          profile_pic_url: editAdvProfilePic
+        });
+      }
 
-      ...registeredUser,
+      // 2. Update local state
+      setRegisteredUser({
+        ...registeredUser,
+        name: editAdvName,
+        bio: editAdvBio,
+        dob: editAdvDob,
+        instagramUrl: editAdvInsta,
+        linkedinUrl: editAdvLinkedin,
+        otherUrl: editAdvOther,
+        profilePic: editAdvProfilePic
+      });
 
-      name: editAdvName,
+      setIsEditingAdvancedProfile(false);
 
-      bio: editAdvBio,
-
-      dob: editAdvDob,
-
-      instagramUrl: editAdvInsta,
-
-      linkedinUrl: editAdvLinkedin,
-
-      otherUrl: editAdvOther,
-
-      profilePic: editAdvProfilePic
-
-    });
-
-    setIsEditingAdvancedProfile(false);
-
-    
-
-    // Show success toast
-
-    setToastTitle(t('Profile Updated'));
-
-    setToastMessage(t('Your details have been saved'));
-
-    setShowToast(true);
-
-    setTimeout(() => {
-
-      setShowToast(false);
-
-    }, 2500);
-
+      // Show success toast
+      setToastTitle(t('Profile Updated'));
+      setToastMessage(t('Your details have been saved successfully!'));
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 3000);
+    } catch (err) {
+      console.error("Failed to update profile:", err);
+      alert("Failed to save profile. Please check your connection.");
+    }
   };
 
 
@@ -988,6 +1060,41 @@ export default function SettingsScreen() {
 
           </a>
 
+        </section>
+
+
+
+        {/* Security & Data (GDPR) */}
+        <section className="space-y-2 mt-4">
+          <h3 className="text-[10px] font-headline font-bold uppercase tracking-wider text-[#000201] pl-1">{t('Security & Data (GDPR)')}</h3>
+          
+          <div className="bg-white rounded-none border border-[#b7c6c2]/60 shadow-sm overflow-hidden divide-y divide-[#b7c6c2]/10">
+            {/* MFA Toggle */}
+            <div className="flex items-center justify-between p-4 cursor-pointer" onClick={handleMfaToggle}>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-none bg-neutral-100 text-[#000201]"><ShieldAlert size={16} /></div>
+                <div>
+                  <p className="text-xs font-bold text-[#000201]">{t('Two-Factor Authentication')}</p>
+                  <p className="text-[10px] text-[#747874]">{t('Secure your account with SMS OTP')}</p>
+                </div>
+              </div>
+              
+              <div className={`w-10 h-5 rounded-full relative transition-colors ${mfaEnabled ? 'bg-[#ca0013]' : 'bg-neutral-300'}`}>
+                <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all shadow-sm ${mfaEnabled ? 'left-5.5 right-0.5 translate-x-5' : 'left-0.5'}`}></div>
+              </div>
+            </div>
+
+            {/* GDPR Right to be forgotten */}
+            <div className="flex items-center justify-between p-4 hover:bg-red-50 cursor-pointer" onClick={handleDeleteAccount}>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-none bg-red-100 text-[#ca0013]"><X size={16} /></div>
+                <div>
+                  <p className="text-xs font-bold text-[#ca0013]">{t('Delete My Account & Data')}</p>
+                  <p className="text-[10px] text-[#ca0013]/70">{t('Permanently remove all your data (GDPR)')}</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
 
@@ -1664,23 +1771,37 @@ export default function SettingsScreen() {
 
                 
 
-                {/* Profile Picture Display (Static) */}
-
+                {/* Profile Picture Display (Interactive) */}
                 <div className="flex flex-col items-center justify-center py-3 space-y-2">
-
-                  <div className="w-20 h-20 rounded-none overflow-hidden border-2 border-[#ca0013] bg-neutral-100 flex items-center justify-center shadow-md">
-
+                  <button
+                    type="button"
+                    onClick={handlePickProfileImage}
+                    disabled={isUploadingPic}
+                    className="relative w-24 h-24 rounded-none overflow-hidden border-2 border-[#ca0013] bg-neutral-100 flex items-center justify-center shadow-md group cursor-pointer"
+                  >
                     <img 
-
                       src={editAdvProfilePic || "https://lh3.googleusercontent.com/aida-public/AB6AXuCV47DaBxqfxLcnTdUs7O5G3JIsjwPauCvXb65mPkf4w3sSOMK7Mfswubt2peFwRUMXRVl07aCOLepPbM9ushB06_TJ5uPbDBsFUwlNT1lYkE9jGHGAHwk2jH4uAMz6E7G5dj6tFhl6hXdDBxLcTGO-pSjbL6CvN4q5FhRXUkyVWXWpnFXbUlH2P4GLVzV9kTDTFeWcNJsMNL6qquQ2AG7Oycppt7oubV1ijhJwK45HmpNE8LwCj2Tu38x-q0t8w2LixMRMl9mfH-I"}
-
                       alt="Profile Picture"
-
-                      className="w-full h-full object-cover"
-
+                      className={`w-full h-full object-cover transition-opacity ${isUploadingPic ? 'opacity-50' : 'group-hover:opacity-80'}`}
                     />
+                    
+                    {/* Hover Overlay for Picking Image */}
+                    {!isUploadingPic && (
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <CameraIcon className="text-white" size={28} />
+                      </div>
+                    )}
 
-                  </div>
+                    {/* Uploading Spinner */}
+                    {isUploadingPic && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                    )}
+                  </button>
+                  <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-wide">
+                    {isUploadingPic ? 'Uploading...' : 'Tap to change photo'}
+                  </span>
 
                   {/* DEV Auto-Fill Button */}
                   <button
@@ -1697,7 +1818,6 @@ export default function SettingsScreen() {
                   >
                     🛠️ DEV Auto-Fill
                   </button>
-
                 </div>
 
 
@@ -1914,28 +2034,14 @@ export default function SettingsScreen() {
 
 
 
-      {/* Toast Alert */}
-
+      {/* Minimal Toast Alert */}
       <div 
-
-        className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2.5 px-5 py-3.5 bg-gradient-to-br from-[#121316] to-[#0a0a0b] text-white border-l-4 border-[#ca0013] shadow-2xl transition-all duration-500 ease-out transform ${
-
-          showToast ? 'translate-y-0 opacity-100' : '-translate-y-12 opacity-0 pointer-events-none'
-
+        className={`fixed bottom-24 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-5 py-2.5 bg-neutral-800/95 backdrop-blur-md text-white rounded-full shadow-lg transition-all duration-300 ease-out transform ${
+          showToast ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-4 opacity-0 scale-95 pointer-events-none'
         }`}
-
       >
-
-        <span className="material-symbols-outlined text-[18px] text-[#ca0013]">verified</span>
-
-        <div className="flex flex-col">
-
-          <span className="text-[10px] font-headline font-black uppercase tracking-wider text-white">{toastTitle}</span>
-
-          <span className="text-[9px] font-body text-neutral-400 mt-0.5">{toastMessage}</span>
-
-        </div>
-
+        <span className="material-symbols-outlined text-[16px] text-green-400">check_circle</span>
+        <span className="text-[11px] font-medium font-body tracking-wide">{toastMessage || toastTitle}</span>
       </div>
 
 
