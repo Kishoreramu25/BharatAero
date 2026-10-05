@@ -476,10 +476,7 @@ export const AppProvider = ({ children }) => {
     const initGoogle = async () => {
       // 1. Run Capawesome Google Sign-In setup
       try {
-        const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-        if (!googleClientId) {
-          console.warn('Google Client ID (VITE_GOOGLE_CLIENT_ID) is missing from environment variables.');
-        }
+        const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '585485498597-229j0qeck6c4m7bdv43cr5pdq117cr7e.apps.googleusercontent.com';
         
         const initOptions = {
           clientId: googleClientId || '',
