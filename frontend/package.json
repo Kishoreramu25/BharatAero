@@ -1,5 +1,5 @@
 {
-  "name": "misd-final",
+  "name": "bharataero-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -30,6 +30,7 @@
     "lucide-react": "^1.18.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "react-easy-crop": "^6.0.2",
     "react-leaflet": "^5.0.0"
   },
   "devDependencies": {

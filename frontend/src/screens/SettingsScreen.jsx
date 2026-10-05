@@ -6,6 +6,7 @@ import { useApp } from '../context/AppContext';
 import { SecureStorage } from '../utils/SecureStorage';
 import { deleteUserAccount, getSafeErrorMessage, updateUserProfile, uploadProfilePicture } from '../supabaseQueries';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Dialog } from '@capacitor/dialog';
 
 import { 
 
@@ -17,69 +18,54 @@ import {
 
 
 const countryCodes = [
-
-  { code: '+91', flag: 'Ã°ÂÂÂ®Ã°ÂÂÂ³', label: 'India' },
-
-  { code: '+1', flag: 'Ã°ÂÂÂºÃ°ÂÂÂ¸', label: 'USA' },
-
-  { code: '+44', flag: 'Ã°ÂÂÂ¬Ã°ÂÂÂ§', label: 'UK' },
-
-  { code: '+971', flag: 'Ã°ÂÂÂ¦Ã°ÂÂÂª', label: 'UAE' },
-
-  { code: '+65', flag: 'Ã°ÂÂÂ¸Ã°ÂÂÂ¬', label: 'Singapore' },
-
-  { code: '+61', flag: 'Ã°ÂÂÂ¦Ã°ÂÂÂº', label: 'Australia' }
-
+  { code: '+91', flag: '🇮🇳', label: 'India' },
+  { code: '+1', flag: '🇺🇸', label: 'USA' },
+  { code: '+44', flag: '🇬🇧', label: 'UK' },
+  { code: '+971', flag: '🇦🇪', label: 'UAE' },
+  { code: '+65', flag: '🇸🇬', label: 'Singapore' },
+  { code: '+61', flag: '🇦🇺', label: 'Australia' }
 ];
 
 
 
 const indianLanguages = [
-
   { name: 'English', nativeName: 'English', region: 'Global / India' },
+  { name: 'Hindi', nativeName: 'हिन्दी', region: 'North India' },
+  { name: 'Bengali', nativeName: 'বাংলা', region: 'East India / West Bengal' },
+  { name: 'Marathi', nativeName: 'मराठी', region: 'West India / Maharashtra' },
+  { name: 'Telugu', nativeName: 'తెలుగు', region: 'South India / Andhra Pradesh & Telangana' },
+  { name: 'Tamil', nativeName: 'தமிழ்', region: 'South India / Tamil Nadu' },
+  { name: 'Gujarati', nativeName: 'ગુજરાતી', region: 'West India / Gujarat' },
+  { name: 'Urdu', nativeName: 'اردو', region: 'Pan-India' },
+  { name: 'Kannada', nativeName: 'ಕನ್ನಡ', region: 'South India / Karnataka' },
+  { name: 'Odia', nativeName: 'ଓଡ଼ିଆ', region: 'East India / Odisha' },
+  { name: 'Malayalam', nativeName: 'മലയാളം', region: 'South India / Kerala' },
+  { name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ', region: 'North India / Punjab' },
+  { name: 'Assamese', nativeName: 'অসমীয়া', region: 'Northeast India / Assam' },
+  { name: 'Maithili', nativeName: 'मैथिली', region: 'East India / Bihar' },
+  { name: 'Santali', nativeName: 'ᱥᱟᱱᱛᱟᱲᱤ', region: 'East India / Jharkhand & Odisha' },
+  { name: 'Kashmiri', nativeName: 'कॉशुर / كأشُر', region: 'North India / Jammu & Kashmir' },
+  { name: 'Nepali', nativeName: 'नेपाली', region: 'North India / Sikkim & West Bengal' },
+  { name: 'Gondi', nativeName: 'गोंडी', region: 'Central India' },
+  { name: 'Konkani', nativeName: 'कोंकणी', region: 'West India / Goa' },
+  { name: 'Dogri', nativeName: 'डोगरी', region: 'North India / Jammu & Kashmir' },
+  { name: 'Manipuri', nativeName: 'মৈতৈলোন / মীতৈলোন', region: 'Northeast India / Manipur' },
+  { name: 'Bodo', nativeName: 'बड़ो', region: 'Northeast India / Assam' },
+  { name: 'Sanskrit', nativeName: 'संस्कृतम्', region: 'Pan-India / Classical' },
+  { name: 'Sindhi', nativeName: 'सिन्धी', region: 'Pan-India' }
+];
 
-  { name: 'Hindi', nativeName: 'Ã Â¤Â¹Ã Â¤Â¿Ã Â¤Â¨Ã Â¥ÂÃ Â¤Â¦Ã Â¥Â', region: 'North India' },
-
-  { name: 'Bengali', nativeName: 'Ã Â¦Â¬Ã Â¦Â¾Ã Â¦ÂÃ Â¦Â²Ã Â¦Â¾', region: 'East India / West Bengal' },
-
-  { name: 'Marathi', nativeName: 'Ã Â¤Â®Ã Â¤Â°Ã Â¤Â¾Ã Â¤Â Ã Â¥Â', region: 'West India / Maharashtra' },
-
-  { name: 'Telugu', nativeName: 'Ã Â°Â¤Ã Â±ÂÃ Â°Â²Ã Â±ÂÃ Â°ÂÃ Â±Â', region: 'South India / Andhra Pradesh & Telangana' },
-
-  { name: 'Tamil', nativeName: 'Ã Â®Â¤Ã Â®Â®Ã Â®Â¿Ã Â®Â´Ã Â¯Â', region: 'South India / Tamil Nadu' },
-
-  { name: 'Gujarati', nativeName: 'Ã ÂªÂÃ Â«ÂÃ ÂªÂÃ ÂªÂ°Ã ÂªÂ¾Ã ÂªÂ¤Ã Â«Â', region: 'West India / Gujarat' },
-
-  { name: 'Urdu', nativeName: 'ÃÂ§ÃÂ±ÃÂ¯ÃÂ', region: 'Pan-India' },
-
-  { name: 'Kannada', nativeName: 'Ã Â²ÂÃ Â²Â¨Ã Â³ÂÃ Â²Â¨Ã Â²Â¡', region: 'South India / Karnataka' },
-
-  { name: 'Odia', nativeName: 'Ã Â¬ÂÃ Â¬Â¡Ã Â¬Â¼Ã Â¬Â¿Ã Â¬Â', region: 'East India / Odisha' },
-
-  { name: 'Malayalam', nativeName: 'Ã Â´Â®Ã Â´Â²Ã Â´Â¯Ã Â´Â¾Ã Â´Â³Ã Â´Â', region: 'South India / Kerala' },
-
-  { name: 'Punjabi', nativeName: 'Ã Â¨ÂªÃ Â©Â°Ã Â¨ÂÃ Â¨Â¾Ã Â¨Â¬Ã Â©Â', region: 'North India / Punjab' },
-
-  { name: 'Assamese', nativeName: 'Ã Â¦ÂÃ Â¦Â¸Ã Â¦Â®Ã Â§ÂÃ Â¦Â¯Ã Â¦Â¼Ã Â¦Â¾', region: 'Northeast India / Assam' },
-
-  { name: 'Maithili', nativeName: 'Ã Â¤Â®Ã Â¥ÂÃ Â¤Â¥Ã Â¤Â¿Ã Â¤Â²Ã Â¥Â', region: 'East India / Bihar' },
-
-  { name: 'Santali', nativeName: 'Ã¡Â±Â¥Ã¡Â±ÂÃ¡Â±Â±Ã¡Â±ÂÃ¡Â±ÂÃ¡Â±Â²Ã¡Â±Â¤', region: 'East India / Jharkhand & Odisha' },
-
-  { name: 'Kashmiri', nativeName: 'Ã Â¤ÂÃ Â¥ÂÃ Â¤Â¶Ã Â¥ÂÃ Â¤Â° / ÃÂÃ Â¥ÂÃ Â¤Â¶Ã Â¥ÂÃ Â¤Â°', region: 'North India / Jammu & Kashmir' },
-
-  { name: 'Nepali', nativeName: 'Ã Â¤Â¨Ã Â¥ÂÃ Â¤ÂªÃ Â¤Â¾Ã Â¤Â²Ã Â¥Â', region: 'North India / Sikkim & West Bengal' },
-
-  { name: 'Gondi', nativeName: 'Ã Â¤ÂÃ Â¥ÂÃ Â¤ÂÃ Â¤Â¡Ã Â¥Â', region: 'Central India' },
-
-  { name: 'Konkani', nativeName: 'Ã Â¤ÂÃ Â¥ÂÃ Â¤ÂÃ Â¤ÂÃ Â¤Â£Ã Â¥Â', region: 'West India / Goa' },
-
-  { name: 'Dogri', nativeName: 'Ã Â¤Â¡Ã Â¥ÂÃ Â¤ÂÃ Â¤Â°Ã Â¥Â', region: 'North India / Jammu & Kashmir' },
-
-  { name: 'Manipuri', nativeName: 'à¦®à§à¦¤à§à¦²à§à¦¨à§ / à¦®à§à¦¤à¦¿à¦à¦²à§à¦¨', region: 'Northeast India / Manipur' },
-  { name: 'Bodo', nativeName: 'à¤¬à¤¡à¤¼à¥', region: 'Northeast India / Assam' },
-  { name: 'Sanskrit', nativeName: 'à¤¸à¤à¤¸à¥à¤à¥à¤¤à¤®à¥', region: 'Pan-India / Classical' },
-  { name: 'Sindhi', nativeName: 'à¤¸à¤¿à¤¨à¥à¤§à¥', region: 'Pan-India' }
+const STANDARD_DRONES = [
+  "DJI Mavic 3 Enterprise (Thermal)",
+  "DJI Agras T40 / T50 (Agriculture)",
+  "DJI Matrice 300 / 350 RTK (Mapping/Survey)",
+  "DJI Inspire 3 / Custom Cinematic FPV",
+  "DJI Matrice 30T (Weatherproof Thermal)",
+  "DJI FlyCart 30 (Delivery/Logistics)",
+  "Skydio X10 (Autonomous Survey)",
+  "Autel Robotics EVO II Dual 640T (Thermal)",
+  "Custom Hexacopter (Heavy Lift Payload)",
+  "Custom Fixed-Wing (Long Range Mapping)"
 ];
 
 export default function SettingsScreen() {
@@ -94,9 +80,12 @@ export default function SettingsScreen() {
 
   } = useApp();
 
+  const isPilot = userRole === 'pilot' || registeredUser?.role === 'pilot';
+
 
 
   const [isEditingProfile, setIsEditingProfile] = React.useState(false);
+  const [changeMode, setChangeMode] = React.useState('none');
 
   const [isSelectingLanguage, setIsSelectingLanguage] = React.useState(false);
 
@@ -120,6 +109,16 @@ export default function SettingsScreen() {
 
   const [isEditingAdvancedProfile, setIsEditingAdvancedProfile] = React.useState(false);
 
+  const [editAdvPrice, setEditAdvPrice] = React.useState(150);
+
+  const [editAdvLocation, setEditAdvLocation] = React.useState('');
+
+  const [editAdvSpecialty, setEditAdvSpecialty] = React.useState('');
+
+  const [editAdvDroneModel, setEditAdvDroneModel] = React.useState('');
+  const [selectedDroneSelect, setSelectedDroneSelect] = React.useState('DJI Mavic 3 Enterprise (Thermal)');
+  const [customDroneInput, setCustomDroneInput] = React.useState('');
+
   const [editAdvName, setEditAdvName] = React.useState('');
 
   const [editAdvBio, setEditAdvBio] = React.useState('');
@@ -135,6 +134,44 @@ export default function SettingsScreen() {
   const [editAdvProfilePic, setEditAdvProfilePic] = React.useState('');
   const [isUploadingPic, setIsUploadingPic] = React.useState(false);
 
+// Helper to compress image base64 before upload
+const compressImageBase64 = (base64Str, format = 'jpeg') => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = `data:image/${format};base64,${base64Str}`;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX_WIDTH = 400;
+      const MAX_HEIGHT = 400;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > MAX_WIDTH) {
+          height *= MAX_WIDTH / width;
+          width = MAX_WIDTH;
+        }
+      } else {
+        if (height > MAX_HEIGHT) {
+          width *= MAX_HEIGHT / height;
+          height = MAX_HEIGHT;
+        }
+      }
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Export as compressed WebP
+      const dataUrl = canvas.toDataURL('image/webp', 0.8);
+      const base64Output = dataUrl.split(',')[1];
+      resolve({ base64: base64Output, format: 'webp' });
+    };
+    img.onerror = (err) => reject(err);
+  });
+};
+
   const handlePickProfileImage = async () => {
     try {
       const image = await Camera.getPhoto({
@@ -146,18 +183,19 @@ export default function SettingsScreen() {
 
       if (image.base64String) {
         setIsUploadingPic(true);
-        // Defaulting to jpeg if format is not available
-        const extension = image.format || 'jpeg';
+        // Compress base64 to WebP on the client side
+        const compressed = await compressImageBase64(image.base64String, image.format || 'jpeg');
+        const extension = compressed.format;
         
-        // Upload to Supabase bucket
-        const publicUrl = await uploadProfilePicture(registeredUser.id, image.base64String, extension);
+        // Upload compressed image to Supabase bucket
+        const publicUrl = await uploadProfilePicture(registeredUser.id, compressed.base64, extension);
         
         // Update local state instantly so UI shows new image
         setEditAdvProfilePic(publicUrl);
-        setToastTitle('Upload Successful');
-        setToastMessage('Profile picture uploaded!');
-        setShowToast(true);
-        setTimeout(() => setShowToast(false), 3000);
+        await Dialog.alert({
+          title: 'Upload Successful',
+          message: 'Profile picture uploaded!'
+        });
       }
     } catch (err) {
       console.error("Failed to pick/upload image:", err);
@@ -237,7 +275,7 @@ export default function SettingsScreen() {
 
   const handleOpenEditProfile = () => {
 
-    setEditName(registeredUser?.name || (userRole === 'pilot' ? 'Alex Mercer' : 'Sarah Jenkins'));
+    setEditName(registeredUser?.name || (isPilot ? 'Alex Mercer' : 'Sarah Jenkins'));
 
     setEditEmail(registeredUser?.email || '');
 
@@ -245,7 +283,7 @@ export default function SettingsScreen() {
 
     // Parse saved phone number
 
-    const savedPhone = (registeredUser?.phone || (userRole === 'pilot' ? '+91 98765 43210' : '+91 87654 32109')).trim();
+    const savedPhone = (registeredUser?.phone || (isPilot ? '+91 98765 43210' : '+91 87654 32109')).trim();
 
     let matchedCode = '+91';
 
@@ -271,8 +309,9 @@ export default function SettingsScreen() {
 
     setEditPhoneBody(phoneBody);
 
-    setEditId(registeredUser?.id || (userRole === 'pilot' ? 'PILOT-UA-4091' : 'CLIENT-MISD-8821'));
+    setEditId(registeredUser?.id || (isPilot ? 'PILOT-UA-4091' : 'CLIENT-BA-8821'));
 
+    setChangeMode('none');
     setIsEditingProfile(true);
 
     setIsVerifyingOtp(false);
@@ -285,83 +324,139 @@ export default function SettingsScreen() {
 
 
 
-  const handleSaveProfile = async (e) => {
+  const handleRequestEmailOtp = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     setOtpErrorMsg('');
     setOtpSuccessMsg('');
-
+    
     const originalEmail = registeredUser?.email || '';
-    const originalPhone = registeredUser?.phone || (userRole === 'pilot' ? '+91 98765 43210' : '+91 87654 32109');
-    const editPhone = (selectedCountryCode + ' ' + editPhoneBody.trim()).trim();
-    const emailChanged = editEmail.trim().toLowerCase() !== originalEmail.toLowerCase();
-    const phoneChanged = editPhone !== originalPhone;
-
-    if (emailChanged || phoneChanged) {
-      setIsSendingOtp(true);
-      setIsVerifyingOtp(true);
-      setEnteredOtp('');
-
-      if (phoneChanged) {
-        const targetPhone = editPhone;
-        try {
-          const isWeb = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-          const url = isWeb ? '/api/send-otp' : 'http://localhost:5000/api/send-otp';
-
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phone: targetPhone })
-          });
-
-          if (response.ok) {
-            setOtpSuccessMsg(`OTP sent to ${targetPhone}.`);
-          } else {
-            throw new Error("Twilio request failed");
-          }
-        } catch (err) {
-          console.warn("Failed to send Twilio SMS:", err);
-          setOtpSuccessMsg('Failed to send verification SMS. Simulated OTP sent!');
-          setShowOtpHint(true);
-        } finally {
-          setIsSendingOtp(false);
-        }
-      } else {
-        const targetEmail = editEmail.trim();
-        try {
-          await sendResendEmail(targetEmail, null, editName || 'User');
-          setOtpSuccessMsg('A 6-digit verification code has been sent to your email.');
-          setShowOtpHint(false);
-        } catch (err) {
-          console.warn("Failed to send profile update OTP via Resend:", err);
-          setOtpSuccessMsg('Failed to send verification email. Simulated OTP sent!');
-          setShowOtpHint(true);
-        } finally {
-          setIsSendingOtp(false);
-        }
-      }
-    } else {
-      setRegisteredUser({
-        ...registeredUser,
-        name: editName,
-        email: editEmail,
-        phone: editPhone,
-        id: editId
-      });
-      setIsEditingProfile(false);
+    const targetEmail = editEmail.trim();
+    if (targetEmail.toLowerCase() === originalEmail.toLowerCase()) {
+      setOtpErrorMsg('New email must be different from current email.');
+      return;
+    }
+    
+    setIsSendingOtp(true);
+    setIsVerifyingOtp(true);
+    setEnteredOtp('');
+    
+    try {
+      await sendResendEmail(targetEmail, null, editName || 'User');
+      setOtpSuccessMsg('A 6-digit verification code has been sent to your email.');
+      setShowOtpHint(false);
+    } catch (err) {
+      console.warn("Failed to send profile update OTP via Resend:", err);
+      setOtpSuccessMsg('Failed to send verification email. Simulated OTP sent!');
+      setShowOtpHint(true);
+    } finally {
+      setIsSendingOtp(false);
     }
   };
 
+  const handleRequestPhoneOtp = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    setOtpErrorMsg('');
+    setOtpSuccessMsg('');
+    
+    const originalPhone = registeredUser?.phone || (isPilot ? '+91 98765 43210' : '+91 87654 32109');
+    const editPhone = (selectedCountryCode + ' ' + editPhoneBody.trim()).trim();
+    if (editPhone === originalPhone) {
+      setOtpErrorMsg('New phone number must be different from current phone number.');
+      return;
+    }
+    
+    setIsSendingOtp(true);
+    setIsVerifyingOtp(true);
+    setEnteredOtp('');
+    
+    try {
+      const isWeb = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+      const url = isWeb ? '/api/send-otp' : 'http://localhost:5000/api/send-otp';
 
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: editPhone })
+      });
+
+      if (response.ok) {
+        setOtpSuccessMsg(`OTP sent to ${editPhone}.`);
+      } else {
+        throw new Error("Twilio request failed");
+      }
+    } catch (err) {
+      console.warn("Failed to send Twilio SMS:", err);
+      setOtpSuccessMsg('Failed to send verification SMS. Simulated OTP sent!');
+      setShowOtpHint(true);
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  const handleSaveProfile = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    
+    const nameChanged = editName !== (registeredUser?.name || '');
+    if (nameChanged) {
+      try {
+        if (registeredUser?.id) {
+          await updateUserProfile(registeredUser.id, {
+            name: editName
+          });
+        }
+      } catch (err) {
+        console.warn("Failed to update name in Supabase:", err);
+      }
+    }
+
+    setRegisteredUser({
+      ...registeredUser,
+      name: editName,
+      id: editId
+    });
+    setIsEditingProfile(false);
+  };
 
   const handleVerifyOtpAndSave = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     setOtpErrorMsg('');
 
-    const originalEmail = registeredUser?.email || '';
-    const originalPhone = registeredUser?.phone || (userRole === 'pilot' ? '+91 98765 43210' : '+91 87654 32109');
     const editPhone = (selectedCountryCode + ' ' + editPhoneBody.trim()).trim();
-    const emailChanged = editEmail.trim().toLowerCase() !== originalEmail.toLowerCase();
-    const phoneChanged = editPhone !== originalPhone;
+
+    // Frontend bypass for simulated OTP local testing
+    if (showOtpHint) {
+      if (enteredOtp === '123456') {
+        try {
+          if (registeredUser?.id) {
+            await updateUserProfile(registeredUser.id, {
+              email: changeMode === 'email' ? editEmail.trim() : undefined,
+              phone: changeMode === 'phone' ? editPhone : undefined
+            });
+          }
+        } catch (err) {
+          console.warn("Failed to update Supabase directly:", err);
+        }
+
+        setRegisteredUser({
+          ...registeredUser,
+          email: changeMode === 'email' ? editEmail.trim() : registeredUser.email,
+          phone: changeMode === 'phone' ? editPhone : registeredUser.phone
+        });
+
+        setIsVerifyingOtp(false);
+        setIsEditingProfile(false);
+        setChangeMode('none');
+
+        await Dialog.alert({
+          title: t('Profile Updated'),
+          message: t('Your details have been saved successfully!')
+        });
+        return;
+      } else {
+        setOtpErrorMsg('Incorrect verification code. Please enter 123456.');
+        return;
+      }
+    }
 
     try {
       const isWeb = typeof window !== 'undefined' && window.location.hostname === 'localhost';
@@ -373,8 +468,8 @@ export default function SettingsScreen() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          email: emailChanged ? editEmail.trim() : undefined,
-          phone: phoneChanged ? editPhone : undefined,
+          email: changeMode === 'email' ? editEmail.trim() : undefined,
+          phone: changeMode === 'phone' ? editPhone : undefined,
           code: enteredOtp
         })
       });
@@ -391,12 +486,13 @@ export default function SettingsScreen() {
       setRegisteredUser({
         ...registeredUser,
         name: editName,
-        email: editEmail,
-        phone: editPhone,
+        email: changeMode === 'email' ? editEmail.trim() : registeredUser.email,
+        phone: changeMode === 'phone' ? editPhone : registeredUser.phone,
         id: editId
       });
       setIsVerifyingOtp(false);
       setIsEditingProfile(false);
+      setChangeMode('none');
     } catch (err) {
       setOtpErrorMsg(err.message || 'Incorrect verification code. Please check and try again.');
     }
@@ -416,7 +512,7 @@ export default function SettingsScreen() {
 
   const handleBack = () => {
 
-    if (userRole === 'pilot') {
+    if (isPilot) {
 
       navigate('pilot_dashboard', 'home');
 
@@ -468,19 +564,27 @@ export default function SettingsScreen() {
 
   const handleOpenAdvancedProfile = () => {
 
-    setEditAdvName(registeredUser?.name || (userRole === 'pilot' ? 'Alex Mercer' : 'Sarah Jenkins'));
+    setEditAdvName(registeredUser?.name || (isPilot ? 'Alex Mercer' : 'Sarah Jenkins'));
 
     setEditAdvBio(registeredUser?.bio || '');
 
     setEditAdvDob(registeredUser?.dob || '');
 
-    setEditAdvInsta(registeredUser?.instagramUrl || '');
+    setEditAdvInsta(registeredUser?.instagram_url || registeredUser?.instagramUrl || '');
 
-    setEditAdvLinkedin(registeredUser?.linkedinUrl || '');
+    setEditAdvLinkedin(registeredUser?.linkedin_url || registeredUser?.linkedinUrl || '');
 
-    setEditAdvOther(registeredUser?.otherUrl || '');
+    setEditAdvOther(registeredUser?.other_url || registeredUser?.otherUrl || '');
 
-    setEditAdvProfilePic(registeredUser?.profilePic || '');
+    setEditAdvProfilePic(registeredUser?.profile_pic_url || registeredUser?.profilePic || '');
+
+    setEditAdvPrice(registeredUser?.price || 150);
+
+    setEditAdvLocation(registeredUser?.location || '');
+
+    setEditAdvSpecialty(registeredUser?.specialty || '');
+
+    setEditAdvDroneModel(registeredUser?.drone_model || '');
 
     setIsEditingAdvancedProfile(true);
 
@@ -521,7 +625,11 @@ export default function SettingsScreen() {
           instagram_url: editAdvInsta,
           linkedin_url: editAdvLinkedin,
           other_url: editAdvOther,
-          profile_pic_url: editAdvProfilePic
+          profile_pic_url: editAdvProfilePic,
+          price: isPilot ? Number(editAdvPrice) : undefined,
+          location: isPilot ? editAdvLocation : undefined,
+          specialty: isPilot ? editAdvSpecialty : undefined,
+          drone_model: isPilot ? (selectedDroneSelect === 'Other' ? customDroneInput.trim() : selectedDroneSelect) : undefined
         });
       }
 
@@ -532,20 +640,26 @@ export default function SettingsScreen() {
         bio: editAdvBio,
         dob: editAdvDob,
         instagramUrl: editAdvInsta,
+        instagram_url: editAdvInsta,
         linkedinUrl: editAdvLinkedin,
+        linkedin_url: editAdvLinkedin,
         otherUrl: editAdvOther,
-        profilePic: editAdvProfilePic
+        other_url: editAdvOther,
+        profile_pic_url: editAdvProfilePic,
+        profilePic: editAdvProfilePic,
+        price: isPilot ? Number(editAdvPrice) : registeredUser.price,
+        location: isPilot ? editAdvLocation : registeredUser.location,
+        specialty: isPilot ? editAdvSpecialty : registeredUser.specialty,
+        drone_model: isPilot ? (selectedDroneSelect === 'Other' ? customDroneInput.trim() : selectedDroneSelect) : registeredUser.drone_model
       });
 
       setIsEditingAdvancedProfile(false);
 
-      // Show success toast
-      setToastTitle(t('Profile Updated'));
-      setToastMessage(t('Your details have been saved successfully!'));
-      setShowToast(true);
-      setTimeout(() => {
-        setShowToast(false);
-      }, 3000);
+      // Show success dialog
+      await Dialog.alert({
+        title: t('Profile Updated'),
+        message: t('Your details have been saved successfully!')
+      });
     } catch (err) {
       console.error("Failed to update profile:", err);
       alert("Failed to save profile. Please check your connection.");
@@ -604,31 +718,31 @@ export default function SettingsScreen() {
 
         >
 
-          <div className="w-16 h-16 rounded-none overflow-hidden border-2 border-[#ca0013] shrink-0">
-
-            <img 
-
-              alt="Profile Pic" 
-
-              className="w-full h-full object-cover" 
-
-              src={registeredUser?.profilePic || "https://lh3.googleusercontent.com/aida-public/AB6AXuCV47DaBxqfxLcnTdUs7O5G3JIsjwPauCvXb65mPkf4w3sSOMK7Mfswubt2peFwRUMXRVl07aCOLepPbM9ushB06_TJ5uPbDBsFUwlNT1lYkE9jGHGAHwk2jH4uAMz6E7G5dj6tFhl6hXdDBxLcTGO-pSjbL6CvN4q5FhRXUkyVWXWpnFXbUlH2P4GLVzV9kTDTFeWcNJsMNL6qquQ2AG7Oycppt7oubV1ijhJwK45HmpNE8LwCj2Tu38x-q0t8w2LixMRMl9mfH-I"}
-
-            />
-
+          <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#ca0013] shrink-0 bg-neutral-100 flex items-center justify-center text-[#000201]">
+            {registeredUser?.profile_pic_url || registeredUser?.profilePic ? (
+              <img 
+                alt="Profile Pic" 
+                className="w-full h-full object-cover rounded-full" 
+                src={registeredUser.profile_pic_url || registeredUser.profilePic}
+              />
+            ) : (
+              <span className="text-xl font-black font-headline uppercase">
+                {registeredUser?.name ? registeredUser.name.charAt(0) : 'U'}
+              </span>
+            )}
           </div>
 
           <div className="flex-1 min-w-0">
 
             <h2 className="text-base font-headline font-black text-[#000201] truncate">
 
-              {registeredUser?.name || (userRole === 'pilot' ? 'Alex Mercer' : 'Sarah Jenkins')}
+              {registeredUser?.name || (isPilot ? 'Alex Mercer' : 'Sarah Jenkins')}
 
             </h2>
 
             <p className="text-[10px] font-headline font-bold text-[#747874] uppercase tracking-wider mt-0.5">
 
-              {userRole === 'pilot' ? 'Certified UAV Pilot' : 'Mission Commander'}
+              {isPilot ? 'Certified UAV Pilot' : 'Mission Commander'}
 
             </p>
 
@@ -642,17 +756,7 @@ export default function SettingsScreen() {
 
             )}
 
-            <div className="mt-2 flex flex-wrap gap-2">
 
-              <span className="inline-flex items-center px-2 py-0.5 bg-red-50 text-[#ca0013] rounded-none text-[9px] font-bold">
-
-                <span className="material-symbols-outlined text-[12px] mr-0.5">verified</span>
-
-                Premium Member
-
-              </span>
-
-            </div>
 
           </div>
 
@@ -664,7 +768,7 @@ export default function SettingsScreen() {
 
         <section className="space-y-2">
 
-          <h3 className="text-[10px] font-headline font-bold uppercase tracking-wider text-[#000201] pl-1">{t('Personal Information')}</h3>
+          <h3 className="text-[10px] font-headline font-bold uppercase tracking-wider text-[#000201] pl-1">{t('Personal Details')}</h3>
 
           <div className="bg-white rounded-none border border-[#b7c6c2]/60 shadow-sm overflow-hidden divide-y divide-[#b7c6c2]/10">
 
@@ -682,7 +786,7 @@ export default function SettingsScreen() {
 
                 <div>
 
-                  <p className="text-xs font-bold text-[#000201]">{t('Personal Information')}</p>
+                  <p className="text-xs font-bold text-[#000201]">{t('Change Personal Details')}</p>
 
                   <p className="text-[10px] text-[#747874]">{t('Manage your name, email, and ID')}</p>
 
@@ -1010,7 +1114,7 @@ export default function SettingsScreen() {
 
           <a 
 
-            href="https://www.linkedin.com/company/misd-automation/" 
+            href="https://www.linkedin.com/company/bharataero/" 
 
             target="_blank" 
 
@@ -1036,7 +1140,7 @@ export default function SettingsScreen() {
 
           <a 
 
-            href="https://misdautomation.in/" 
+            href="https://bharataero.in/" 
 
             target="_blank" 
 
@@ -1149,7 +1253,7 @@ export default function SettingsScreen() {
 
               <span className="text-sm font-headline font-black text-[#000201] uppercase tracking-wider">
 
-                {isVerifyingOtp ? 'Verify Security Code' : 'Edit Personal Information'}
+                {isVerifyingOtp ? 'Verify Security Code' : t('Edit Personal Details')}
 
               </span>
 
@@ -1170,347 +1274,302 @@ export default function SettingsScreen() {
 
 
             {/* Body */}
-
-            {isVerifyingOtp ? (
-
-              <form onSubmit={handleVerifyOtpAndSave} className="p-5 space-y-5">
-
-                <div className="space-y-1">
-
-                  <h4 className="text-xs font-headline font-black text-[#000201] uppercase tracking-wider">
-
-                    Confirm Identity
-
-                  </h4>
-
-                  <p className="text-xs text-[#747874]">
-
-                    {(selectedCountryCode + ' ' + editPhoneBody.trim()).trim() !== (registeredUser?.phone || (userRole === 'pilot' ? '+91 98765 43210' : '+91 87654 32109')) ? (
-
-                      <span>We've sent a 6-digit verification code to your new phone number <strong className="text-[#000201]">{selectedCountryCode} {editPhoneBody}</strong> via SMS (using Twilio).</span>
-
-                    ) : (
-
-                      <span>We've sent a 6-digit verification code to <strong className="text-[#000201]">{editEmail}</strong> to confirm changes to your email address.</span>
-
-                    )}
-
-                  </p>
-
-                </div>
-
-
-
-                {otpSuccessMsg && (
-
-                  <div className="p-3 bg-neutral-50 text-emerald-800 text-[11px] font-bold border border-emerald-600/20 uppercase tracking-wide">
-
-                    {otpSuccessMsg}
-
-                  </div>
-
-                )}
-
-
-
-                {otpErrorMsg && (
-
-                  <div className="p-3 bg-red-50 text-[#ca0013] text-[11px] font-bold border border-[#ca0013]/20 uppercase tracking-wide">
-
-                    {otpErrorMsg}
-
-                  </div>
-
-                )}
-
-
-
-                {/* OTP Input */}
-
-                <div className="space-y-1">
-
-                  <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider">
-
-                    Verification Code
-
-                  </label>
-
-                  <input
-
-                    type="text"
-
-                    required
-
-                    maxLength={6}
-
-                    value={enteredOtp}
-
-                    onChange={(e) => setEnteredOtp(e.target.value.replace(/\D/g, ''))}
-
-                    className="w-full text-center text-lg tracking-[8px] p-3 bg-white border border-[#b7c6c2]/60 rounded-none focus:outline-none focus:border-[#ca0013] text-[#000201] font-black font-mono"
-
-                    placeholder="000000"
-
-                  />
-
-                  {showOtpHint && (
-
-                    <p className="text-[10px] text-amber-600 font-bold uppercase tracking-wider mt-1.5">
-
-                      Please check the browser developer console (F12) for the code.
-
-                    </p>
-
-                  )}
-
-                </div>
-
-
-
-                {/* Footer Buttons */}
-
-                <div className="pt-2 flex gap-3">
-
-                  <button
-
-                    type="button"
-
-                    onClick={() => setIsVerifyingOtp(false)}
-
-                    className="flex-1 py-3 text-xs font-bold text-[#747874] bg-neutral-100 hover:bg-neutral-200 transition-colors uppercase tracking-wider rounded-none text-center"
-
-                  >
-
-                    Back to Edit
-
-                  </button>
-
-                  <button
-
-                    type="submit"
-
-                    className="flex-1 py-3 text-xs font-bold text-white bg-[#ca0013] hover:bg-[#b00010] transition-colors uppercase tracking-wider rounded-none text-center"
-
-                  >
-
-                    Verify & Save
-
-                  </button>
-
-                </div>
-
-              </form>
-
-            ) : (
-
+            {changeMode === 'none' && (
               <form onSubmit={handleSaveProfile} className="p-5 space-y-4">
-
                 <div className="space-y-1">
-
                   <h4 className="text-xs font-headline font-black text-[#000201] uppercase tracking-wider">
-
                     Update Account Details
-
                   </h4>
-
                   <p className="text-xs text-[#747874]">Modify your name, email, phone number, and identification codes.</p>
-
                 </div>
-
-
 
                 {/* Full Name */}
-
                 <div className="space-y-1">
-
                   <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider">
-
                     Full Name
-
                   </label>
-
                   <input
-
                     type="text"
-
                     required
-
                     value={editName}
-
                     onChange={(e) => setEditName(e.target.value)}
-
                     className="w-full text-xs p-3 bg-white border border-[#b7c6c2]/60 rounded-none focus:outline-none focus:border-[#ca0013] text-[#000201] font-medium"
-
                     placeholder="Enter full name"
-
                   />
-
                 </div>
 
-
-
-                {/* Email Address */}
-
+                {/* Email Address Display */}
                 <div className="space-y-1">
-
                   <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider">
-
                     Email Address
-
                   </label>
-
-                  <input
-
-                    type="email"
-
-                    required
-
-                    value={editEmail}
-
-                    onChange={(e) => setEditEmail(e.target.value)}
-
-                    className="w-full text-xs p-3 bg-white border border-[#b7c6c2]/60 rounded-none focus:outline-none focus:border-[#ca0013] text-[#000201] font-medium"
-
-                    placeholder="Enter email address"
-
-                  />
-
-                </div>
-
-
-
-                {/* Phone Number with Country Code Dropdown */}
-
-                <div className="space-y-1">
-
-                  <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider">
-
-                    Phone Number
-
-                  </label>
-
-                  <div className="flex select-none">
-
-                    <select
-
-                      value={selectedCountryCode}
-
-                      onChange={(e) => setSelectedCountryCode(e.target.value)}
-
-                      className="text-xs p-3 bg-white border border-[#b7c6c2]/60 border-r-0 rounded-none focus:outline-none focus:border-[#ca0013] text-[#000201] font-bold cursor-pointer w-[95px] h-[42px] appearance-none"
-
-                      style={{
-
-                        backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23111\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e")',
-
-                        backgroundRepeat: 'no-repeat',
-
-                        backgroundPosition: 'right 8px center',
-
-                        backgroundSize: '12px',
-
-                        paddingRight: '22px'
-
+                  <div className="flex gap-2">
+                    <div className="flex-grow text-xs p-3 bg-neutral-50 border border-[#b7c6c2]/30 text-neutral-500 font-medium select-text">
+                      {registeredUser?.email || 'Not verified'}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setChangeMode('email');
+                        setEditEmail(registeredUser?.email || '');
+                        setIsVerifyingOtp(false);
+                        setOtpErrorMsg('');
+                        setOtpSuccessMsg('');
                       }}
-
+                      className="px-4 text-xs font-bold text-white bg-[#ca0013] hover:bg-[#b00010] uppercase tracking-wider rounded-none transition-colors"
                     >
-
-                      {countryCodes.map((c) => (
-
-                        <option key={c.code} value={c.code}>
-
-                          {c.flag} {c.code}
-
-                        </option>
-
-                      ))}
-
-                    </select>
-
-                    <input
-
-                      type="text"
-
-                      required
-
-                      value={editPhoneBody}
-
-                      onChange={(e) => setEditPhoneBody(e.target.value.replace(/[^\d\s-]/g, ''))}
-
-                      className="flex-grow text-xs p-3 bg-white border border-[#b7c6c2]/60 rounded-none focus:outline-none focus:border-[#ca0013] text-[#000201] font-medium h-[42px]"
-
-                      placeholder="98765 43210"
-
-                    />
-
+                      Change
+                    </button>
                   </div>
-
                 </div>
 
-
+                {/* Phone Number Display */}
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider">
+                    Phone Number
+                  </label>
+                  <div className="flex gap-2">
+                    <div className="flex-grow text-xs p-3 bg-neutral-50 border border-[#b7c6c2]/30 text-neutral-500 font-medium select-text">
+                      {registeredUser?.phone || 'Not verified'}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setChangeMode('phone');
+                        setIsVerifyingOtp(false);
+                        setOtpErrorMsg('');
+                        setOtpSuccessMsg('');
+                      }}
+                      className="px-4 text-xs font-bold text-white bg-[#ca0013] hover:bg-[#b00010] uppercase tracking-wider rounded-none transition-colors"
+                    >
+                      Change
+                    </button>
+                  </div>
+                </div>
 
                 {/* Identification ID */}
-
                 <div className="space-y-1">
-
                   <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider">
-
-                    {userRole === 'pilot' ? 'Pilot License / UAV ID' : 'Client Organization ID'}
-
+                    {isPilot ? 'Pilot License / UAV ID' : 'Client Organization ID'}
                   </label>
-
                   <input
-
                     type="text"
-
                     value={editId}
-
                     onChange={(e) => setEditId(e.target.value)}
-
                     className="w-full text-xs p-3 bg-white border border-[#b7c6c2]/60 rounded-none focus:outline-none focus:border-[#ca0013] text-[#000201] font-medium"
-
-                    placeholder={userRole === 'pilot' ? 'e.g. PILOT-UA-4091' : 'e.g. CLIENT-MISD-8821'}
-
+                    placeholder={isPilot ? 'e.g. PILOT-UA-4091' : 'e.g. CLIENT-BA-8821'}
                   />
-
                 </div>
-
-
 
                 {/* Footer Buttons */}
-
                 <div className="pt-2 flex gap-3">
-
                   <button
-
                     type="button"
-
                     onClick={() => setIsEditingProfile(false)}
-
                     className="flex-1 py-3 text-xs font-bold text-[#747874] bg-neutral-100 hover:bg-neutral-200 transition-colors uppercase tracking-wider rounded-none text-center"
-
                   >
-
                     Cancel
-
                   </button>
-
                   <button
-
                     type="submit"
-
                     className="flex-1 py-3 text-xs font-bold text-white bg-[#ca0013] hover:bg-[#b00010] transition-colors uppercase tracking-wider rounded-none text-center"
-
                   >
-
                     Save Changes
-
                   </button>
+                </div>
+              </form>
+            )}
 
+            {changeMode === 'email' && (
+              <form onSubmit={isVerifyingOtp ? handleVerifyOtpAndSave : handleRequestEmailOtp} className="p-5 space-y-4">
+                <div className="space-y-1">
+                  <h4 className="text-xs font-headline font-black text-[#000201] uppercase tracking-wider">
+                    {isVerifyingOtp ? 'Verify New Email' : 'Change Email Address'}
+                  </h4>
+                  <p className="text-xs text-[#747874]">
+                    {isVerifyingOtp 
+                      ? `We sent a 6-digit verification code to ${editEmail.trim()}. Please enter it below.`
+                      : 'Enter your new email address. A verification code will be sent to it.'}
+                  </p>
                 </div>
 
-              </form>
+                {otpSuccessMsg && (
+                  <div className="p-3 bg-neutral-50 text-emerald-800 text-[11px] font-bold border border-emerald-600/20 uppercase tracking-wide">
+                    {otpSuccessMsg}
+                  </div>
+                )}
 
+                {otpErrorMsg && (
+                  <div className="p-3 bg-red-50 text-[#ca0013] text-[11px] font-bold border border-[#ca0013]/20 uppercase tracking-wide">
+                    {otpErrorMsg}
+                  </div>
+                )}
+
+                {!isVerifyingOtp ? (
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider">
+                      New Email Address
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={editEmail}
+                      onChange={(e) => setEditEmail(e.target.value)}
+                      className="w-full text-xs p-3 bg-white border border-[#b7c6c2]/60 rounded-none focus:outline-none focus:border-[#ca0013] text-[#000201] font-medium"
+                      placeholder="e.g. newemail@domain.com"
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider">
+                      Verification Code
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={6}
+                      value={enteredOtp}
+                      onChange={(e) => setEnteredOtp(e.target.value.replace(/\D/g, ''))}
+                      className="w-full text-center text-lg tracking-[8px] p-3 bg-white border border-[#b7c6c2]/60 rounded-none focus:outline-none focus:border-[#ca0013] text-[#000201] font-black font-mono"
+                      placeholder="000000"
+                    />
+                    {showOtpHint && (
+                      <p className="text-[10px] text-amber-600 font-bold uppercase tracking-wider mt-1.5 animate-pulse">
+                        Please enter the simulated code: 123456
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <div className="pt-2 flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isVerifyingOtp) {
+                        setIsVerifyingOtp(false);
+                      } else {
+                        setChangeMode('none');
+                      }
+                    }}
+                    className="flex-1 py-3 text-xs font-bold text-[#747874] bg-neutral-100 hover:bg-neutral-200 transition-colors uppercase tracking-wider rounded-none text-center"
+                  >
+                    {isVerifyingOtp ? 'Back' : 'Cancel'}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSendingOtp}
+                    className="flex-1 py-3 text-xs font-bold text-white bg-[#ca0013] hover:bg-[#b00010] transition-colors uppercase tracking-wider rounded-none text-center disabled:opacity-50"
+                  >
+                    {isSendingOtp ? 'Sending...' : isVerifyingOtp ? 'Verify & Update' : 'Send Code'}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {changeMode === 'phone' && (
+              <form onSubmit={isVerifyingOtp ? handleVerifyOtpAndSave : handleRequestPhoneOtp} className="p-5 space-y-4">
+                <div className="space-y-1">
+                  <h4 className="text-xs font-headline font-black text-[#000201] uppercase tracking-wider">
+                    {isVerifyingOtp ? 'Verify New Phone' : 'Change Phone Number'}
+                  </h4>
+                  <p className="text-xs text-[#747874]">
+                    {isVerifyingOtp 
+                      ? `We sent a 6-digit SMS code to ${selectedCountryCode} ${editPhoneBody}. Please enter it below.`
+                      : 'Enter your new phone number. A verification SMS will be sent via Twilio.'}
+                  </p>
+                </div>
+
+                {otpSuccessMsg && (
+                  <div className="p-3 bg-neutral-50 text-emerald-800 text-[11px] font-bold border border-emerald-600/20 uppercase tracking-wide">
+                    {otpSuccessMsg}
+                  </div>
+                )}
+
+                {otpErrorMsg && (
+                  <div className="p-3 bg-red-50 text-[#ca0013] text-[11px] font-bold border border-[#ca0013]/20 uppercase tracking-wide">
+                    {otpErrorMsg}
+                  </div>
+                )}
+
+                {!isVerifyingOtp ? (
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider">
+                      New Phone Number
+                    </label>
+                    <div className="flex select-none">
+                      <select
+                        value={selectedCountryCode}
+                        onChange={(e) => setSelectedCountryCode(e.target.value)}
+                        className="text-xs p-3 bg-white border border-[#b7c6c2]/60 border-r-0 rounded-none focus:outline-none focus:border-[#ca0013] text-[#000201] font-bold cursor-pointer w-[95px] h-[42px] appearance-none"
+                        style={{
+                          backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23111\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e")',
+                          backgroundRepeat: 'no-repeat',
+                          backgroundPosition: 'right 8px center',
+                          backgroundSize: '12px',
+                          paddingRight: '22px'
+                        }}
+                      >
+                        {countryCodes.map((c) => (
+                          <option key={c.code} value={c.code}>
+                            {c.flag} {c.code}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="text"
+                        required
+                        value={editPhoneBody}
+                        onChange={(e) => setEditPhoneBody(e.target.value.replace(/[^\d\s-]/g, ''))}
+                        className="flex-grow text-xs p-3 bg-white border border-[#b7c6c2]/60 rounded-none focus:outline-none focus:border-[#ca0013] text-[#000201] font-medium h-[42px]"
+                        placeholder="e.g. 98765 43210"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider">
+                      Verification Code
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={6}
+                      value={enteredOtp}
+                      onChange={(e) => setEnteredOtp(e.target.value.replace(/\D/g, ''))}
+                      className="w-full text-center text-lg tracking-[8px] p-3 bg-white border border-[#b7c6c2]/60 rounded-none focus:outline-none focus:border-[#ca0013] text-[#000201] font-black font-mono"
+                      placeholder="000000"
+                    />
+                    {showOtpHint && (
+                      <p className="text-[10px] text-amber-600 font-bold uppercase tracking-wider mt-1.5 animate-pulse">
+                        Please enter the simulated code: 123456
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <div className="pt-2 flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isVerifyingOtp) {
+                        setIsVerifyingOtp(false);
+                      } else {
+                        setChangeMode('none');
+                      }
+                    }}
+                    className="flex-1 py-3 text-xs font-bold text-[#747874] bg-neutral-100 hover:bg-neutral-200 transition-colors uppercase tracking-wider rounded-none text-center"
+                  >
+                    {isVerifyingOtp ? 'Back' : 'Cancel'}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSendingOtp}
+                    className="flex-1 py-3 text-xs font-bold text-white bg-[#ca0013] hover:bg-[#b00010] transition-colors uppercase tracking-wider rounded-none text-center disabled:opacity-50"
+                  >
+                    {isSendingOtp ? 'Sending...' : isVerifyingOtp ? 'Verify & Update' : 'Send Code'}
+                  </button>
+                </div>
+              </form>
             )}
 
           </div>
@@ -1633,23 +1692,16 @@ export default function SettingsScreen() {
 
                         key={lang.name}
 
-                        onClick={() => {
+                        onClick={async () => {
 
                           setSelectedLanguage(`${lang.name} (${lang.nativeName})`);
 
                           setIsSelectingLanguage(false);
 
-                          setToastTitle(t('Language Updated'));
-
-                          setToastMessage(t('Language Saved Successfully!'));
-
-                          setShowToast(true);
-
-                          setTimeout(() => {
-
-                            setShowToast(false);
-
-                          }, 2500);
+                          await Dialog.alert({
+                            title: t('Language Updated'),
+                            message: t('Language Saved Successfully!')
+                          });
 
                         }}
 
@@ -1777,13 +1829,19 @@ export default function SettingsScreen() {
                     type="button"
                     onClick={handlePickProfileImage}
                     disabled={isUploadingPic}
-                    className="relative w-24 h-24 rounded-none overflow-hidden border-2 border-[#ca0013] bg-neutral-100 flex items-center justify-center shadow-md group cursor-pointer"
+                    className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-[#ca0013] bg-neutral-100 flex items-center justify-center shadow-md group cursor-pointer text-[#000201]"
                   >
-                    <img 
-                      src={editAdvProfilePic || "https://lh3.googleusercontent.com/aida-public/AB6AXuCV47DaBxqfxLcnTdUs7O5G3JIsjwPauCvXb65mPkf4w3sSOMK7Mfswubt2peFwRUMXRVl07aCOLepPbM9ushB06_TJ5uPbDBsFUwlNT1lYkE9jGHGAHwk2jH4uAMz6E7G5dj6tFhl6hXdDBxLcTGO-pSjbL6CvN4q5FhRXUkyVWXWpnFXbUlH2P4GLVzV9kTDTFeWcNJsMNL6qquQ2AG7Oycppt7oubV1ijhJwK45HmpNE8LwCj2Tu38x-q0t8w2LixMRMl9mfH-I"}
-                      alt="Profile Picture"
-                      className={`w-full h-full object-cover transition-opacity ${isUploadingPic ? 'opacity-50' : 'group-hover:opacity-80'}`}
-                    />
+                    {editAdvProfilePic ? (
+                      <img 
+                        src={editAdvProfilePic}
+                        alt="Profile Picture"
+                        className={`w-full h-full object-cover rounded-full transition-opacity ${isUploadingPic ? 'opacity-50' : 'group-hover:opacity-80'}`}
+                      />
+                    ) : (
+                      <span className="text-3xl font-black font-headline uppercase">
+                        {registeredUser?.name ? registeredUser.name.charAt(0) : 'U'}
+                      </span>
+                    )}
                     
                     {/* Hover Overlay for Picking Image */}
                     {!isUploadingPic && (
@@ -1811,8 +1869,8 @@ export default function SettingsScreen() {
                       setEditAdvBio("Certified UAV Drone Pilot with 5+ years of experience in agricultural surveying, thermal inspection, and high-resolution orthomosaic mapping.");
                       setEditAdvDob("1994-05-12");
                       setEditAdvInsta("https://instagram.com/alex_mercer_uav");
-                      setEditAdvLinkedin("https://linkedin.com/company/misd-automation");
-                      setEditAdvOther("https://misdautomation.in");
+                      setEditAdvLinkedin("https://linkedin.com/company/bharataero");
+                      setEditAdvOther("https://bharataero.in");
                     }}
                     className="mt-1 px-3 py-1.5 text-[9px] font-headline font-bold uppercase tracking-wider bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-400 rounded-none border border-neutral-300 dark:border-neutral-700 cursor-pointer transition-colors"
                   >
@@ -1988,7 +2046,95 @@ export default function SettingsScreen() {
 
                 </div>
 
+                {isPilot && (
+                  <>
+                    {/* Mission Cost */}
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider">
+                        {t('Mission Cost (₹)')}
+                      </label>
+                      <input
+                        type="number"
+                        value={editAdvPrice}
+                        onChange={(e) => setEditAdvPrice(e.target.value)}
+                        className="w-full text-xs p-3 bg-white border border-[#b7c6c2]/60 rounded-none focus:outline-none focus:border-[#ca0013] text-[#000201] font-medium"
+                        placeholder="e.g. 150"
+                      />
+                    </div>
 
+                    {/* Deploy Base / Location */}
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider">
+                        {t('Deploy Base (Location)')}
+                      </label>
+                      <input
+                        type="text"
+                        value={editAdvLocation}
+                        onChange={(e) => setEditAdvLocation(e.target.value)}
+                        className="w-full text-xs p-3 bg-white border border-[#b7c6c2]/60 rounded-none focus:outline-none focus:border-[#ca0013] text-[#000201] font-medium"
+                        placeholder="e.g. Available Nationwide"
+                      />
+                    </div>
+
+                    {/* Specialty Focus */}
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider">
+                        {t('Specialty Focus')}
+                      </label>
+                      <input
+                        type="text"
+                        value={editAdvSpecialty}
+                        onChange={(e) => setEditAdvSpecialty(e.target.value)}
+                        className="w-full text-xs p-3 bg-white border border-[#b7c6c2]/60 rounded-none focus:outline-none focus:border-[#ca0013] text-[#000201] font-medium"
+                        placeholder="e.g. Certified Drone Operator"
+                      />
+                    </div>
+
+                    {/* UAV Platform / Drone Model */}
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider">
+                        {t('UAV Platform (Drone Model)')}
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={selectedDroneSelect}
+                          onChange={(e) => {
+                            setSelectedDroneSelect(e.target.value);
+                            if (e.target.value !== 'Other') {
+                              setCustomDroneInput('');
+                            }
+                          }}
+                          className="w-full text-xs p-3 bg-white border border-[#b7c6c2]/60 rounded-none focus:outline-none focus:border-[#ca0013] text-[#000201] font-medium appearance-none pr-10 cursor-pointer"
+                        >
+                          {STANDARD_DRONES.map(d => (
+                            <option key={d} value={d}>{d}</option>
+                          ))}
+                          <option value="Other">Other (Specify below...)</option>
+                        </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Custom Drone input */}
+                    {selectedDroneSelect === 'Other' && (
+                      <div className="space-y-1 animate-fade-in">
+                        <label className="block text-[10px] font-bold text-[#747874] uppercase tracking-wider">
+                          {t('Specify Custom Drone Model')}
+                        </label>
+                        <input
+                          type="text"
+                          value={customDroneInput}
+                          onChange={(e) => setCustomDroneInput(e.target.value)}
+                          className="w-full text-xs p-3 bg-white border border-[#b7c6c2]/60 rounded-none focus:outline-none focus:border-[#ca0013] text-[#000201] font-medium"
+                          placeholder="e.g. DJI Phantom 4 RTK"
+                          required={selectedDroneSelect === 'Other'}
+                        />
+                      </div>
+                    )}
+                  </>
+                )}
 
                 {/* Footer Buttons */}
 

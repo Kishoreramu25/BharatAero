@@ -34,25 +34,23 @@ export default function PilotProfile() {
       {/* Main Content */}
       <main className="flex-grow overflow-y-auto no-scrollbar pb-6">
         
-        {/* Banner Image */}
-        <div className="h-44 w-full relative bg-neutral-200">
-          <img 
-            src={pilot.bannerImage} 
-            alt="Pilot operations banner" 
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-        </div>
-
-        {/* Profile Card Summary Float */}
-        <div className="px-5 -mt-12 relative z-10">
+        {/* Profile Card Summary */}
+        <div className="px-5 pt-5 relative z-10">
           <div className="bg-white rounded-none border border-[#b7c6c2]/25 p-5 shadow-[0_15px_30px_rgba(23,30,25,0.05)]">
             <div className="flex gap-4">
-              <img 
-                src={pilot.image} 
-                alt={pilot.name} 
-                className="w-16 h-16 rounded-none object-cover border-2 border-white shadow-sm"
-              />
+              <div className="w-16 h-16 rounded-none bg-neutral-100 border border-[#b7c6c2]/20 flex-shrink-0 flex items-center justify-center text-[#000201]">
+                {pilot.image ? (
+                  <img 
+                    src={pilot.image} 
+                    alt={pilot.name} 
+                    className="w-full h-full object-cover border-2 border-white shadow-sm"
+                  />
+                ) : (
+                  <span className="text-lg font-black font-headline uppercase">
+                    {pilot.name.charAt(0)}
+                  </span>
+                )}
+              </div>
               <div className="flex-1 min-w-0">
                 <h2 className="text-lg font-headline font-black text-[#000201] truncate">{pilot.name}</h2>
                 <p className="text-xs font-body text-[#747874] mt-0.5">{pilot.role}</p>
@@ -67,7 +65,7 @@ export default function PilotProfile() {
             <div className="grid grid-cols-2 gap-3 border-t border-[#b7c6c2]/15 mt-4 pt-4 text-center">
               <div>
                 <p className="text-[10px] font-headline font-bold text-[#747874] uppercase tracking-wider">Mission Cost</p>
-                <p className="text-base font-headline font-black text-[#ca0013] mt-0.5">${pilot.price}</p>
+                <p className="text-base font-headline font-black text-[#ca0013] mt-0.5">₹{pilot.price}</p>
               </div>
               <div className="border-l border-[#b7c6c2]/15">
                 <p className="text-[10px] font-headline font-bold text-[#747874] uppercase tracking-wider">Deploy Base</p>

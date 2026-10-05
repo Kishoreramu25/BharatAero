@@ -45,7 +45,7 @@ export default function ClientDashboard() {
     { name: 'Profile', icon: <User size={20} />, action: () => { setAutoOpenProfileModal(true); navigate('settings', 'settings'); } },
   ];
 
-  if (loading) {
+  if (loading && !user) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center bg-white h-full">
         <div className="w-10 h-10 border-4 border-[#ca0013] border-t-transparent rounded-full animate-spin"></div>
@@ -62,7 +62,7 @@ export default function ClientDashboard() {
         <div>
           <p className="text-xs text-[#747874] font-bold uppercase tracking-wider mb-1">Welcome back,</p>
           <h1 className="text-3xl font-black font-headline tracking-tight text-[#000201] truncate max-w-[200px]">
-            {user?.name || 'Commander'}
+            {user?.name || registeredUser?.name || 'Kumar (Landowner)'}
           </h1>
         </div>
         <div className="flex items-center gap-4">
@@ -75,17 +75,23 @@ export default function ClientDashboard() {
             )}
           </div>
           <div 
-            className="w-14 h-14 overflow-hidden cursor-pointer"
+            className="w-14 h-14 overflow-hidden cursor-pointer rounded-full border-2 border-[#ca0013] flex items-center justify-center bg-neutral-100 text-[#000201]"
             onClick={() => {
               setAutoOpenProfileModal(true);
               navigate('settings', 'settings');
             }}
           >
-            <img 
-              alt="Profile" 
-              className="w-full h-full object-cover rounded-full" 
-              src={user?.profile_pic_url || "https://lh3.googleusercontent.com/aida-public/AB6AXuDGrwU0dTkzQisGLCQ3Z3mps07VaFQJKjagxF4FcDioG-eju5wXCHSsa_pGmDiFpofHEfWoN-nQk-ICp7MsX9ZoQ3_o2RFgBa9Cho1JEefTaxQcMOCyn9Vk2fY0jj5-iUlld6EMuBuT8R2Uc-7cTMaMd5kjV8YbWblNVAmBrx-APuvW1_rOm9AbAB4a-n1nAcDTmXh7nTuroxKoZpqFJoaCI72CuCKhMPo1a0wBO4I1r0apSp4EPzn-40NI1kgkEESaJOT4fufcyJk"}
-            />
+            {user?.profile_pic_url ? (
+              <img 
+                alt="Profile" 
+                className="w-full h-full object-cover rounded-full" 
+                src={user.profile_pic_url}
+              />
+            ) : (
+              <span className="text-lg font-black font-headline uppercase">
+                {user?.name ? user.name.charAt(0) : 'C'}
+              </span>
+            )}
           </div>
         </div>
       </header>
@@ -100,6 +106,7 @@ export default function ClientDashboard() {
             {quickLinks.map((link, i) => (
               <div 
                 key={i}
+                id={`quick-link-${link.name.toLowerCase().replace(' ', '-')}`}
                 onClick={link?.action}
                 className="flex flex-col items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity min-w-[60px]"
               >

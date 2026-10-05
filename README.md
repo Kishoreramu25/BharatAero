@@ -1,222 +1,161 @@
-# 🚁 BharatAero - Drone Pilot Booking Platform
+# 🚁 BharatAero — Unified Platform
 
-Professional drone pilot booking platform with secure authentication, real-time bookings, and complete payment processing.
-
-## 🌐 Live Demo
-
-**Visit the project overview:** [https://kishoreramu25.github.io/BharatAero/](https://kishoreramu25.github.io/BharatAero/)
-
-## 📊 Project Status
-
-✅ **Production Ready**
-- Security Score: **100/100**
-- Quality Score: **97/100**
-- Zero Vulnerabilities
-- All Tests Passed
-
-## 🎯 Features
-
-### For Customers
-- User registration (email/phone/Google)
-- OTP-based secure login
-- Browse available drone pilots
-- View pilot ratings & reviews
-- Book pilots for specific dates
-- Secure payment processing
-- Track booking status in real-time
-- Rate & review pilots
-- Real-time notifications
-
-### For Pilots
-- Professional profile management
-- License & certification uploads
-- Availability scheduling
-- Booking management
-- Earnings tracking
-- Customer ratings overview
-- Document management
-
-## 🛠️ Technology Stack
-
-**Frontend:**
-- React 19
-- Vite
-- Capacitor (Mobile)
-- TailwindCSS
-- React Router
-
-**Backend:**
-- Node.js
-- Express.js
-- Supabase (PostgreSQL)
-- Redis
-- JWT Authentication
-
-**Services:**
-- Resend (Email)
-- Twilio (SMS)
-- Google OAuth
-- Razorpay (Payments)
-
-## 📁 Project Structure
-
-```
-BharatAero/
-├── frontend/          (React + Capacitor App)
-│   ├── src/          (15+ screens, 40+ components)
-│   ├── android/      (APK builds)
-│   └── package.json
-├── backend/          (Node.js + Express API)
-│   ├── src/          (50+ API functions)
-│   │   ├── services/supabaseService.js
-│   │   ├── controllers/
-│   │   ├── middleware/
-│   │   └── routes/
-│   └── package.json
-├── database/         (PostgreSQL Schema)
-│   ├── schemas/
-│   │   ├── supabase_complete_schema.sql
-│   │   └── supabase_full_stack_fixes.sql
-│   ├── migrations/
-│   └── seeds/
-├── docs/            (GitHub Pages)
-├── .github/workflows/ (CI/CD)
-└── README.md
-```
-
-## 📊 Database
-
-- **13 Tables:** users, pilots, pilot_ratings, bookings, otp_verification, transactions, notifications, availability_slots, documents, audit_logs, booking_status_history, pilot_verification_history, complaints, refunds
-- **36+ Performance Indexes**
-- **13 RLS Security Policies**
-- **9 Automatic Triggers**
-- **5 Stored Procedures**
-- **Complete Audit Trail**
-
-## 🔐 Security
-
-✅ Password hashing (Salt + PBKDF2, 100k iterations)
-✅ OTP (Crypto-secure generation)
-✅ JWT authentication
-✅ Rate limiting (3 req/min on OTP)
-✅ CSRF protection
-✅ Security headers (HSTS, etc.)
-✅ Input validation & sanitization
-✅ SQL injection prevention
-✅ XSS protection
-✅ RLS policies for data isolation
-✅ Encryption at rest
-✅ HTTPS/TLS 1.3 enforcement
-
-## 🚀 Ready For
-
-- ✅ PlayStore Upload
-- ✅ AppStore Upload
-- ✅ Production Deployment
-- ✅ 1M+ Concurrent Users
-- ✅ Real-time Operations
-- ✅ Payment Processing
-- ✅ GDPR Compliance
-- ✅ Financial Audits
-
-## 📈 Metrics
-
-| Metric | Score | Status |
-|--------|-------|--------|
-| Security | 100/100 | ✅ Excellent |
-| Code Quality | 95/100 | ✅ Excellent |
-| Performance | 90/100 | ✅ Excellent |
-| Database Design | 100/100 | ✅ Excellent |
-| Scalability | 95/100 | ✅ Excellent |
-| **Overall** | **97/100** | **✅ Production Ready** |
-
-## 📋 Audit Summary
-
-**Security Audit:** ✅ Complete
-- 12 critical issues found and fixed
-- Zero vulnerabilities remaining
-- OWASP compliant
-
-**Code Review:** ✅ Complete
-- 40+ year veteran standards
-- All security best practices implemented
-- Production-grade code quality
-
-**Database Design:** ✅ Complete
-- 13 tables with relationships
-- RLS policies for security
-- Indexes for performance
-- Triggers for automation
-
-**Penetration Testing:** ✅ Passed
-- SQL injection: NOT vulnerable
-- XSS injection: NOT vulnerable
-- CSRF: NOT vulnerable
-- Authentication bypass: NOT vulnerable
-
-## 🚀 Quick Start
-
-### Clone Repository
-```bash
-git clone https://github.com/Kishoreramu25/BharatAero.git
-cd BharatAero
-```
-
-### Backend Setup
-```bash
-cd backend
-npm install
-npm run dev
-```
-
-### Frontend Setup
-```bash
-cd frontend
-npm install
-npm start
-```
-
-### Build APK
-```bash
-cd frontend
-npm run build:mobile
-cd android
-./gradlew bundleRelease
-```
-
-## 📚 Documentation
-
-All detailed documentation is available in the repository:
-- Security audit reports
-- Setup guides
-- API documentation
-- Database schema
-- Testing guides
-- Deployment instructions
-
-## 🔗 Links
-
-- **GitHub:** https://github.com/Kishoreramu25/BharatAero
-- **Live Demo:** https://kishoreramu25.github.io/BharatAero/
-- **Author:** [Kishoreramu25](https://github.com/Kishoreramu25)
-
-## 📞 Support
-
-For issues, questions, or feedback, please use the GitHub Issues section.
-
-## ✅ Verdict
-
-**Status:** APPROVED FOR IMMEDIATE PRODUCTION LAUNCH
-
-All systems are:
-- ✅ Tested
-- ✅ Verified
-- ✅ Secured
-- ✅ Documented
-- ✅ Production-Ready
+> **BharatAero** is an on-demand marketplace connecting agricultural landowners and enterprises with certified commercial drone pilots. Just like booking a ride, landowners can request crop spraying, aerial health surveys, and multispectral imaging in seconds, while licensed pilots receive broadcasts, accept missions, and get paid.
 
 ---
 
-**BharatAero** | Professional Drone Pilot Booking Platform | Production Ready ✅
+## 🏗️ Humanized Repository Structure
 
-*Last Updated: June 17, 2026*
+The project is structured as a clean, decoupled monorepo designed for instant developer onboarding:
+
+```
+BharatAero/
+├── frontend/                  # React 19 + Vite + TailwindCSS Web & Mobile Client
+│   ├── android/               # Native Android project (Capacitor)
+│   ├── ios/                   # Native iOS project (Capacitor)
+│   ├── assets/                # App icon & splash screen masters
+│   ├── public/                # Vite static assets (logo, icons/, manifest.webmanifest)
+│   ├── scripts/               # Frontend maintenance scripts (Sharp logo converter, storage verify)
+│   ├── src/
+│   │   ├── components/        # Reusable UI components (BottomNav, SimulatorFrame, ImageCropper)
+│   │   ├── context/           # Global state management (AppContext)
+│   │   ├── hooks/             # Custom React lifecycle hooks (useImageLoader, useRouterPrefetch)
+│   │   ├── screens/           # 18 domain-driven screens (Login, Dashboards, Booking, Settings)
+│   │   ├── utils/             # Utilities (authLogic, SecureStorage, translations, perfMonitor)
+│   │   ├── App.jsx            # Screen routing & flow state machine
+│   │   ├── supabase.js        # Supabase JS client configuration
+│   │   └── useBharatAero.ts   # Unified data integration hook
+│   ├── capacitor.config.json  # Mobile native wrapper configuration
+│   ├── package.json           # Frontend dependencies & build commands
+│   ├── vite.config.js         # Vite bundler, proxy configuration & compression plugins
+│   └── README.md              # Dedicated frontend developer guide
+│
+├── backend/                   # Node.js + Express REST API Server
+│   ├── src/
+│   │   ├── config/            # Database pool & environment variables
+│   │   ├── controllers/       # HTTP request sanitization & response mapping
+│   │   ├── middleware/        # Security headers, JWT auth, and rate limiters
+│   │   ├── repositories/      # Data access layer (PostgreSQL / Supabase queries)
+│   │   ├── routes/            # REST API route declarations (/api/pilots, /api/bookings)
+│   │   ├── services/          # Business logic, notifications, and transactions
+│   │   ├── utils/             # Helper utilities
+│   │   └── app.js             # Express application initialization & middleware pipeline
+│   ├── scripts/               # Database management scripts (migrations, schema check, wipe_db)
+│   ├── package.json           # Backend dependencies & scripts
+│   └── README.md              # Dedicated backend developer guide
+│
+├── media/                     # Official demo recordings & generation tooling
+│   ├── BharatAero_Official_Demo.mp4  # High-definition demo video (4.5 MB)
+│   ├── BharatAero_Official_Demo.webm # Optimized WebM demo video (4.0 MB)
+│   └── scripts/               # Automation scripts for recording & voiceover
+│       ├── generate_audio.py  # Edge TTS multilingual voice synthesis pipeline
+│       └── record_full_demo.py # Playwright headless dual-login recording engine
+│
+├── docs/                      # Documentation & design artifacts
+│   ├── index.html             # Project landing page (hosted on GitHub Pages)
+│   └── legacy_mockups/        # Archive of original HTML prototypes & UI design references
+│
+├── .github/                   # CI/CD automation workflows
+├── package.json               # Root monorepo scripts & unified runner
+├── run-dev.js                 # Dual-service concurrent dev server launcher
+├── vercel.json                # Vercel deployment build configuration
+└── README.md                  # This file
+```
+
+---
+
+## ⚡ Quickstart (Get Running in 60 Seconds)
+
+### 1. Prerequisites
+- **Node.js** (v18.0.0 or higher)
+- **npm** (v9.0.0 or higher)
+
+### 2. Install All Dependencies
+Install both backend and frontend dependencies in one command:
+```bash
+npm run install-all
+```
+
+### 3. Launch Development Environment
+Run the unified dev runner:
+```bash
+npm run dev
+```
+
+This single command boots both services simultaneously with color-coded terminal logs:
+- 🌐 **Frontend Client:** [http://localhost:3000](http://localhost:3000)
+- ⚙️ **Backend API:** [http://localhost:5000](http://localhost:5000) (Proxy accessible via `/api`)
+
+---
+
+## 👥 How the System Works: Dual-User Flows
+
+BharatAero features two fully integrated personas:
+
+### 1. Landowner Flow (e.g., Kumar)
+1. **Login:** Selects **"I Need Drone Services"**, signs in via Phone OTP or Email.
+2. **Browse:** Searches available pilots filtered by location, rating, and UAV equipment.
+3. **Configure & Book:** Selects required service (e.g., *50-Acre Paddy Crop Spraying*), drops a GPS pin on the farm, selects flight date, and broadcasts the mission request.
+4. **Track:** Monitors mission status in real time with automated notification updates.
+
+### 2. Certified Pilot Flow (e.g., Kishore)
+1. **Login:** Selects **"Certified Pilot"**, signs in to the pilot account.
+2. **Mission Board:** Live mission board alerts the pilot to new flight broadcasts nearby.
+3. **Accept & Fly:** Pilot inspects acreage, chemical payloads, and location, accepts the booking, and navigates to the field.
+4. **Earnings & Analytics:** Tracks completed flight hours, customer ratings, and automated payouts via the Earnings Overview.
+
+---
+
+## 🛠️ Root Workspace Commands
+
+| Command | Purpose |
+| :--- | :--- |
+| `npm run dev` | Starts both Frontend (`:3000`) and Backend (`:5000`) in parallel |
+| `npm run dev:frontend` | Runs only the Vite frontend dev server |
+| `npm run dev:backend` | Runs only the Express backend dev server |
+| `npm run install-all` | Installs dependencies for both `frontend/` and `backend/` |
+| `npm run frontend:build` | Compiles optimized, compressed production build into `frontend/dist` |
+
+---
+
+## 📱 Mobile App (Capacitor)
+
+The frontend is fully native-ready. To test or compile for iOS and Android:
+
+```bash
+cd frontend
+npm run build:mobile       # Builds web bundle & synchronizes native assets
+npm run cap:open:android   # Opens project in Android Studio
+npm run cap:open:ios       # Opens project in Xcode
+```
+
+---
+
+## 🎬 Product Demo Video
+
+You can find the high-definition product walkthrough videos directly in the repository:
+- **MP4 Format:** [media/BharatAero_Official_Demo.mp4](media/BharatAero_Official_Demo.mp4)
+- **WebM Format:** [media/BharatAero_Official_Demo.webm](media/BharatAero_Official_Demo.webm)
+
+To reproduce the automated live demo video recording with Playwright and Edge-TTS voice synthesis:
+```bash
+# Ensure frontend dev server is running on :3000
+python media/scripts/record_full_demo.py
+```
+
+---
+
+## 🔐 Security & Database
+
+- **Data Isolation:** Enforced via PostgreSQL Row-Level Security (RLS) policies on Supabase.
+- **Authentication:** Crypto-secure OTP validation, JWT session handling, and Google OAuth.
+- **Layered Architecture:** Strict separation of concerns adhering to the Controller ➔ Service ➔ Repository pattern.
+
+---
+
+## 🤝 Contributing & Code Guidelines
+
+1. Place all React UI, styles, and mobile features inside `frontend/src/`.
+2. Place all server logic, database repositories, and endpoints inside `backend/src/`.
+3. Keep root free of transient build artifacts or scratch files.
+4. Run `npm run frontend:build` before pushing to verify bundle compilation.

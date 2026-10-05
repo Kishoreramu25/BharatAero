@@ -1,5 +1,8 @@
 export const translations = {
   'English': {
+    'Personal Details': 'Personal Details',
+    'Change Personal Details': 'Change Personal Details',
+    'Edit Personal Details': 'Edit Personal Details',
     'Account Settings': 'Account Settings',
     'Preferences': 'Preferences',
     'Region Language': 'Region Language',
@@ -84,6 +87,9 @@ export const translations = {
     'Fleet Manager': 'Fleet Manager'
   },
   'Hindi': {
+    'Personal Details': 'व्यक्तिगत विवरण',
+    'Change Personal Details': 'व्यक्तिगत विवरण बदलें',
+    'Edit Personal Details': 'व्यक्तिगत विवरण संपादित करें',
     'Account Settings': 'खाता सेटिंग',
     'Preferences': 'प्राथमिकताएं',
     'Region Language': 'क्षेत्रीय भाषा',

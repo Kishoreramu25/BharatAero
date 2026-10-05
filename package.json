@@ -2,8 +2,12 @@
   "name": "bharataero-workspace",
   "private": true,
   "version": "1.0.0",
-  "description": "Root workspace workspace launcher for BharatAero",
+  "description": "Unified workspace launcher for BharatAero",
   "scripts": {
+    "dev": "node run-dev.js",
+    "dev:all": "node run-dev.js",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
     "frontend:install": "npm install --prefix frontend",
     "frontend:build": "npm run build --prefix frontend",
     "frontend:dev": "npm run dev --prefix frontend",

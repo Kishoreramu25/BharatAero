@@ -25,6 +25,10 @@ export interface User {
   other_url: string | null;
   profile_pic_url: string | null;
   credits: number;
+  price?: number | null;
+  location?: string | null;
+  specialty?: string | null;
+  drone_model?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -83,6 +87,7 @@ export const upsertUser = async (
   email: string,
   name: string,
   role: UserRole = 'client',
+  phone?: string,
   profilePicUrl?: string
 ) => {
   const { data, error } = await supabase
@@ -93,6 +98,7 @@ export const upsertUser = async (
         email,
         name,
         role,
+        phone: phone || null,
         profile_pic_url: profilePicUrl || null,
       },
       { onConflict: 'id' }
@@ -211,6 +217,12 @@ export const uploadProfilePicture = async (userId: string, base64Data: string, f
       actualBase64 = parts[1];
     }
 
+    // Fix padding and remove whitespaces which can crash atob in WebViews
+    actualBase64 = actualBase64.replace(/\s/g, '');
+    while (actualBase64.length % 4 > 0) {
+      actualBase64 += '=';
+    }
+    
     // Convert base64 to byte array
     const byteCharacters = atob(actualBase64);
     const byteArrays = [];
@@ -226,7 +238,9 @@ export const uploadProfilePicture = async (userId: string, base64Data: string, f
     }
     
     const blob = new Blob(byteArrays, { type: mimeType });
-    const fileName = `${userId}-${Date.now()}.${mimeType.split('/')[1] || fileExtension}`;
+    
+    // Put inside a folder matching the userId to satisfy common RLS policies
+    const fileName = `${userId}/${Date.now()}.${mimeType.split('/')[1] || fileExtension}`;
     
     // Upload to 'profile' bucket
     const { data, error } = await supabase.storage

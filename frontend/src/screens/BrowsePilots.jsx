@@ -19,14 +19,10 @@ export default function BrowsePilots() {
     // Proactively prefetch the pilot profile JS bundle
     prefetchScreen('pilot_profile');
     
-    // Proactively preload the pilot's avatar and banner images into cache
+    // Proactively preload the pilot's avatar into cache if present
     if (pilot.image) {
       const img = new Image();
       img.src = pilot.image;
-    }
-    if (pilot.bannerImage) {
-      const img = new Image();
-      img.src = pilot.bannerImage;
     }
   };
 
@@ -79,29 +75,22 @@ export default function BrowsePilots() {
               onTouchStart={() => handlePrefetch(pilot)}
               className="bg-white rounded-2xl border border-[#b7c6c2]/25 overflow-hidden shadow-[0_12px_24px_rgba(23,30,25,0.03)] cursor-pointer hover:border-neutral-300 transition-all flex flex-col"
             >
-              {/* Card Banner Image */}
-              <div className="h-32 w-full relative bg-neutral-200">
-                <ProgressiveImage 
-                  src={pilot.bannerImage} 
-                  alt={`${pilot.name} banner`} 
-                  className="w-full h-full"
-                  skeletonHeight="h-32"
-                />
-                <div className="absolute top-3 right-3 bg-[#ca0013] text-white font-headline font-bold text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider shadow">
-                  ${pilot.price} / Mission
-                </div>
-              </div>
-
               {/* Card Contents */}
               <div className="p-4 flex gap-4 relative">
-                {/* Profile Pic Floating */}
-                <div className="w-14 h-14 rounded-xl overflow-hidden border-2 border-white bg-neutral-100 shadow-md -mt-10 relative z-10 flex-shrink-0">
-                  <ProgressiveImage 
-                    src={pilot.image} 
-                    alt={pilot.name} 
-                    className="w-full h-full"
-                    skeletonHeight="h-14"
-                  />
+                {/* Profile Pic */}
+                <div className="w-14 h-14 rounded-xl overflow-hidden border border-[#b7c6c2]/20 bg-neutral-100 shadow-sm flex-shrink-0 flex items-center justify-center text-[#000201]">
+                  {pilot.image ? (
+                    <ProgressiveImage 
+                      src={pilot.image} 
+                      alt={pilot.name} 
+                      className="w-full h-full object-cover"
+                      skeletonHeight="h-14"
+                    />
+                  ) : (
+                    <span className="text-base font-black font-headline uppercase">
+                      {pilot.name.charAt(0)}
+                    </span>
+                  )}
                 </div>
 
                 {/* Pilot text details */}
@@ -109,12 +98,17 @@ export default function BrowsePilots() {
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="font-headline font-bold text-sm text-[#000201] truncate">{pilot.name}</h3>
-                      <p className="text-[10px] font-body text-[#747874] font-medium mt-0.5">{pilot.role}</p>
+                      <p className="text-[10px] font-body text-[#747874] font-medium mt-0.5">{pilot.role === 'pilot' ? 'Certified UAV Pilot' : pilot.role}</p>
                     </div>
-                    {/* Rating */}
-                    <div className="flex items-center gap-0.5 bg-yellow-50 border border-yellow-200/50 rounded px-1.5 py-0.5 text-yellow-700">
-                      <Star size={10} fill="#d97706" className="stroke-[#d97706]" />
-                      <span className="text-[9px] font-bold">{pilot.rating}</span>
+                    {/* Price and Rating Group */}
+                    <div className="flex flex-col items-end gap-1.5">
+                      <span className="text-[10.5px] font-headline font-black text-[#ca0013]">
+                        ₹{pilot.price} / Mission
+                      </span>
+                      <div className="flex items-center gap-0.5 bg-yellow-50 border border-yellow-200/50 rounded px-1.5 py-0.5 text-yellow-700">
+                        <Star size={10} fill="#d97706" className="stroke-[#d97706]" />
+                        <span className="text-[9px] font-bold">{pilot.rating}</span>
+                      </div>
                     </div>
                   </div>
 

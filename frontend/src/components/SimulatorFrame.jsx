@@ -70,7 +70,7 @@ export default function SimulatorFrame() {
   };
 
   return (
-    <div className="h-screen overflow-hidden bg-[#eeebe3] dark:bg-[#0d1510] flex justify-center text-[#1b1c1b] dark:text-[#dce5dc] relative transition-colors duration-300">
+    <div className="h-full overflow-hidden bg-[#eeebe3] dark:bg-[#0d1510] flex justify-center text-[#1b1c1b] dark:text-[#dce5dc] relative transition-colors duration-300">
       
       {/* Background decoration blur bubbles */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
@@ -85,7 +85,7 @@ export default function SimulatorFrame() {
         rather than the browser window, making the interface completely mobile-friendly on desktop!
       */}
       <div 
-        className="w-full max-w-[480px] h-screen bg-background text-on-background shadow-2xl border-x border-[#b7c6c2]/45 dark:border-[#3c4a41]/55 flex flex-col relative z-10 overflow-hidden"
+        className="w-full max-w-[480px] h-full bg-background text-on-background shadow-2xl border-x border-[#b7c6c2]/45 dark:border-[#3c4a41]/55 flex flex-col relative z-10 overflow-hidden"
         style={{ transform: 'translate(0, 0)' }}
       >
         <Suspense fallback={<ScreenLoader />}>

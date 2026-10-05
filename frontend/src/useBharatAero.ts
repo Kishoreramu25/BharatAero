@@ -3,6 +3,8 @@
 // Import these in your screens/components
 
 import { useEffect, useState, useCallback } from 'react';
+// @ts-ignore
+import { useApp } from './context/AppContext';
 import {
   User,
   Booking,
@@ -20,6 +22,10 @@ import {
   getUnreadNotificationCount,
 } from './supabaseQueries';
 
+// Module-level caches for immediate loading of dashboard components across screens
+let memoizedPendingBookings: Booking[] = [];
+const memoizedPilotEarnings: Record<string, any> = {};
+
 // ============================================================================
 // USER HOOKS
 // ============================================================================
@@ -29,8 +35,14 @@ import {
  * Usage: const { user, loading, error } = useCurrentUser(userId);
  */
 export const useCurrentUser = (userId: string | null) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { registeredUser, setRegisteredUser } = useApp() || {};
+  
+  // Use cached user if it matches the requested userId
+  const isCurrentUser = registeredUser && (registeredUser.id === userId || registeredUser.uid === userId);
+  const cachedUser = isCurrentUser ? registeredUser : null;
+
+  const [user, setUser] = useState<User | null>(cachedUser);
+  const [loading, setLoading] = useState(cachedUser ? false : true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -39,22 +51,29 @@ export const useCurrentUser = (userId: string | null) => {
       return;
     }
 
+    if (cachedUser) {
+      setUser(cachedUser);
+    }
+
     const fetchUser = async () => {
       try {
-        setLoading(true);
         const userData = await getCurrentUserProfile(userId);
         setUser(userData);
+        if (userData && isCurrentUser && setRegisteredUser) {
+          setRegisteredUser(userData);
+        }
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch user');
-        setUser(null);
+        if (!cachedUser) {
+          setError(err instanceof Error ? err.message : 'Failed to fetch user');
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchUser();
-  }, [userId]);
+  }, [userId, cachedUser, isCurrentUser, setRegisteredUser]);
 
   return { user, loading, error };
 };
@@ -64,12 +83,15 @@ export const useCurrentUser = (userId: string | null) => {
  * Usage: const { earnings, loading, error } = usePilotEarnings(pilotId);
  */
 export const usePilotEarnings = (pilotId: string | null) => {
-  const [earnings, setEarnings] = useState({
+  const cacheKey = pilotId || 'none';
+  const cached = memoizedPilotEarnings[cacheKey];
+
+  const [earnings, setEarnings] = useState(cached || {
     total: 0,
     bookingCount: 0,
     averagePerBooking: 0,
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(cached ? false : true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -80,19 +102,21 @@ export const usePilotEarnings = (pilotId: string | null) => {
 
     const fetchEarnings = async () => {
       try {
-        setLoading(true);
         const earningsData = await getPilotEarnings(pilotId);
         setEarnings(earningsData);
+        memoizedPilotEarnings[cacheKey] = earningsData;
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch earnings');
+        if (!cached) {
+          setError(err instanceof Error ? err.message : 'Failed to fetch earnings');
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchEarnings();
-  }, [pilotId]);
+  }, [pilotId, cacheKey, cached]);
 
   return { earnings, loading, error };
 };
@@ -106,26 +130,37 @@ export const usePilotEarnings = (pilotId: string | null) => {
  * Usage: const { bookings, loading, error, refetch } = useClientBookings(clientId);
  */
 export const useClientBookings = (clientId: string | null) => {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { bookings: cachedBookings, setBookings: setContextBookings } = useApp() || {};
+  const initialBookings = cachedBookings || [];
+
+  const [bookings, setBookings] = useState<Booking[]>(initialBookings);
+  const [loading, setLoading] = useState(initialBookings.length > 0 ? false : true);
   const [error, setError] = useState<string | null>(null);
 
-  const refetch = useCallback(async () => {
+  const refetch = useCallback(async (showLoading = false) => {
     if (!clientId) return;
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       const data = await fetchClientBookings(clientId);
       setBookings(data);
+      if (setContextBookings) {
+        setContextBookings(data);
+      }
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch bookings');
+      if (initialBookings.length === 0) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch bookings');
+      }
     } finally {
       setLoading(false);
     }
-  }, [clientId]);
+  }, [clientId, setContextBookings, initialBookings.length]);
 
   useEffect(() => {
-    refetch();
+    if (cachedBookings && cachedBookings.length > 0) {
+      setBookings(cachedBookings);
+    }
+    refetch(cachedBookings && cachedBookings.length > 0 ? false : true);
   }, [clientId, refetch]);
 
   return { bookings, loading, error, refetch };
@@ -136,8 +171,11 @@ export const useClientBookings = (clientId: string | null) => {
  * Usage: const { bookings, loading, error } = usePilotBookings(pilotId);
  */
 export const usePilotBookings = (pilotId: string | null) => {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { bookings: cachedBookings, setBookings: setContextBookings } = useApp() || {};
+  const initialBookings = cachedBookings || [];
+
+  const [bookings, setBookings] = useState<Booking[]>(initialBookings);
+  const [loading, setLoading] = useState(initialBookings.length > 0 ? false : true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -146,21 +184,29 @@ export const usePilotBookings = (pilotId: string | null) => {
       return;
     }
 
+    if (cachedBookings && cachedBookings.length > 0) {
+      setBookings(cachedBookings);
+    }
+
     const fetchBookings = async () => {
       try {
-        setLoading(true);
         const data = await getPilotBookings(pilotId);
         setBookings(data);
+        if (setContextBookings) {
+          setContextBookings(data);
+        }
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch bookings');
+        if (initialBookings.length === 0) {
+          setError(err instanceof Error ? err.message : 'Failed to fetch bookings');
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchBookings();
-  }, [pilotId]);
+  }, [pilotId, cachedBookings, setContextBookings, initialBookings.length]);
 
   return { bookings, loading, error };
 };
@@ -170,19 +216,21 @@ export const usePilotBookings = (pilotId: string | null) => {
  * Usage: const { bookings, loading, error } = usePendingBookings();
  */
 export const usePendingBookings = () => {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [bookings, setBookings] = useState<Booking[]>(memoizedPendingBookings);
+  const [loading, setLoading] = useState(memoizedPendingBookings.length > 0 ? false : true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        setLoading(true);
         const data = await getPendingBookings();
         setBookings(data);
+        memoizedPendingBookings = data;
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch bookings');
+        if (memoizedPendingBookings.length === 0) {
+          setError(err instanceof Error ? err.message : 'Failed to fetch bookings');
+        }
       } finally {
         setLoading(false);
       }
@@ -190,7 +238,6 @@ export const usePendingBookings = () => {
 
     fetchBookings();
 
-    // Refetch every 10 seconds for real-time feel
     const interval = setInterval(fetchBookings, 10000);
     return () => clearInterval(interval);
   }, []);
@@ -259,8 +306,11 @@ export const useRealtimeNotifications = (userId: string | null) => {
  * Usage: const { count, loading } = useUnreadNotificationCount(userId);
  */
 export const useUnreadNotificationCount = (userId: string | null) => {
-  const [count, setCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const { notifications } = useApp() || {};
+  const cachedCount = notifications ? notifications.filter((n: any) => !n.read && !n.is_read).length : 0;
+
+  const [count, setCount] = useState(cachedCount);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!userId) {
@@ -270,19 +320,15 @@ export const useUnreadNotificationCount = (userId: string | null) => {
 
     const fetchCount = async () => {
       try {
-        setLoading(true);
         const unreadCount = await getUnreadNotificationCount(userId);
         setCount(unreadCount);
       } catch (err) {
         console.error('Failed to fetch unread count:', err);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchCount();
 
-    // Refetch every 30 seconds
     const interval = setInterval(fetchCount, 30000);
     return () => clearInterval(interval);
   }, [userId]);

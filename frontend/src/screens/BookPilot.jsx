@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { ArrowLeft } from 'lucide-react';
 import { prefetchScreen } from '../hooks/useRouterPrefetch';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 export default function BookPilot() {
   const { navigate, addBooking } = useApp();
@@ -25,55 +27,27 @@ export default function BookPilot() {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapInstance, setMapInstance] = useState(null);
 
-  // Load Leaflet Map CSS/JS via CDN dynamically
-  useEffect(() => {
-    // Proactively prefetch the booking confirmation screen chunk
-    prefetchScreen('booking_confirmed');
-
-    if (window.L) {
-      setMapLoaded(true);
-      return;
-    }
-
-    // Load Leaflet CSS
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-    document.head.appendChild(link);
-
-    // Load Leaflet JS
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    script.async = true;
-    script.onload = () => {
-      setMapLoaded(true);
-    };
-    document.body.appendChild(script);
-  }, []);
-
   // Initialize Map
   useEffect(() => {
-    if (!mapLoaded || !window.L) return;
-
     // Center map on India (e.g. Pune/Mumbai region) by default
     const defaultLat = 18.5204;
     const defaultLng = 73.8567;
 
-    const map = window.L.map('location-map', {
+    const map = L.map('location-map', {
       center: [defaultLat, defaultLng],
       zoom: 13,
       zoomControl: false // custom controls used
     });
 
     // Tile Layers
-    const streetTiles = window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    const streetTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 22,
       maxNativeZoom: 19,
       attribution: '© OpenStreetMap'
     });
 
-    // Using Google Maps Hybrid for Satellite + Road Names + Area Details
-    const satelliteTiles = window.L.tileLayer('http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}', {
+    // Using Google Maps Hybrid for Satellite + Road Names + Area Details (Enforcing HTTPS)
+    const satelliteTiles = L.tileLayer('https://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}', {
       maxZoom: 22,
       maxNativeZoom: 20,
       attribution: '© Google Maps'
@@ -82,18 +56,17 @@ export default function BookPilot() {
     // Add satellite tiles as default (looks premium 4k with street labels)
     satelliteTiles.addTo(map);
 
-    // Default pin marker
-    const customIcon = window.L.icon({
-      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-      iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41]
+    // Custom inline SVG pin marker - works 100% offline & inside compiled packages
+    const customIcon = L.icon({
+      iconUrl: `data:image/svg+xml;utf8,${encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ca0013" width="36" height="36"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>'
+      )}`,
+      iconSize: [36, 36],
+      iconAnchor: [18, 36],
+      popupAnchor: [0, -36]
     });
 
-    const marker = window.L.marker([defaultLat, defaultLng], { icon: customIcon, draggable: true }).addTo(map);
+    const marker = L.marker([defaultLat, defaultLng], { icon: customIcon, draggable: true }).addTo(map);
 
     const updatePositionInfo = async (lat, lng) => {
       const coordsString = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
@@ -129,11 +102,15 @@ export default function BookPilot() {
     });
 
     setMapInstance({ map, marker });
+    setMapLoaded(true);
+
+    // Proactively prefetch the booking confirmation screen
+    prefetchScreen('booking_confirmed');
 
     return () => {
       map.remove();
     };
-  }, [mapLoaded]);
+  }, []);
 
   // Search Address & Move Marker
   const handleSearchLocation = async () => {

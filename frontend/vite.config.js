@@ -51,6 +51,7 @@ export default defineConfig(({ mode }) => ({
     }
   },
   server: {
+    port: 3000,
     proxy: {
       '/api-resend': {
         target: 'https://api.resend.com',
