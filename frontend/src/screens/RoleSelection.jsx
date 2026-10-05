@@ -47,7 +47,7 @@ export default function RoleSelection() {
         </div>
 
         {/* Role Options */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col md:grid md:grid-cols-2 gap-4">
           
           {/* Client Role Card */}
           <div 

@@ -63,7 +63,7 @@ export default function BrowsePilots() {
         </p>
 
         {/* Pilots List */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col md:grid md:grid-cols-2 gap-4">
           {filteredPilots.map((pilot) => (
             <div 
               key={pilot.id}

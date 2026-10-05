@@ -56,10 +56,19 @@
   --spacing-container-padding-desktop: 40px;
 }
 
-/* Base body overrides */
-body {
+/* Base html, body, #root full viewport height rules */
+html,
+body,
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: 100%;
+  width: 100%;
   margin: 0;
   padding: 0;
+}
+
+body {
   font-family: var(--font-body);
   background-color: var(--color-background);
   color: var(--color-on-background);

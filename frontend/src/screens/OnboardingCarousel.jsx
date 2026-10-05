@@ -33,17 +33,17 @@ export default function OnboardingCarousel() {
   };
 
   return (
-    <div className="light flex-1 flex flex-col justify-between bg-background text-on-background h-full relative overflow-hidden select-none">
+    <div className="flex-1 flex flex-col justify-between bg-white dark:bg-[#0d0e12] text-[#1b1c1b] dark:text-[#dce5dc] h-full min-h-screen min-h-[100dvh] relative overflow-hidden select-none">
       
       {/* Top Action Bar */}
       <div className="absolute top-6 left-0 w-full px-6 flex justify-between items-center z-20">
         <div className="flex items-center gap-2">
-          <span className="text-[#000201] font-black text-xl font-headline">Bharat</span>
-          <span className="text-[#444844] font-body opacity-60 text-sm">Aero</span>
+          <span className="text-[#000201] dark:text-white font-black text-xl font-headline">Bharat</span>
+          <span className="text-[#444844] dark:text-neutral-400 font-body opacity-80 text-sm">Aero</span>
         </div>
         <button 
           onClick={() => setCurrentScreen('role_selection')}
-          className="bg-[#b7c6c2]/20 hover:bg-[#b7c6c2]/35 text-[#1b1c1b] font-headline text-[10px] font-bold px-4 py-2 rounded-none uppercase tracking-wider"
+          className="bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-[#1b1c1b] dark:text-white font-headline text-[10px] font-bold px-4 py-2 rounded-full uppercase tracking-wider transition-colors"
         >
           {t('Skip')}
         </button>
@@ -58,26 +58,26 @@ export default function OnboardingCarousel() {
           {slides.map((slide, index) => (
             <div 
               key={index} 
-              className="w-full flex-shrink-0 flex flex-col h-full"
+              className="w-full flex-shrink-0 flex flex-col h-full justify-between"
             >
               {/* Carousel slide image container */}
-              <div className="relative w-full h-[55%] overflow-hidden bg-neutral-200">
+              <div className="relative w-full h-[52vh] overflow-hidden bg-neutral-100 dark:bg-neutral-900">
                 <img 
                   className="w-full h-full object-cover" 
                   src={slide.image} 
                   alt={slide.title} 
                 />
-                {/* Fade bottom shadow */}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#eeebe3]"></div>
+                {/* Fade bottom shadow seamlessly into background */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-white dark:to-[#0d0e12]"></div>
               </div>
 
               {/* Slide Info Section */}
-              <div className="flex-grow flex flex-col justify-end px-6 pb-6 pt-2">
-                <div className="bg-white border border-[#b7c6c2]/60 rounded-none p-8 flex flex-col gap-3 min-h-[200px] shadow-sm relative z-10">
-                  <h2 className="text-2xl font-headline font-black text-[#000201] tracking-tight">
+              <div className="flex-grow flex flex-col justify-center px-6 py-2">
+                <div className="bg-neutral-50/90 dark:bg-[#16171d] border border-neutral-200/80 dark:border-neutral-800 rounded-2xl p-6 md:p-8 flex flex-col gap-2.5 shadow-sm relative z-10">
+                  <h2 className="text-2xl font-headline font-black text-[#000201] dark:text-white tracking-tight">
                     {slide.title}
                   </h2>
-                  <p className="text-[#444844] font-body text-sm leading-relaxed">
+                  <p className="text-[#444844] dark:text-neutral-400 font-body text-sm leading-relaxed">
                     {slide.desc}
                   </p>
                 </div>
@@ -88,7 +88,7 @@ export default function OnboardingCarousel() {
       </div>
 
       {/* Bottom Controls */}
-      <div className="w-full px-6 pb-6 flex flex-col gap-4 relative z-10">
+      <div className="w-full px-6 pb-8 pt-3 flex flex-col gap-4 relative z-10 bg-white dark:bg-[#0d0e12]">
         
         {/* Slide Indicators */}
         <div className="flex justify-center items-center gap-2.5">
@@ -96,10 +96,10 @@ export default function OnboardingCarousel() {
             <div 
               key={index}
               onClick={() => setCurrentSlide(index)}
-              className={`h-2 cursor-pointer ${
+              className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${
                 index === currentSlide 
                 ? 'w-6 bg-[#ca0013]' 
-                : 'w-2 bg-[#dcd9d8]'
+                : 'w-2 bg-neutral-300 dark:bg-neutral-700'
               }`}
             ></div>
           ))}
@@ -108,12 +108,12 @@ export default function OnboardingCarousel() {
         {/* Primary Action Button */}
         <button 
           onClick={handleNext}
-          className="w-full bg-[#ca0013] text-white py-4 rounded-none font-headline font-bold text-base hover:opacity-95 uppercase tracking-wider"
+          className="w-full bg-[#ca0013] text-white py-4 rounded-xl font-headline font-bold text-base hover:bg-[#b00010] active:scale-[0.99] transition-all uppercase tracking-wider shadow-lg shadow-[#ca0013]/20"
         >
           {currentSlide === slides.length - 1 ? t('Get Started') : t('Next')}
         </button>
 
-        <p className="text-center text-[10px] text-[#747874] font-bold uppercase tracking-widest">
+        <p className="text-center text-[10px] text-[#747874] dark:text-neutral-500 font-bold uppercase tracking-widest">
           {t('Made in India')}
         </p>
       </div>

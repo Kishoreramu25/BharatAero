@@ -69,8 +69,30 @@ export default function SimulatorFrame() {
     }
   };
 
+  // Screen classification for desktop responsiveness
+  const isDashboardOrListing = [
+    'client_dashboard',
+    'pilot_dashboard',
+    'browse_pilots',
+    'pilot_profile',
+    'book_pilot',
+    'booking_confirmed',
+    'my_bookings',
+    'earnings',
+    'availability',
+    'settings',
+    'notifications',
+    'about',
+    'privacy',
+    'terms'
+  ].includes(currentScreen);
+
+  const responsiveMaxWidth = isDashboardOrListing
+    ? 'md:max-w-4xl lg:max-w-5xl xl:max-w-6xl'
+    : 'md:max-w-xl lg:max-w-2xl';
+
   return (
-    <div className="h-full overflow-hidden bg-[#eeebe3] dark:bg-[#0d1510] flex justify-center text-[#1b1c1b] dark:text-[#dce5dc] relative transition-colors duration-300">
+    <div className="min-h-screen min-h-[100dvh] w-full bg-[#f4f2ee] dark:bg-[#080a0e] flex justify-center text-[#1b1c1b] dark:text-[#dce5dc] relative transition-colors duration-300 overflow-x-hidden">
       
       {/* Background decoration blur bubbles */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
@@ -79,13 +101,12 @@ export default function SimulatorFrame() {
       </div>
 
       {/* 
-        Sleek Centered Mobile Viewport 
-        Note: Using style transform 'translate(0, 0)' is a standard CSS containment rule. 
-        It forces all children positioned as 'fixed' to align relative to this wrapper container 
-        rather than the browser window, making the interface completely mobile-friendly on desktop!
+        Responsive App Viewport:
+        - Mobile (< md): 100% full-screen native mobile experience without side borders or gaps
+        - Desktop (>= md): Gracefully expands to wide dashboard or clean centered portal with full vertical reach
       */}
       <div 
-        className="w-full max-w-[480px] h-full bg-background text-on-background shadow-2xl border-x border-[#b7c6c2]/45 dark:border-[#3c4a41]/55 flex flex-col relative z-10 overflow-hidden"
+        className={`w-full ${responsiveMaxWidth} min-h-screen min-h-[100dvh] bg-white dark:bg-[#0d0e12] text-on-background shadow-none md:shadow-2xl md:border-x border-neutral-200 dark:border-neutral-800/80 flex flex-col relative z-10 overflow-hidden`}
         style={{ transform: 'translate(0, 0)' }}
       >
         <Suspense fallback={<ScreenLoader />}>
